@@ -1,13 +1,19 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
+import {
+  GamepadIcon,
+  GemIcon,
+  CrosshairIcon,
+  ShieldIcon,
+  SwordIcon,
+} from "./gaming-icons";
 
 /**
  * Open Duo — Game Spotlight Feed Post — 1080×1350 (4:5)
  * Safe zone: 40px all sides
  *
  * One banner per game with specific tournament details.
- * Style: Gaming HUD with angular panels, circular rings, targeting brackets.
  */
 
 interface GameSpotlightProps {
@@ -30,12 +36,12 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1350, background: "#0a0a12" }}
+      style={{ width: 1080, height: 1350, background: "#1c1435" }}
     >
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
-      {/* Angular color block — shifts per game */}
+      {/* Angular color block */}
       <div
         className="absolute"
         style={{
@@ -44,14 +50,14 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
           left: 0,
           width: "100%",
           height: 400,
-          background: `linear-gradient(${isLoL ? "180deg" : "0deg"}, ${accent}0.08), transparent)`,
+          background: `linear-gradient(${isLoL ? "180deg" : "0deg"}, ${accent}0.14), transparent)`,
           clipPath: isLoL
             ? "polygon(0 0, 100% 0, 100% 60%, 0 100%)"
             : "polygon(0 40%, 100% 0, 100% 100%, 0 100%)",
         }}
       />
 
-      {/* Trapezoid accent */}
+      {/* Trapezoid */}
       <div
         className="absolute"
         style={{
@@ -61,54 +67,54 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
           left: isLoL ? "auto" : 0,
           width: 180,
           height: 260,
-          background: `${accent}0.06)`,
+          background: `${accent}0.1)`,
           clipPath: isLoL
             ? "polygon(30% 0, 100% 0, 100% 100%, 0 100%)"
             : "polygon(0 0, 100% 0, 70% 100%, 0 100%)",
         }}
       />
 
-      {/* ── Circular / ring accents ── */}
+      {/* Large circular ring accents */}
       <div
         className="absolute"
         style={{
-          top: isLoL ? 220 : "auto",
-          bottom: isLoL ? "auto" : 220,
-          right: isLoL ? 40 : "auto",
-          left: isLoL ? "auto" : 40,
+          top: isLoL ? 160 : "auto",
+          bottom: isLoL ? "auto" : 160,
+          right: isLoL ? 10 : "auto",
+          left: isLoL ? "auto" : 10,
+          width: 280,
+          height: 280,
+          borderRadius: "50%",
+          border: `2px solid ${accent}0.18)`,
+        }}
+      />
+      <div
+        className="absolute"
+        style={{
+          top: isLoL ? 230 : "auto",
+          bottom: isLoL ? "auto" : 230,
+          right: isLoL ? 60 : "auto",
+          left: isLoL ? "auto" : 60,
           width: 160,
           height: 160,
           borderRadius: "50%",
-          border: `2px solid ${accent}0.1)`,
+          border: `1px solid ${accent}0.1)`,
         }}
       />
       <div
         className="absolute"
         style={{
-          top: isLoL ? 260 : "auto",
-          bottom: isLoL ? "auto" : 260,
-          right: isLoL ? 80 : "auto",
-          left: isLoL ? "auto" : 80,
-          width: 80,
-          height: 80,
+          top: isLoL ? "auto" : 120,
+          bottom: isLoL ? 120 : "auto",
+          left: isLoL ? 20 : "auto",
+          right: isLoL ? "auto" : 20,
+          width: 240,
+          height: 240,
           borderRadius: "50%",
-          border: `1px solid ${accent}0.06)`,
+          border: `2px solid ${accent}0.14)`,
         }}
       />
-      <div
-        className="absolute"
-        style={{
-          top: isLoL ? "auto" : 180,
-          bottom: isLoL ? 180 : "auto",
-          left: isLoL ? 50 : "auto",
-          right: isLoL ? "auto" : 50,
-          width: 120,
-          height: 120,
-          borderRadius: "50%",
-          border: `2px solid ${accent}0.07)`,
-        }}
-      />
-      {/* Dot accent */}
+      {/* Dot */}
       <div
         className="absolute"
         style={{
@@ -116,12 +122,51 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
           bottom: isLoL ? "auto" : 420,
           left: isLoL ? 70 : "auto",
           right: isLoL ? "auto" : 70,
-          width: 10,
-          height: 10,
+          width: 14,
+          height: 14,
           borderRadius: "50%",
-          background: `${accent}0.2)`,
+          background: `${accent}0.35)`,
         }}
       />
+
+      {/* ===== Gaming iconography ===== */}
+      {isLoL ? (
+        <>
+          <ShieldIcon
+            size={100}
+            color={`${accent}0.22)`}
+            style={{ top: 300, right: 50, transform: "rotate(10deg)" }}
+          />
+          <SwordIcon
+            size={90}
+            color={`${accent}0.2)`}
+            style={{ bottom: 260, left: 30, transform: "rotate(-15deg)" }}
+          />
+          <GemIcon
+            size={70}
+            color={`${accent}0.18)`}
+            style={{ top: 480, left: 90, transform: "rotate(8deg)" }}
+          />
+        </>
+      ) : (
+        <>
+          <CrosshairIcon
+            size={110}
+            color={`${accent}0.22)`}
+            style={{ bottom: 300, right: 40 }}
+          />
+          <GamepadIcon
+            size={100}
+            color={`${accent}0.2)`}
+            style={{ top: 260, left: 30, transform: "rotate(-12deg)" }}
+          />
+          <GemIcon
+            size={70}
+            color={`${accent}0.18)`}
+            style={{ bottom: 460, left: 110, transform: "rotate(10deg)" }}
+          />
+        </>
+      )}
 
       {/* HUD accent bar */}
       <div
@@ -289,7 +334,6 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
             </div>
           </div>
 
-          {/* City */}
           <div className="flex justify-center">
             <span
               className="font-azonix"

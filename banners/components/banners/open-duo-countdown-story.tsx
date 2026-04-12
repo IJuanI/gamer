@@ -1,13 +1,19 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
+import {
+  GamepadIcon,
+  GemIcon,
+  CrosshairIcon,
+  AlienIcon,
+  SwordIcon,
+} from "./gaming-icons";
 
 /**
  * Open Duo — Countdown Story — 1080×1920 (9:16)
  * Safe zone: 250px top/bottom
  *
  * "Faltan X días" urgency banner. Giant number as visual anchor.
- * Style: Gaming HUD with angular panels, circular rings, targeting brackets.
  */
 export function OpenDuoCountdownStory({
   event,
@@ -19,7 +25,7 @@ export function OpenDuoCountdownStory({
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1920, background: "#0a0a12" }}
+      style={{ width: 1080, height: 1920, background: "#1c1435" }}
     >
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
@@ -33,7 +39,7 @@ export function OpenDuoCountdownStory({
           width: "100%",
           height: 500,
           background:
-            "linear-gradient(180deg, rgba(179,57,196,0.08), transparent)",
+            "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
           clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 65%)",
         }}
       />
@@ -45,7 +51,7 @@ export function OpenDuoCountdownStory({
           width: "100%",
           height: 500,
           background:
-            "linear-gradient(0deg, rgba(132,197,82,0.06), transparent)",
+            "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
           clipPath: "polygon(0 35%, 100% 0, 100% 100%, 0 100%)",
         }}
       />
@@ -58,7 +64,7 @@ export function OpenDuoCountdownStory({
           left: 0,
           width: 200,
           height: 300,
-          background: "rgba(179,57,196,0.05)",
+          background: "rgba(179,57,196,0.09)",
           clipPath: "polygon(0 0, 100% 0, 70% 100%, 0 100%)",
         }}
       />
@@ -69,24 +75,23 @@ export function OpenDuoCountdownStory({
           right: 0,
           width: 180,
           height: 280,
-          background: "rgba(132,197,82,0.04)",
+          background: "rgba(132,197,82,0.07)",
           clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
         }}
       />
 
-      {/* ── Circular / ring accents ── */}
-      {/* Large ring around the number area */}
+      {/* Large centered targeting-reticle rings */}
       <div
         className="absolute"
         style={{
           top: "50%",
           left: "50%",
-          width: 500,
-          height: 500,
-          marginTop: -250,
-          marginLeft: -250,
+          width: 560,
+          height: 560,
+          marginTop: -280,
+          marginLeft: -280,
           borderRadius: "50%",
-          border: "2px solid rgba(132,197,82,0.06)",
+          border: "2px solid rgba(132,197,82,0.12)",
         }}
       />
       <div
@@ -94,35 +99,35 @@ export function OpenDuoCountdownStory({
         style={{
           top: "50%",
           left: "50%",
-          width: 420,
-          height: 420,
-          marginTop: -210,
-          marginLeft: -210,
+          width: 460,
+          height: 460,
+          marginTop: -230,
+          marginLeft: -230,
           borderRadius: "50%",
-          border: "1px solid rgba(132,197,82,0.04)",
+          border: "1px solid rgba(132,197,82,0.07)",
         }}
       />
-      {/* Smaller offset rings */}
+      {/* Offset rings */}
       <div
         className="absolute"
         style={{
-          top: 340,
-          right: 60,
-          width: 160,
-          height: 160,
+          top: 260,
+          right: 30,
+          width: 280,
+          height: 280,
           borderRadius: "50%",
-          border: "2px solid rgba(179,57,196,0.1)",
+          border: "2px solid rgba(179,57,196,0.17)",
         }}
       />
       <div
         className="absolute"
         style={{
-          bottom: 380,
-          left: 50,
-          width: 140,
-          height: 140,
+          bottom: 300,
+          left: 20,
+          width: 260,
+          height: 260,
           borderRadius: "50%",
-          border: "2px solid rgba(132,197,82,0.08)",
+          border: "2px solid rgba(132,197,82,0.15)",
         }}
       />
       {/* Dot accents */}
@@ -131,10 +136,10 @@ export function OpenDuoCountdownStory({
         style={{
           top: 520,
           left: 100,
-          width: 10,
-          height: 10,
+          width: 14,
+          height: 14,
           borderRadius: "50%",
-          background: "rgba(179,57,196,0.2)",
+          background: "rgba(179,57,196,0.35)",
         }}
       />
       <div
@@ -142,11 +147,38 @@ export function OpenDuoCountdownStory({
         style={{
           bottom: 530,
           right: 110,
-          width: 8,
-          height: 8,
+          width: 10,
+          height: 10,
           borderRadius: "50%",
-          background: "rgba(132,197,82,0.18)",
+          background: "rgba(132,197,82,0.3)",
         }}
+      />
+
+      {/* ===== Gaming iconography ===== */}
+      <GamepadIcon
+        size={110}
+        color="rgba(179,57,196,0.25)"
+        style={{ top: 370, right: 70, transform: "rotate(-15deg)" }}
+      />
+      <GemIcon
+        size={80}
+        color="rgba(132,197,82,0.22)"
+        style={{ bottom: 440, left: 70, transform: "rotate(10deg)" }}
+      />
+      <CrosshairIcon
+        size={100}
+        color="rgba(132,197,82,0.18)"
+        style={{ top: 300, left: 50 }}
+      />
+      <AlienIcon
+        size={75}
+        color="rgba(179,57,196,0.2)"
+        style={{ bottom: 620, right: 50, transform: "rotate(-5deg)" }}
+      />
+      <SwordIcon
+        size={80}
+        color="rgba(179,57,196,0.18)"
+        style={{ top: 600, left: 40, transform: "rotate(-20deg)" }}
       />
 
       {/* HUD accent bars */}
@@ -181,7 +213,7 @@ export function OpenDuoCountdownStory({
           right: 60,
           width: 60,
           height: 20,
-          background: "rgba(179,57,196,0.15)",
+          background: "rgba(179,57,196,0.18)",
           clipPath:
             "polygon(20% 0, 100% 0, 80% 50%, 100% 100%, 20% 100%, 0 50%)",
         }}
@@ -193,13 +225,13 @@ export function OpenDuoCountdownStory({
           left: 60,
           width: 60,
           height: 20,
-          background: "rgba(132,197,82,0.15)",
+          background: "rgba(132,197,82,0.18)",
           clipPath:
             "polygon(0 0, 80% 0, 100% 50%, 80% 100%, 0 100%, 20% 50%)",
         }}
       />
 
-      {/* ===== Content ===== */}
+      {/* ===== Content — spread with breathing room ===== */}
       <div
         className="relative flex flex-col items-center justify-between h-full"
         style={{
@@ -209,8 +241,8 @@ export function OpenDuoCountdownStory({
           paddingRight: 80,
         }}
       >
-        {/* Top: Logo + event name */}
-        <div className="flex flex-col items-center" style={{ gap: 16 }}>
+        {/* ── Top: Logo + event name ── */}
+        <div className="flex flex-col items-center" style={{ gap: 14 }}>
           <img
             src="/logo.png"
             alt="GamER"
@@ -228,8 +260,8 @@ export function OpenDuoCountdownStory({
           </span>
         </div>
 
-        {/* Center: THE NUMBER */}
-        <div className="flex flex-col items-center" style={{ gap: 20 }}>
+        {/* ── Center: THE NUMBER ── */}
+        <div className="flex flex-col items-center" style={{ gap: 16 }}>
           <span
             className="font-azonix"
             style={{
@@ -274,29 +306,27 @@ export function OpenDuoCountdownStory({
           >
             {daysLeft === 1 ? "DÍA" : "DÍAS"}
           </span>
-
-          {/* Divider */}
-          <div
-            style={{
-              width: 300,
-              height: 2,
-              marginTop: 12,
-              background:
-                "linear-gradient(90deg, transparent, rgba(179,57,196,0.4) 20%, rgba(179,57,196,0.4) 80%, transparent)",
-            }}
-          />
-
-          {/* Date reminder */}
-          <span
-            className="font-azonix"
-            style={{ fontSize: 34, color: "#C06DD0", marginTop: 4 }}
-          >
-            {event.date.toUpperCase()}
-          </span>
         </div>
 
-        {/* Bottom: Games + venue */}
-        <div className="flex flex-col items-center" style={{ gap: 18 }}>
+        {/* ── Bottom: Date + Games + venue ── */}
+        <div className="flex flex-col items-center" style={{ gap: 22 }}>
+          <div className="flex flex-col items-center" style={{ gap: 14 }}>
+            <div
+              style={{
+                width: 300,
+                height: 2,
+                background:
+                  "linear-gradient(90deg, transparent, rgba(179,57,196,0.4) 20%, rgba(179,57,196,0.4) 80%, transparent)",
+              }}
+            />
+            <span
+              className="font-azonix"
+              style={{ fontSize: 34, color: "#C06DD0" }}
+            >
+              {event.date.toUpperCase()}
+            </span>
+          </div>
+
           <div className="flex gap-4">
             <span
               className="panel-clip-sm font-azonix"
@@ -395,7 +425,7 @@ export function OpenDuoCountdownStory({
               left: 30,
               width: 12,
               height: 2,
-              background: "rgba(179,57,196,0.2)",
+              background: "rgba(179,57,196,0.25)",
             }}
           />
           <div
@@ -405,7 +435,7 @@ export function OpenDuoCountdownStory({
               right: 30,
               width: 12,
               height: 2,
-              background: "rgba(179,57,196,0.2)",
+              background: "rgba(179,57,196,0.25)",
             }}
           />
         </div>

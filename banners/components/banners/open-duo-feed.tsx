@@ -1,19 +1,17 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
+import { GamepadIcon, GemIcon, CrosshairIcon, SwordIcon } from "./gaming-icons";
 
 /**
  * Open Duo — Instagram Feed Post — 1080×1350 (4:5)
  * Safe zone: 40px all sides
- *
- * Style: Gaming HUD — angular panels + circular accents.
- * Denser layout for feed with good vertical rhythm.
  */
 export function OpenDuoFeed({ event }: { event: EventData }) {
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1350, background: "#0a0a12" }}
+      style={{ width: 1080, height: 1350, background: "#1c1435" }}
     >
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
@@ -27,7 +25,7 @@ export function OpenDuoFeed({ event }: { event: EventData }) {
           width: "100%",
           height: 380,
           background:
-            "linear-gradient(180deg, rgba(179,57,196,0.08), transparent)",
+            "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
           clipPath: "polygon(0 0, 100% 0, 100% 65%, 0 100%)",
         }}
       />
@@ -39,12 +37,12 @@ export function OpenDuoFeed({ event }: { event: EventData }) {
           width: "100%",
           height: 380,
           background:
-            "linear-gradient(0deg, rgba(132,197,82,0.06), transparent)",
+            "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
           clipPath: "polygon(0 35%, 100% 0, 100% 100%, 0 100%)",
         }}
       />
 
-      {/* Trapezoid accent */}
+      {/* Trapezoid */}
       <div
         className="absolute"
         style={{
@@ -52,66 +50,66 @@ export function OpenDuoFeed({ event }: { event: EventData }) {
           right: 0,
           width: 160,
           height: 240,
-          background: "rgba(179,57,196,0.06)",
+          background: "rgba(179,57,196,0.1)",
           clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
         }}
       />
 
-      {/* ── Circular / ring accents ── */}
+      {/* Large circular ring accents */}
+      <div
+        className="absolute"
+        style={{
+          top: 180,
+          right: 20,
+          width: 280,
+          height: 280,
+          borderRadius: "50%",
+          border: "2px solid rgba(179,57,196,0.17)",
+        }}
+      />
       <div
         className="absolute"
         style={{
           top: 240,
-          right: 50,
+          right: 70,
           width: 160,
           height: 160,
           borderRadius: "50%",
-          border: "2px solid rgba(179,57,196,0.1)",
+          border: "1px solid rgba(179,57,196,0.1)",
         }}
       />
       <div
         className="absolute"
         style={{
-          top: 280,
-          right: 90,
-          width: 80,
-          height: 80,
+          bottom: 220,
+          left: 10,
+          width: 300,
+          height: 300,
           borderRadius: "50%",
-          border: "1px solid rgba(179,57,196,0.06)",
+          border: "2px solid rgba(132,197,82,0.15)",
         }}
       />
       <div
         className="absolute"
         style={{
-          bottom: 280,
-          left: 40,
-          width: 180,
-          height: 180,
+          bottom: 270,
+          left: 60,
+          width: 200,
+          height: 200,
           borderRadius: "50%",
-          border: "2px solid rgba(132,197,82,0.08)",
+          border: "1px solid rgba(132,197,82,0.09)",
         }}
       />
-      <div
-        className="absolute"
-        style={{
-          bottom: 320,
-          left: 80,
-          width: 100,
-          height: 100,
-          borderRadius: "50%",
-          border: "1px solid rgba(132,197,82,0.05)",
-        }}
-      />
-      {/* Dot accents */}
+      {/* Dots */}
       <div
         className="absolute"
         style={{
           top: 450,
           left: 70,
-          width: 10,
-          height: 10,
+          width: 14,
+          height: 14,
           borderRadius: "50%",
-          background: "rgba(179,57,196,0.2)",
+          background: "rgba(179,57,196,0.35)",
         }}
       />
       <div
@@ -119,11 +117,33 @@ export function OpenDuoFeed({ event }: { event: EventData }) {
         style={{
           bottom: 440,
           right: 80,
-          width: 8,
-          height: 8,
+          width: 10,
+          height: 10,
           borderRadius: "50%",
-          background: "rgba(132,197,82,0.18)",
+          background: "rgba(132,197,82,0.3)",
         }}
+      />
+
+      {/* ===== Gaming iconography ===== */}
+      <GamepadIcon
+        size={100}
+        color="rgba(179,57,196,0.25)"
+        style={{ top: 300, right: 70, transform: "rotate(-12deg)" }}
+      />
+      <GemIcon
+        size={70}
+        color="rgba(132,197,82,0.22)"
+        style={{ bottom: 360, left: 80, transform: "rotate(8deg)" }}
+      />
+      <CrosshairIcon
+        size={90}
+        color="rgba(132,197,82,0.18)"
+        style={{ bottom: 520, right: 40 }}
+      />
+      <SwordIcon
+        size={80}
+        color="rgba(179,57,196,0.2)"
+        style={{ top: 480, left: 30, transform: "rotate(-20deg)" }}
       />
 
       {/* HUD accent bar */}
@@ -274,7 +294,7 @@ export function OpenDuoFeed({ event }: { event: EventData }) {
         </div>
 
         {/* ── Bottom: Date + Venue + Info ── */}
-        <div className="flex flex-col" style={{ gap: 18 }}>
+        <div className="flex flex-col" style={{ gap: 16 }}>
           {/* Date + Venue panel */}
           <div
             className="panel-clip relative"

@@ -1,19 +1,23 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
+import {
+  GamepadIcon,
+  GemIcon,
+  AlienIcon,
+  ShieldIcon,
+  SwordIcon,
+} from "./gaming-icons";
 
 /**
  * Open Duo — WhatsApp Status — 1080×1920 (9:16)
  * Safe zone: 120px top, 200px bottom, 60px sides
- *
- * Style: Gaming HUD — bolder and simpler for quick scan.
- * Mixed geometry: angular panels + circular ring accents.
  */
 export function OpenDuoWhatsApp({ event }: { event: EventData }) {
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1920, background: "#0a0a12" }}
+      style={{ width: 1080, height: 1920, background: "#1c1435" }}
     >
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
@@ -27,7 +31,7 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
           width: "100%",
           height: 500,
           background:
-            "linear-gradient(180deg, rgba(179,57,196,0.08), transparent)",
+            "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
           clipPath: "polygon(0 0, 100% 0, 100% 65%, 0 100%)",
         }}
       />
@@ -39,7 +43,7 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
           width: "100%",
           height: 500,
           background:
-            "linear-gradient(0deg, rgba(132,197,82,0.06), transparent)",
+            "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
           clipPath: "polygon(0 35%, 100% 0, 100% 100%, 0 100%)",
         }}
       />
@@ -52,7 +56,7 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
           right: 0,
           width: 200,
           height: 300,
-          background: "rgba(179,57,196,0.06)",
+          background: "rgba(179,57,196,0.1)",
           clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
         }}
       />
@@ -63,55 +67,55 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
           left: 0,
           width: 160,
           height: 240,
-          background: "rgba(132,197,82,0.04)",
+          background: "rgba(132,197,82,0.08)",
           clipPath: "polygon(0 0, 100% 0, 70% 100%, 0 100%)",
         }}
       />
 
-      {/* ── Circular / ring accents ── */}
+      {/* Large circular ring accents */}
+      <div
+        className="absolute"
+        style={{
+          top: 280,
+          right: 20,
+          width: 320,
+          height: 320,
+          borderRadius: "50%",
+          border: "2px solid rgba(179,57,196,0.18)",
+        }}
+      />
       <div
         className="absolute"
         style={{
           top: 360,
-          right: 60,
-          width: 200,
-          height: 200,
+          right: 80,
+          width: 160,
+          height: 160,
           borderRadius: "50%",
-          border: "2px solid rgba(179,57,196,0.1)",
+          border: "1px solid rgba(179,57,196,0.1)",
         }}
       />
       <div
         className="absolute"
         style={{
-          top: 410,
-          right: 110,
-          width: 100,
-          height: 100,
+          bottom: 340,
+          left: 10,
+          width: 340,
+          height: 340,
           borderRadius: "50%",
-          border: "1px solid rgba(179,57,196,0.06)",
+          border: "2px solid rgba(132,197,82,0.16)",
         }}
       />
-      <div
-        className="absolute"
-        style={{
-          bottom: 420,
-          left: 50,
-          width: 200,
-          height: 200,
-          borderRadius: "50%",
-          border: "2px solid rgba(132,197,82,0.08)",
-        }}
-      />
-      {/* Dot accents */}
+      {/* Dots */}
       <div
         className="absolute"
         style={{
           top: 580,
           left: 80,
-          width: 10,
-          height: 10,
+          width: 14,
+          height: 14,
           borderRadius: "50%",
-          background: "rgba(179,57,196,0.2)",
+          background: "rgba(179,57,196,0.35)",
         }}
       />
       <div
@@ -119,11 +123,38 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
         style={{
           bottom: 580,
           right: 90,
-          width: 8,
-          height: 8,
+          width: 10,
+          height: 10,
           borderRadius: "50%",
-          background: "rgba(132,197,82,0.18)",
+          background: "rgba(132,197,82,0.3)",
         }}
+      />
+
+      {/* ===== Gaming iconography ===== */}
+      <GamepadIcon
+        size={130}
+        color="rgba(179,57,196,0.28)"
+        style={{ top: 350, right: 70, transform: "rotate(-10deg)" }}
+      />
+      <GemIcon
+        size={90}
+        color="rgba(132,197,82,0.25)"
+        style={{ bottom: 460, left: 80, transform: "rotate(12deg)" }}
+      />
+      <AlienIcon
+        size={80}
+        color="rgba(179,57,196,0.22)"
+        style={{ top: 200, left: 140, transform: "rotate(5deg)" }}
+      />
+      <ShieldIcon
+        size={90}
+        color="rgba(132,197,82,0.2)"
+        style={{ bottom: 660, right: 50, transform: "rotate(8deg)" }}
+      />
+      <SwordIcon
+        size={80}
+        color="rgba(179,57,196,0.2)"
+        style={{ top: 640, left: 40, transform: "rotate(-18deg)" }}
       />
 
       {/* HUD accent bars */}
@@ -150,28 +181,25 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
         }}
       />
 
-      {/* ===== Content (WhatsApp safe zone) ===== */}
+      {/* ===== Content — spread with breathing room ===== */}
       <div
-        className="relative flex flex-col justify-between h-full"
+        className="relative flex flex-col items-center justify-between h-full"
         style={{
-          paddingTop: 160,
-          paddingBottom: 240,
+          paddingTop: 170,
+          paddingBottom: 250,
           paddingLeft: 80,
           paddingRight: 80,
         }}
       >
-        {/* ── Top: Logo ── */}
-        <div className="flex justify-center">
-          <img
-            src="/logo.png"
-            alt="GamER"
-            style={{ height: 130, width: "auto" }}
-          />
-        </div>
+        {/* ── Logo ── */}
+        <img
+          src="/logo.png"
+          alt="GamER"
+          style={{ height: 130, width: "auto" }}
+        />
 
-        {/* ── Center: All key info ── */}
-        <div className="flex flex-col items-center text-center" style={{ gap: 32 }}>
-          {/* Badge */}
+        {/* ── Badge + Title block ── */}
+        <div className="flex flex-col items-center" style={{ gap: 28 }}>
           <div
             className="panel-clip-sm font-azonix"
             style={{
@@ -229,7 +257,7 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
             OPEN DUO
           </h1>
 
-          {/* Games text */}
+          {/* Games */}
           <p style={{ fontSize: 32, color: "#D0D0DC", lineHeight: 1.4 }}>
             <span style={{ color: "#96D068", fontWeight: 700 }}>
               League of Legends
@@ -239,17 +267,10 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
               Counter-Strike 2
             </span>
           </p>
+        </div>
 
-          {/* Divider */}
-          <div
-            style={{
-              width: 500,
-              height: 2,
-              background:
-                "linear-gradient(90deg, transparent, rgba(179,57,196,0.4) 20%, rgba(179,57,196,0.4) 80%, transparent)",
-            }}
-          />
-
+        {/* ── Bottom: Date + Venue + Entry ── */}
+        <div className="flex flex-col items-center" style={{ gap: 22 }}>
           {/* Date panel */}
           <div
             className="panel-clip relative"
@@ -282,11 +303,7 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
               {event.time}
             </span>
           </div>
-        </div>
 
-        {/* ── Bottom: Venue + Entry ── */}
-        <div className="flex flex-col items-center" style={{ gap: 20 }}>
-          {/* MiradorTec logo + location */}
           <div className="flex flex-col items-center" style={{ gap: 8 }}>
             <img
               src="/mirador-tec.png"
