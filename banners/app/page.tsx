@@ -8,6 +8,11 @@ import {
   OpenDuoCountdownStory,
   OpenDuoGameSpotlight,
 } from "@/components/banners";
+import {
+  StoryBackground,
+  CountdownBackground,
+  FeedBackground,
+} from "@/components/banners/backgrounds";
 import { OPEN_DUO_EVENT } from "@/lib/event-data";
 import { FORMATS } from "@/lib/formats";
 import { exportBanner } from "@/lib/export-banner";
@@ -35,6 +40,7 @@ interface BannerEntry {
   category: string;
   format: { width: number; height: number; aspectRatio: string };
   render: () => React.ReactNode;
+  renderBg: () => React.ReactNode;
 }
 
 const BANNERS: BannerEntry[] = [
@@ -44,6 +50,7 @@ const BANNERS: BannerEntry[] = [
     category: "Anuncio",
     format: FORMATS["instagram-story"],
     render: () => <OpenDuoStory event={OPEN_DUO_EVENT} />,
+    renderBg: () => <StoryBackground variant="story" />,
   },
   {
     id: "open-duo-feed",
@@ -51,6 +58,7 @@ const BANNERS: BannerEntry[] = [
     category: "Anuncio",
     format: FORMATS["instagram-feed-post"],
     render: () => <OpenDuoFeed event={OPEN_DUO_EVENT} />,
+    renderBg: () => <FeedBackground accent="mixed" />,
   },
   {
     id: "open-duo-whatsapp",
@@ -58,6 +66,7 @@ const BANNERS: BannerEntry[] = [
     category: "Anuncio",
     format: FORMATS["whatsapp-status"],
     render: () => <OpenDuoWhatsApp event={OPEN_DUO_EVENT} />,
+    renderBg: () => <StoryBackground variant="whatsapp" />,
   },
   {
     id: "open-duo-countdown-14",
@@ -65,6 +74,7 @@ const BANNERS: BannerEntry[] = [
     category: "Countdown",
     format: FORMATS["instagram-story"],
     render: () => <OpenDuoCountdownStory event={OPEN_DUO_EVENT} daysLeft={14} />,
+    renderBg: () => <CountdownBackground />,
   },
   {
     id: "open-duo-countdown-7",
@@ -72,6 +82,7 @@ const BANNERS: BannerEntry[] = [
     category: "Countdown",
     format: FORMATS["instagram-story"],
     render: () => <OpenDuoCountdownStory event={OPEN_DUO_EVENT} daysLeft={7} />,
+    renderBg: () => <CountdownBackground />,
   },
   {
     id: "open-duo-countdown-3",
@@ -79,6 +90,7 @@ const BANNERS: BannerEntry[] = [
     category: "Countdown",
     format: FORMATS["instagram-story"],
     render: () => <OpenDuoCountdownStory event={OPEN_DUO_EVENT} daysLeft={3} />,
+    renderBg: () => <CountdownBackground />,
   },
   {
     id: "open-duo-countdown-1",
@@ -86,6 +98,7 @@ const BANNERS: BannerEntry[] = [
     category: "Countdown",
     format: FORMATS["instagram-story"],
     render: () => <OpenDuoCountdownStory event={OPEN_DUO_EVENT} daysLeft={1} />,
+    renderBg: () => <CountdownBackground />,
   },
   {
     id: "open-duo-lol",
@@ -93,6 +106,7 @@ const BANNERS: BannerEntry[] = [
     category: "Spotlight",
     format: FORMATS["instagram-feed-post"],
     render: () => <OpenDuoGameSpotlight event={OPEN_DUO_EVENT} game={LOL_GAME} />,
+    renderBg: () => <FeedBackground accent="purple" />,
   },
   {
     id: "open-duo-cs2",
@@ -100,11 +114,13 @@ const BANNERS: BannerEntry[] = [
     category: "Spotlight",
     format: FORMATS["instagram-feed-post"],
     render: () => <OpenDuoGameSpotlight event={OPEN_DUO_EVENT} game={CS2_GAME} />,
+    renderBg: () => <FeedBackground accent="green" />,
   },
 ];
 
 export default function GalleryPage() {
   const bannerRef = useRef<HTMLDivElement | null>(null);
+  const bgRef = useRef<HTMLDivElement | null>(null);
   const [selectedId, setSelectedId] = useState(BANNERS[0].id);
   const selected = BANNERS.find((b) => b.id === selectedId)!;
   const scale = Math.min(450 / selected.format.width, 1);
@@ -185,22 +201,49 @@ export default function GalleryPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            if (bannerRef.current) {
-              const el = bannerRef.current.firstElementChild as HTMLElement;
-              if (el) exportBanner(el, `gamer-${selected.id}`);
-            }
-          }}
-          className="px-4 py-2 text-sm font-medium cursor-pointer"
-          style={{
-            background: "rgba(132,197,82,0.12)",
-            border: "1px solid rgba(132,197,82,0.3)",
-            color: "#84C552",
-          }}
-        >
-          Descargar PNG
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              if (bannerRef.current) {
+                const el = bannerRef.current.firstElementChild as HTMLElement;
+                if (el) exportBanner(el, `gamer-${selected.id}`);
+              }
+            }}
+            className="px-4 py-2 text-sm font-medium cursor-pointer"
+            style={{
+              background: "rgba(132,197,82,0.12)",
+              border: "1px solid rgba(132,197,82,0.3)",
+              color: "#84C552",
+            }}
+          >
+            Descargar PNG
+          </button>
+          <button
+            onClick={() => {
+              if (bgRef.current) {
+                const el = bgRef.current.firstElementChild as HTMLElement;
+                if (el) exportBanner(el, `gamer-${selected.id}-fondo`);
+              }
+            }}
+            className="px-4 py-2 text-sm font-medium cursor-pointer"
+            style={{
+              background: "rgba(179,57,196,0.12)",
+              border: "1px solid rgba(179,57,196,0.3)",
+              color: "#B339C4",
+            }}
+          >
+            Descargar Fondo
+          </button>
+        </div>
+      </div>
+
+      {/* Offscreen background render for export */}
+      <div
+        ref={bgRef}
+        style={{ position: "fixed", left: -9999, top: -9999 }}
+        aria-hidden
+      >
+        {selected.renderBg()}
       </div>
     </div>
   );
