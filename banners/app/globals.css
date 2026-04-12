@@ -1,0 +1,341 @@
+@import url('https://fonts.cdnfonts.com/css/azonix');
+@import "tailwindcss";
+
+:root {
+  /* GamER Brand Colors */
+  --gamer-purple: #B339C4;
+  --gamer-purple-light: #9E46AE;
+  --gamer-purple-dark: #833D90;
+  --gamer-green: #84C552;
+  --gamer-black: #000000;
+  --gamer-white: #FFFFFF;
+
+  /* Desaturated text-safe variants */
+  --gamer-purple-text: #C06DD0;
+  --gamer-green-text: #96D068;
+  --text-primary: #E8E8F0;
+  --text-secondary: #D0D0DC;
+
+  /* Semantic tokens */
+  --background: #12121E;
+  --background-elevated: #1A1A2E;
+  --foreground: #E8E8F0;
+  --muted: #888899;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-gamer-purple: var(--gamer-purple);
+  --color-gamer-purple-light: var(--gamer-purple-light);
+  --color-gamer-purple-dark: var(--gamer-purple-dark);
+  --color-gamer-green: var(--gamer-green);
+  --color-elevated: var(--background-elevated);
+  --color-muted: var(--muted);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', 'Geist', sans-serif;
+}
+
+/* ===== AZONIX display font ===== */
+.font-azonix {
+  font-family: 'Azonix', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* ===== Gaming background patterns ===== */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(179, 57, 196, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(179, 57, 196, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-dense {
+  background-image:
+    linear-gradient(rgba(179, 57, 196, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(179, 57, 196, 0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Scattered pixel squares motif */
+.pixel-scatter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, var(--gamer-purple) 2px, transparent 2px),
+    radial-gradient(circle, var(--gamer-green) 1.5px, transparent 1.5px);
+  background-size: 120px 120px, 80px 80px;
+  background-position: 0 0, 40px 40px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+/* Diagonal stripe accent */
+.diagonal-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    var(--gamer-purple) 8px,
+    var(--gamer-purple) 10px
+  );
+  opacity: 0.15;
+}
+
+.diagonal-stripe-green {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    var(--gamer-green) 8px,
+    var(--gamer-green) 10px
+  );
+  opacity: 0.15;
+}
+
+/* ===== Glow effects ===== */
+.glow-purple {
+  text-shadow: 0 0 10px rgba(179, 57, 196, 0.5), 0 0 30px rgba(179, 57, 196, 0.2);
+}
+
+.glow-green {
+  text-shadow: 0 0 10px rgba(132, 197, 82, 0.5), 0 0 30px rgba(132, 197, 82, 0.2);
+}
+
+.box-glow-purple {
+  box-shadow: 0 0 15px rgba(179, 57, 196, 0.3), 0 0 40px rgba(179, 57, 196, 0.1);
+}
+
+.box-glow-green {
+  box-shadow: 0 0 15px rgba(132, 197, 82, 0.3), 0 0 40px rgba(132, 197, 82, 0.1);
+}
+
+/* ===== Animations ===== */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pixel-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+  25%, 75% { opacity: 0.95; }
+}
+
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-scanline { animation: scanline 6s linear infinite; }
+.animate-slide-left { animation: slide-in-left 0.6s ease-out forwards; }
+.animate-slide-right { animation: slide-in-right 0.6s ease-out forwards; }
+.animate-fade-up { animation: fade-in-up 0.5s ease-out forwards; }
+.animate-pixel-flicker { animation: pixel-flicker 3s ease-in-out infinite; }
+
+/* Staggered animation delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-1000 { animation-delay: 1s; }
+
+/* ===== HUD-style corner brackets ===== */
+.hud-corners {
+  position: relative;
+}
+.hud-corners::before,
+.hud-corners::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--gamer-purple);
+  border-style: solid;
+  pointer-events: none;
+}
+.hud-corners::before {
+  top: 0; left: 0;
+  border-width: 2px 0 0 2px;
+}
+.hud-corners::after {
+  bottom: 0; right: 0;
+  border-width: 0 2px 2px 0;
+}
+
+/* ===== Enhanced glow effects ===== */
+.glow-purple-intense {
+  text-shadow:
+    0 0 10px rgba(179, 57, 196, 0.8),
+    0 0 30px rgba(179, 57, 196, 0.5),
+    0 0 60px rgba(179, 57, 196, 0.3),
+    0 0 100px rgba(179, 57, 196, 0.15);
+}
+
+.glow-green-intense {
+  text-shadow:
+    0 0 10px rgba(132, 197, 82, 0.8),
+    0 0 30px rgba(132, 197, 82, 0.5),
+    0 0 60px rgba(132, 197, 82, 0.3);
+}
+
+.box-glow-purple-intense {
+  box-shadow:
+    0 0 20px rgba(179, 57, 196, 0.4),
+    0 0 50px rgba(179, 57, 196, 0.2),
+    inset 0 0 30px rgba(179, 57, 196, 0.05);
+}
+
+.box-glow-green-intense {
+  box-shadow:
+    0 0 20px rgba(132, 197, 82, 0.4),
+    0 0 50px rgba(132, 197, 82, 0.2),
+    inset 0 0 30px rgba(132, 197, 82, 0.05);
+}
+
+/* ===== Neon border glow ===== */
+.neon-border-purple {
+  border: 2px solid rgba(179, 57, 196, 0.6);
+  box-shadow:
+    0 0 8px rgba(179, 57, 196, 0.3),
+    0 0 20px rgba(179, 57, 196, 0.15),
+    inset 0 0 8px rgba(179, 57, 196, 0.05);
+}
+
+.neon-border-green {
+  border: 2px solid rgba(132, 197, 82, 0.6);
+  box-shadow:
+    0 0 8px rgba(132, 197, 82, 0.3),
+    0 0 20px rgba(132, 197, 82, 0.15),
+    inset 0 0 8px rgba(132, 197, 82, 0.05);
+}
+
+/* ===== HUD targeting brackets (large, for framing sections) ===== */
+.hud-bracket-tl,
+.hud-bracket-tr,
+.hud-bracket-bl,
+.hud-bracket-br {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+}
+.hud-bracket-tl { top: 0; left: 0; border-top: 3px solid var(--gamer-purple); border-left: 3px solid var(--gamer-purple); }
+.hud-bracket-tr { top: 0; right: 0; border-top: 3px solid var(--gamer-purple); border-right: 3px solid var(--gamer-purple); }
+.hud-bracket-bl { bottom: 0; left: 0; border-bottom: 3px solid var(--gamer-green); border-left: 3px solid var(--gamer-green); }
+.hud-bracket-br { bottom: 0; right: 0; border-bottom: 3px solid var(--gamer-green); border-right: 3px solid var(--gamer-green); }
+
+/* ===== Clipped angular panel (gaming UI card) ===== */
+.panel-clip {
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+}
+
+.panel-clip-sm {
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+/* ===== Chevron / arrow accent ===== */
+.chevron-right {
+  clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%, 15% 50%);
+}
+
+/* ===== Hexagonal clip ===== */
+.hex-clip {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+/* ===== Gradient color blocks ===== */
+.gradient-block-purple {
+  background: linear-gradient(135deg, rgba(179, 57, 196, 0.15), rgba(131, 61, 144, 0.05));
+}
+
+.gradient-block-green {
+  background: linear-gradient(135deg, rgba(132, 197, 82, 0.12), rgba(132, 197, 82, 0.03));
+}
+
+/* ===== Enhanced grid — visible, neon-tinted ===== */
+.bg-grid-neon {
+  background-image:
+    linear-gradient(rgba(179, 57, 196, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(179, 57, 196, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-neon-fade {
+  background-image:
+    linear-gradient(rgba(179, 57, 196, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(179, 57, 196, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
+}
+
+/* ===== Radial glow backgrounds ===== */
+.radial-glow-purple {
+  background: radial-gradient(ellipse 60% 40% at 50% 45%, rgba(179, 57, 196, 0.15), transparent);
+}
+
+.radial-glow-green {
+  background: radial-gradient(ellipse 50% 30% at 50% 55%, rgba(132, 197, 82, 0.08), transparent);
+}
+
+/* ===== Horizontal neon line ===== */
+.neon-line-h {
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(179, 57, 196, 0.3) 15%,
+    #B339C4 50%,
+    rgba(179, 57, 196, 0.3) 85%,
+    transparent
+  );
+  box-shadow: 0 0 8px rgba(179, 57, 196, 0.4), 0 0 20px rgba(179, 57, 196, 0.15);
+}
+
+.neon-line-h-green {
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(132, 197, 82, 0.3) 15%,
+    #84C552 50%,
+    rgba(132, 197, 82, 0.3) 85%,
+    transparent
+  );
+  box-shadow: 0 0 8px rgba(132, 197, 82, 0.4), 0 0 20px rgba(132, 197, 82, 0.15);
+}
+
+/* ===== Banner container (exact pixel rendering) ===== */
+.banner-frame {
+  transform-origin: top left;
+  overflow: hidden;
+  position: relative;
+  image-rendering: -webkit-optimize-contrast;
+}

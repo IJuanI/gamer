@@ -1,0 +1,147 @@
+{
+  "event": {
+    "id": "open-duo-2026",
+    "name": "Open Duo",
+    "description": "Jornada de torneos eSports amateur con League of Legends y Counter-Strike 2 en formato 2v2, transmitidos y casteados en vivo",
+    "organizer": "GamER (Gaming Entre Ríos)",
+    "venue": {
+      "name": "MiradorTec",
+      "city": "Paraná",
+      "province": "Entre Ríos",
+      "country": "Argentina",
+      "entry_point": "Escalera caracol del hall de entrada",
+      "security": "Cerrar acceso del pasillo del subsuelo pasando la Arena Gamer"
+    },
+    "date": {
+      "date": "2026-04-25",
+      "day_of_week": "Sábado",
+      "start_time": "15:00",
+      "tournament_1_start": "16:00",
+      "end_time": "21:00"
+    },
+    "capacity": {
+      "max_attendance": 60,
+      "registration_deadline": "2026-04-24T23:59:00"
+    },
+    "target_audience": {
+      "age_range": "14-35",
+      "description": "Amateur y aficionados a videojuegos de Paraná"
+    },
+    "pricing": {
+      "entry_fee": {
+        "amount": 7500,
+        "currency": "ARS",
+        "per": "persona",
+        "includes": "Participación en torneo + acceso a sala gamer"
+      },
+      "discount": {
+        "percentage": 10,
+        "applies_to": "Pro Gamers y God Gamers"
+      }
+    },
+    "tournaments": [
+      {
+        "name": "League of Legends ARAM 2v2",
+        "game": "League of Legends",
+        "format": "2v2",
+        "bracket": "Llave de 8 equipos (9° como reserva)",
+        "win_condition": "Primer equipo en destruir la torreta enemiga",
+        "schedule": {
+          "start": "16:00",
+          "quarters": "16:00–17:20",
+          "semifinals": "17:20–18:00",
+          "final": "18:00–18:25",
+          "awards": "18:25–18:45"
+        }
+      },
+      {
+        "name": "Counter-Strike 2 Wingman 2v2",
+        "game": "Counter-Strike 2",
+        "format": "2v2",
+        "bracket": "Llave de 8 equipos (9° como reserva)",
+        "schedule": {
+          "start": "18:45",
+          "quarters": "18:45–20:05",
+          "semifinals": "20:05–20:35",
+          "final": "20:35–21:00",
+          "awards": "21:00–21:20"
+        }
+      }
+    ],
+    "prizes": {
+      "total_pool": 200000,
+      "currency": "ARS",
+      "per_tournament": 100000,
+      "split": "65/35",
+      "distribution": [
+        { "place": "1°", "team": 65000, "per_player": 32500 },
+        { "place": "2°", "team": 35000, "per_player": 17500 }
+      ],
+      "notes": "No hay 3° puesto — solo se premia 1° y 2°"
+    },
+    "streaming": {
+      "platform": "Twitch",
+      "channel": "GamER",
+      "includes": "Casteo en vivo"
+    },
+    "casters": [
+      { "name": "Martín", "game": "League of Legends" },
+      { "name": "Limoncete / Santi", "status": "a confirmar" }
+    ],
+    "additional_activities": {
+      "gaming_stations": {
+        "description": "Consolas recreativas de acceso gratuito",
+        "platforms": ["Xbox", "PlayStation"],
+        "format": "Casual / arcade"
+      },
+      "cantina": {
+        "items": ["Tortas (shots)", "Empanadas", "Panificaciones varias"],
+        "beverages": ["Café (incluido con la entrada)", "Agua"],
+        "vendors": ["Leo (tortas y empanadas)", "Juan (panificaciones)"]
+      },
+      "giveaways": "Sorteos"
+    },
+    "infrastructure": {
+      "internet": {
+        "bandwidth": "300 Mbps",
+        "types": ["Cableada", "Inalámbrica"]
+      },
+      "furniture": {
+        "desks": 8,
+        "chairs": 8,
+        "storage": "Gabinete o mueble para guardado"
+      },
+      "pcs_available": 4,
+      "match_estimation": "~15 min por match (12–13 min juego + transición)"
+    },
+    "key_people": {
+      "casters": ["Martín (LoL)", "Limoncete / Santi (a confirmar)"],
+      "pro_gamers_invited": ["Martín", "Santi (a confirmar)", "Limoncete"]
+    },
+    "partners": [
+      { "name": "MiradorTec", "role": "Espacio / sede" },
+      { "name": "Polo Tecnológico de Paraná", "role": "Difusión" },
+      { "name": "Limoncete", "role": "Streamer colaborador, aporta hardware de streaming" }
+    ],
+    "promotion": {
+      "primary_channels": [
+        "Instagram: @gaming_eerr",
+        "Discord: https://discord.gg/kwzBd7dCjP"
+      ],
+      "collaborations": [
+        "Limoncete (streamer en Kick: kick.com/Limoncetee)",
+        "Polo Tecnológico de Paraná",
+        "MiradorTec (difusión desde sus redes)"
+      ],
+      "strategy": {
+        "banner_principal": "Banner vertical para redes con fecha, tipo de evento y detalles en descripción del post",
+        "instagram_highlights": ["¿Qué somos?", "¿Quiénes somos?", "Contacto", "Torneos", "Inscripciones", "Info", "Premios/eventos"],
+        "feed_strategy": "Organización tipo ajedrez — intercalar video/imagen, blanco/negro, colorido/escala de grises"
+      }
+    },
+    "context": {
+      "purpose": "Primer contacto con la comunidad amateur y aficionada a videojuegos de Paraná; precedente para proyectos gaming en MiradorTec",
+      "precedents": "CONERTECH lleva a cabo torneos de LoL y CS2 desde 2023"
+    }
+  }
+}
