@@ -1,6 +1,7 @@
 "use client";
 
-import type { EventData } from "@/lib/event-data";
+import type { EventData, AccentColor } from "@/lib/event-data";
+import { ACCENT_RGBA, ACCENT_HEX } from "@/lib/event-data";
 import {
   GamepadIcon,
   GemIcon,
@@ -8,6 +9,7 @@ import {
   ShieldIcon,
   SwordIcon,
 } from "./gaming-icons";
+import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 
 /**
  * Open Duo — Game Spotlight Feed Post — 1080×1350 (4:5)
@@ -25,13 +27,20 @@ interface GameSpotlightProps {
     teams: string;
     schedule: string;
     caster?: string;
+    accent: AccentColor;
   };
 }
 
-export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
+export function OpenDuoGameSpotlight({ event, game, variation = DEFAULT_VARIATION }: GameSpotlightProps & { variation?: BannerVariation }) {
+  const [rot1, rot2, rot3] = variation.rotationOffsets;
+  const [s1, s2, s3] = variation.positionSeeds;
+  const [d1, d2, d3] = variation.decoratorSeeds;
+  const lp = (s: number, lo: number, hi: number) => Math.round(lo + s * (hi - lo));
+  const cv = variation.clipVariance;
   const isLoL = game.shortName === "LOL";
-  const accent = isLoL ? "rgba(179,57,196," : "rgba(132,197,82,";
-  const accentText = isLoL ? "#C06DD0" : "#96D068";
+  const isCS2 = game.shortName === "CS2";
+  const accent = ACCENT_RGBA[game.accent];
+  const accentText = ACCENT_HEX[game.accent];
 
   return (
     <div
@@ -52,8 +61,21 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
           height: 400,
           background: `linear-gradient(${isLoL ? "180deg" : "0deg"}, ${accent}0.14), transparent)`,
           clipPath: isLoL
-            ? "polygon(0 0, 100% 0, 100% 60%, 0 100%)"
-            : "polygon(0 40%, 100% 0, 100% 100%, 0 100%)",
+            ? `polygon(0 0, 100% 0, 100% ${60 + cv}%, 0 100%)`
+            : `polygon(0 ${40 - cv}%, 100% 0, 100% 100%, 0 100%)`,
+        }}
+      />
+
+      {/* Bottom gradient block */}
+      <div
+        className="absolute"
+        style={{
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          height: 300,
+          background: `linear-gradient(0deg, ${accent}0.08), transparent)`,
+          clipPath: `polygon(0 ${35 - cv}%, 100% 0, 100% 100%, 0 100%)`,
         }}
       />
 
@@ -61,12 +83,12 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
       <div
         className="absolute"
         style={{
-          top: isLoL ? 100 : "auto",
-          bottom: isLoL ? "auto" : 100,
+          top: isLoL ? lp(d3, 70, 160) : "auto",
+          bottom: isLoL ? "auto" : lp(d3, 70, 160),
           right: isLoL ? 0 : "auto",
           left: isLoL ? "auto" : 0,
-          width: 180,
-          height: 260,
+          width: lp(d3, 140, 230),
+          height: lp(d3, 200, 330),
           background: `${accent}0.1)`,
           clipPath: isLoL
             ? "polygon(30% 0, 100% 0, 100% 100%, 0 100%)"
@@ -78,12 +100,12 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
       <div
         className="absolute"
         style={{
-          top: isLoL ? 160 : "auto",
-          bottom: isLoL ? "auto" : 160,
-          right: isLoL ? 10 : "auto",
-          left: isLoL ? "auto" : 10,
-          width: 280,
-          height: 280,
+          top: isLoL ? lp(d1, 130, 230) : "auto",
+          bottom: isLoL ? "auto" : lp(d1, 130, 230),
+          right: isLoL ? lp(d1, 0, 50) : "auto",
+          left: isLoL ? "auto" : lp(d1, 0, 50),
+          width: lp(d1, 240, 340),
+          height: lp(d1, 240, 340),
           borderRadius: "50%",
           border: `2px solid ${accent}0.18)`,
         }}
@@ -91,12 +113,12 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
       <div
         className="absolute"
         style={{
-          top: isLoL ? 230 : "auto",
-          bottom: isLoL ? "auto" : 230,
-          right: isLoL ? 60 : "auto",
-          left: isLoL ? "auto" : 60,
-          width: 160,
-          height: 160,
+          top: isLoL ? lp(d1, 195, 295) : "auto",
+          bottom: isLoL ? "auto" : lp(d1, 195, 295),
+          right: isLoL ? lp(d1, 45, 95) : "auto",
+          left: isLoL ? "auto" : lp(d1, 45, 95),
+          width: lp(d1, 130, 210),
+          height: lp(d1, 130, 210),
           borderRadius: "50%",
           border: `1px solid ${accent}0.1)`,
         }}
@@ -104,12 +126,12 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
       <div
         className="absolute"
         style={{
-          top: isLoL ? "auto" : 120,
-          bottom: isLoL ? 120 : "auto",
-          left: isLoL ? 20 : "auto",
-          right: isLoL ? "auto" : 20,
-          width: 240,
-          height: 240,
+          top: isLoL ? "auto" : lp(d2, 90, 190),
+          bottom: isLoL ? lp(d2, 90, 190) : "auto",
+          left: isLoL ? lp(d2, 0, 50) : "auto",
+          right: isLoL ? "auto" : lp(d2, 0, 50),
+          width: lp(d2, 200, 300),
+          height: lp(d2, 200, 300),
           borderRadius: "50%",
           border: `2px solid ${accent}0.14)`,
         }}
@@ -118,10 +140,10 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
       <div
         className="absolute"
         style={{
-          top: isLoL ? 420 : "auto",
-          bottom: isLoL ? "auto" : 420,
-          left: isLoL ? 70 : "auto",
-          right: isLoL ? "auto" : 70,
+          top: isLoL ? lp(d1, 380, 500) : "auto",
+          bottom: isLoL ? "auto" : lp(d1, 380, 500),
+          left: isLoL ? lp(d1, 50, 110) : "auto",
+          right: isLoL ? "auto" : lp(d1, 50, 110),
           width: 14,
           height: 14,
           borderRadius: "50%",
@@ -135,35 +157,54 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
           <ShieldIcon
             size={100}
             color={`${accent}0.22)`}
-            style={{ top: 300, right: 50, transform: "rotate(10deg)" }}
+            style={{ top: lp(s1, 200, 560), right: lp(s1, 20, 200), transform: `rotate(${10 + rot1}deg)` }}
           />
           <SwordIcon
             size={90}
             color={`${accent}0.2)`}
-            style={{ bottom: 260, left: 30, transform: "rotate(-15deg)" }}
+            style={{ bottom: lp(s2, 180, 520), left: lp(s2, 20, 180), transform: `rotate(${-15 + rot2}deg)` }}
           />
           <GemIcon
             size={70}
             color={`${accent}0.18)`}
-            style={{ top: 480, left: 90, transform: "rotate(8deg)" }}
+            style={{ top: lp(s3, 360, 720), left: lp(s3, 50, 220), transform: `rotate(${8 + rot3}deg)` }}
           />
         </>
-      ) : (
+      ) : isCS2 ? (
         <>
           <CrosshairIcon
             size={110}
             color={`${accent}0.22)`}
-            style={{ bottom: 300, right: 40 }}
+            style={{ bottom: lp(s1, 200, 560), right: lp(s1, 20, 180), transform: `rotate(${rot1}deg)` }}
           />
           <GamepadIcon
             size={100}
             color={`${accent}0.2)`}
-            style={{ top: 260, left: 30, transform: "rotate(-12deg)" }}
+            style={{ top: lp(s2, 180, 480), left: lp(s2, 15, 180), transform: `rotate(${-12 + rot2}deg)` }}
           />
           <GemIcon
             size={70}
             color={`${accent}0.18)`}
-            style={{ bottom: 460, left: 110, transform: "rotate(10deg)" }}
+            style={{ bottom: lp(s3, 360, 720), left: lp(s3, 70, 240), transform: `rotate(${10 + rot3}deg)` }}
+          />
+        </>
+      ) : (
+        /* Rocket League */
+        <>
+          <GamepadIcon
+            size={100}
+            color={`${accent}0.22)`}
+            style={{ top: lp(s1, 200, 560), right: lp(s1, 20, 200), transform: `rotate(${-10 + rot1}deg)` }}
+          />
+          <SwordIcon
+            size={90}
+            color={`${accent}0.2)`}
+            style={{ bottom: lp(s2, 200, 520), left: lp(s2, 20, 180), transform: `rotate(${12 + rot2}deg)` }}
+          />
+          <GemIcon
+            size={80}
+            color={`${accent}0.18)`}
+            style={{ top: lp(s3, 380, 720), left: lp(s3, 60, 220), transform: `rotate(${-8 + rot3}deg)` }}
           />
         </>
       )}
@@ -201,13 +242,15 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
             </span>
             <div className="flex items-center" style={{ gap: 10 }}>
               <span style={{ fontSize: 18, color: "#888899" }}>
-                OPEN DUO
+                {event.title}
               </span>
-              <img
-                src="/mirador-tec.png"
-                alt="MiradorTec"
-                style={{ height: 32, width: "auto", opacity: 0.8 }}
-              />
+              {event.venueLogo && (
+                <img
+                  src={event.venueLogo}
+                  alt={event.venue ?? "Venue"}
+                  style={{ height: 32, width: "auto", opacity: 0.8 }}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -306,27 +349,31 @@ export function OpenDuoGameSpotlight({ event, game }: GameSpotlightProps) {
           <div className="flex items-center justify-between">
             <div className="flex gap-4">
               <div
-                className="panel-clip-sm"
+                className="panel-clip-sm font-azonix"
                 style={{
-                  padding: "10px 24px",
-                  background: "rgba(132,197,82,0.06)",
-                  border: "1px solid rgba(132,197,82,0.2)",
-                  fontSize: 20,
+                  padding: "14px 28px",
+                  background: "rgba(132,197,82,0.12)",
+                  border: "1px solid rgba(132,197,82,0.4)",
+                  fontSize: 24,
                   color: "#96D068",
-                  fontWeight: 600,
+                  textShadow: "0 0 20px rgba(132,197,82,0.25)",
+                  letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {event.entryFee}
               </div>
               <div
-                className="panel-clip-sm"
+                className="panel-clip-sm font-azonix"
                 style={{
-                  padding: "10px 24px",
-                  background: "rgba(179,57,196,0.06)",
-                  border: "1px solid rgba(179,57,196,0.2)",
-                  fontSize: 20,
+                  padding: "14px 28px",
+                  background: "rgba(179,57,196,0.12)",
+                  border: "1px solid rgba(179,57,196,0.4)",
+                  fontSize: 24,
                   color: "#C06DD0",
-                  fontWeight: 600,
+                  textShadow: "0 0 20px rgba(179,57,196,0.25)",
+                  letterSpacing: "0.08em",
+                  whiteSpace: "nowrap",
                 }}
               >
                 INSCRIPCIONES ABIERTAS
@@ -400,15 +447,15 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <span
         className="font-azonix"
         style={{
-          fontSize: 18,
-          color: "#833D90",
-          letterSpacing: "0.1em",
+          fontSize: 20,
+          color: "#B490C4",
+          letterSpacing: "0.12em",
           minWidth: 150,
         }}
       >
         {label}
       </span>
-      <span style={{ fontSize: 26, color: "#D0D0DC", fontWeight: 500 }}>
+      <span style={{ fontSize: 28, color: "#E8E8F0", fontWeight: 600 }}>
         {value}
       </span>
     </div>

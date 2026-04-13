@@ -1,13 +1,8 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
-import {
-  GamepadIcon,
-  GemIcon,
-  CrosshairIcon,
-  AlienIcon,
-  SwordIcon,
-} from "./gaming-icons";
+import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
+import { ICON_MAP } from "./icon-map";
 
 /**
  * Open Duo — Countdown Story — 1080×1920 (9:16)
@@ -18,10 +13,18 @@ import {
 export function OpenDuoCountdownStory({
   event,
   daysLeft,
+  variation = DEFAULT_VARIATION,
 }: {
   event: EventData;
   daysLeft: number;
+  variation?: BannerVariation;
 }) {
+  const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
+  const [rot1, rot2, rot3] = variation.rotationOffsets;
+  const [s1, s2, s3] = variation.positionSeeds;
+  const [d1, d2, d3] = variation.decoratorSeeds;
+  const lp = (s: number, lo: number, hi: number) => Math.round(lo + s * (hi - lo));
+  const cv = variation.clipVariance;
   return (
     <div
       className="banner-frame relative"
@@ -40,7 +43,7 @@ export function OpenDuoCountdownStory({
           height: 500,
           background:
             "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
-          clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 65%)",
+          clipPath: `polygon(0 0, 100% 0, 100% 100%, 0 ${65 + cv}%)`,
         }}
       />
       <div
@@ -52,7 +55,7 @@ export function OpenDuoCountdownStory({
           height: 500,
           background:
             "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
-          clipPath: "polygon(0 35%, 100% 0, 100% 100%, 0 100%)",
+          clipPath: `polygon(0 ${35 - cv}%, 100% 0, 100% 100%, 0 100%)`,
         }}
       />
 
@@ -60,10 +63,10 @@ export function OpenDuoCountdownStory({
       <div
         className="absolute"
         style={{
-          top: 300,
+          top: lp(d3, 220, 400),
           left: 0,
-          width: 200,
-          height: 300,
+          width: lp(d3, 160, 260),
+          height: lp(d3, 240, 380),
           background: "rgba(179,57,196,0.09)",
           clipPath: "polygon(0 0, 100% 0, 70% 100%, 0 100%)",
         }}
@@ -71,16 +74,16 @@ export function OpenDuoCountdownStory({
       <div
         className="absolute"
         style={{
-          bottom: 300,
+          bottom: lp(d3, 220, 400),
           right: 0,
-          width: 180,
-          height: 280,
+          width: lp(d3, 140, 240),
+          height: lp(d3, 220, 360),
           background: "rgba(132,197,82,0.07)",
           clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
         }}
       />
 
-      {/* Large centered targeting-reticle rings */}
+      {/* Large centered targeting-reticle rings — fixed, frame the countdown number */}
       <div
         className="absolute"
         style={{
@@ -111,10 +114,10 @@ export function OpenDuoCountdownStory({
       <div
         className="absolute"
         style={{
-          top: 260,
-          right: 30,
-          width: 280,
-          height: 280,
+          top: lp(d1, 200, 360),
+          right: lp(d1, 10, 70),
+          width: lp(d1, 240, 340),
+          height: lp(d1, 240, 340),
           borderRadius: "50%",
           border: "2px solid rgba(179,57,196,0.17)",
         }}
@@ -122,10 +125,10 @@ export function OpenDuoCountdownStory({
       <div
         className="absolute"
         style={{
-          bottom: 300,
-          left: 20,
-          width: 260,
-          height: 260,
+          bottom: lp(d2, 240, 400),
+          left: lp(d2, 0, 60),
+          width: lp(d2, 220, 320),
+          height: lp(d2, 220, 320),
           borderRadius: "50%",
           border: "2px solid rgba(132,197,82,0.15)",
         }}
@@ -134,8 +137,8 @@ export function OpenDuoCountdownStory({
       <div
         className="absolute"
         style={{
-          top: 520,
-          left: 100,
+          top: lp(d1, 460, 600),
+          left: lp(d1, 70, 140),
           width: 14,
           height: 14,
           borderRadius: "50%",
@@ -145,8 +148,8 @@ export function OpenDuoCountdownStory({
       <div
         className="absolute"
         style={{
-          bottom: 530,
-          right: 110,
+          bottom: lp(d2, 480, 620),
+          right: lp(d2, 80, 160),
           width: 10,
           height: 10,
           borderRadius: "50%",
@@ -155,30 +158,30 @@ export function OpenDuoCountdownStory({
       />
 
       {/* ===== Gaming iconography ===== */}
-      <GamepadIcon
+      <Icon1
         size={110}
         color="rgba(179,57,196,0.25)"
-        style={{ top: 370, right: 70, transform: "rotate(-15deg)" }}
+        style={{ top: lp(s1, 300, 680), right: lp(s1, 20, 240), transform: `rotate(${-15 + rot1}deg)` }}
       />
-      <GemIcon
+      <Icon2
         size={80}
         color="rgba(132,197,82,0.22)"
-        style={{ bottom: 440, left: 70, transform: "rotate(10deg)" }}
+        style={{ bottom: lp(s2, 380, 760), left: lp(s2, 30, 240), transform: `rotate(${10 + rot2}deg)` }}
       />
-      <CrosshairIcon
+      <Icon3
         size={100}
         color="rgba(132,197,82,0.18)"
-        style={{ top: 300, left: 50 }}
+        style={{ top: lp(s3, 220, 560), left: lp(s3, 20, 200), transform: `rotate(${rot3}deg)` }}
       />
-      <AlienIcon
+      <Icon1
         size={75}
         color="rgba(179,57,196,0.2)"
-        style={{ bottom: 620, right: 50, transform: "rotate(-5deg)" }}
+        style={{ bottom: lp(s1, 560, 1000), right: lp(s1, 20, 200), transform: `rotate(${-5 + rot1}deg)` }}
       />
-      <SwordIcon
+      <Icon2
         size={80}
         color="rgba(179,57,196,0.18)"
-        style={{ top: 600, left: 40, transform: "rotate(-20deg)" }}
+        style={{ top: lp(s2, 560, 900), left: lp(s2, 20, 160), transform: `rotate(${-20 + rot2}deg)` }}
       />
 
       {/* HUD accent bars */}
@@ -256,7 +259,7 @@ export function OpenDuoCountdownStory({
               letterSpacing: "0.1em",
             }}
           >
-            OPEN DUO
+            {event.title}
           </span>
         </div>
 
@@ -270,7 +273,7 @@ export function OpenDuoCountdownStory({
               letterSpacing: "0.2em",
             }}
           >
-            {daysLeft === 1 ? "FALTA" : "FALTAN"}
+            {daysLeft === 0 ? "" : daysLeft === 1 ? "FALTA" : "FALTAN"}
           </span>
 
           {/* Giant number with HUD frame */}
@@ -285,14 +288,14 @@ export function OpenDuoCountdownStory({
             <span
               className="font-azonix"
               style={{
-                fontSize: 280,
+                fontSize: daysLeft === 0 ? 200 : 280,
                 color: "#96D068",
                 lineHeight: 0.85,
                 textShadow:
                   "0 0 40px rgba(132,197,82,0.4), 0 0 80px rgba(132,197,82,0.15)",
               }}
             >
-              {daysLeft}
+              {daysLeft === 0 ? "HOY" : daysLeft}
             </span>
           </div>
 
@@ -304,7 +307,7 @@ export function OpenDuoCountdownStory({
               letterSpacing: "0.15em",
             }}
           >
-            {daysLeft === 1 ? "DÍA" : "DÍAS"}
+            {daysLeft === 0 ? "" : daysLeft === 1 ? "DÍA" : "DÍAS"}
           </span>
         </div>
 
@@ -327,38 +330,33 @@ export function OpenDuoCountdownStory({
             </span>
           </div>
 
-          <div className="flex gap-4">
-            <span
-              className="panel-clip-sm font-azonix"
-              style={{
-                padding: "12px 28px",
-                background: "rgba(132,197,82,0.08)",
-                border: "1px solid rgba(132,197,82,0.25)",
-                fontSize: 22,
-                color: "#96D068",
-              }}
-            >
-              LOL 2V2
-            </span>
-            <span
-              className="panel-clip-sm font-azonix"
-              style={{
-                padding: "12px 28px",
-                background: "rgba(132,197,82,0.08)",
-                border: "1px solid rgba(132,197,82,0.25)",
-                fontSize: 22,
-                color: "#96D068",
-              }}
-            >
-              CS2 2V2
-            </span>
-          </div>
+          {event.gameDetails && (
+            <div className="flex gap-4 flex-wrap justify-center">
+              {event.gameDetails.map((g) => (
+                <span
+                  key={g.shortName}
+                  className="panel-clip-sm font-azonix"
+                  style={{
+                    padding: "12px 28px",
+                    background: "rgba(132,197,82,0.08)",
+                    border: "1px solid rgba(132,197,82,0.25)",
+                    fontSize: 22,
+                    color: "#96D068",
+                  }}
+                >
+                  {g.shortName} {g.format}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="flex items-center" style={{ gap: 16 }}>
-            <img
-              src="/mirador-tec.png"
-              alt="MiradorTec"
-              style={{ height: 44, width: "auto", opacity: 0.85 }}
-            />
+            {event.venueLogo && (
+              <img
+                src={event.venueLogo}
+                alt={event.venue ?? "Venue"}
+                style={{ height: 44, width: "auto", opacity: 0.85 }}
+              />
+            )}
             <span
               className="font-azonix"
               style={{ fontSize: 24, color: "#888899" }}

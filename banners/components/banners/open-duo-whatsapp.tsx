@@ -1,23 +1,26 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
-import {
-  GamepadIcon,
-  GemIcon,
-  AlienIcon,
-  ShieldIcon,
-  SwordIcon,
-} from "./gaming-icons";
+import { joinGameNames } from "@/lib/event-data";
+import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
+import { ICON_MAP } from "./icon-map";
 
 /**
- * Open Duo — WhatsApp Status — 1080×1920 (9:16)
- * Safe zone: 120px top, 200px bottom, 60px sides
+ * Open Duo — WhatsApp Group — 1080×1080 (1:1 square)
+ * Safe zone: 60px all sides
+ * Optimized for WhatsApp group flyer sharing
  */
-export function OpenDuoWhatsApp({ event }: { event: EventData }) {
+export function OpenDuoWhatsApp({ event, variation = DEFAULT_VARIATION }: { event: EventData; variation?: BannerVariation }) {
+  const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
+  const [rot1, rot2, rot3] = variation.rotationOffsets;
+  const [s1, s2, s3] = variation.positionSeeds;
+  const [d1, d2, d3] = variation.decoratorSeeds;
+  const lp = (s: number, lo: number, hi: number) => Math.round(lo + s * (hi - lo));
+  const cv = variation.clipVariance;
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1920, background: "#1c1435" }}
+      style={{ width: 1080, height: 1080, background: "#1c1435" }}
     >
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
@@ -29,22 +32,22 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
           top: 0,
           left: 0,
           width: "100%",
-          height: 500,
+          height: 350,
           background:
             "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
-          clipPath: "polygon(0 0, 100% 0, 100% 65%, 0 100%)",
+          clipPath: `polygon(0 0, 100% 0, 100% ${65 + cv}%, 0 100%)`,
         }}
       />
       <div
         className="absolute"
         style={{
           bottom: 0,
-          left: 0,
+          right: 0,
           width: "100%",
-          height: 500,
+          height: 350,
           background:
             "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
-          clipPath: "polygon(0 35%, 100% 0, 100% 100%, 0 100%)",
+          clipPath: `polygon(0 ${35 - cv}%, 100% 0, 100% 100%, 0 100%)`,
         }}
       />
 
@@ -52,301 +55,232 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 200,
-          right: 0,
-          width: 200,
-          height: 300,
-          background: "rgba(179,57,196,0.1)",
-          clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
-        }}
-      />
-      <div
-        className="absolute"
-        style={{
-          bottom: 300,
+          top: lp(d3, 110, 210),
           left: 0,
-          width: 160,
-          height: 240,
-          background: "rgba(132,197,82,0.08)",
+          width: lp(d3, 90, 160),
+          height: lp(d3, 160, 260),
+          background: "rgba(179,57,196,0.09)",
           clipPath: "polygon(0 0, 100% 0, 70% 100%, 0 100%)",
         }}
       />
+      <div
+        className="absolute"
+        style={{
+          bottom: lp(d3, 110, 210),
+          right: 0,
+          width: lp(d3, 90, 160),
+          height: lp(d3, 160, 260),
+          background: "rgba(132,197,82,0.08)",
+          clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
+        }}
+      />
 
-      {/* Large circular ring accents */}
+      {/* Circular ring accents */}
       <div
         className="absolute"
         style={{
-          top: 280,
-          right: 20,
-          width: 320,
-          height: 320,
+          top: lp(d1, 150, 280),
+          right: lp(d1, -30, 20),
+          width: lp(d1, 200, 300),
+          height: lp(d1, 200, 300),
           borderRadius: "50%",
-          border: "2px solid rgba(179,57,196,0.18)",
+          border: "2px solid rgba(179,57,196,0.15)",
         }}
       />
       <div
         className="absolute"
         style={{
-          top: 360,
-          right: 80,
-          width: 160,
-          height: 160,
+          bottom: lp(d2, 100, 230),
+          left: lp(d2, -70, -20),
+          width: lp(d2, 240, 340),
+          height: lp(d2, 240, 340),
           borderRadius: "50%",
-          border: "1px solid rgba(179,57,196,0.1)",
+          border: "2px solid rgba(132,197,82,0.12)",
         }}
       />
-      <div
-        className="absolute"
-        style={{
-          bottom: 340,
-          left: 10,
-          width: 340,
-          height: 340,
-          borderRadius: "50%",
-          border: "2px solid rgba(132,197,82,0.16)",
-        }}
-      />
+
       {/* Dots */}
       <div
         className="absolute"
         style={{
-          top: 580,
-          left: 80,
-          width: 14,
-          height: 14,
+          top: lp(d1, 70, 160),
+          left: lp(d1, 40, 110),
+          width: 12,
+          height: 12,
           borderRadius: "50%",
-          background: "rgba(179,57,196,0.35)",
+          background: "rgba(179,57,196,0.3)",
         }}
       />
       <div
         className="absolute"
         style={{
-          bottom: 580,
-          right: 90,
+          bottom: lp(d2, 70, 160),
+          right: lp(d2, 50, 120),
           width: 10,
           height: 10,
           borderRadius: "50%",
-          background: "rgba(132,197,82,0.3)",
+          background: "rgba(132,197,82,0.25)",
         }}
       />
 
       {/* ===== Gaming iconography ===== */}
-      <GamepadIcon
-        size={130}
-        color="rgba(179,57,196,0.28)"
-        style={{ top: 350, right: 70, transform: "rotate(-10deg)" }}
+      <Icon1
+        size={100}
+        color="rgba(179,57,196,0.25)"
+        style={{ top: lp(s1, 150, 380), right: lp(s1, 30, 200), transform: `rotate(${-10 + rot1}deg)` }}
       />
-      <GemIcon
-        size={90}
-        color="rgba(132,197,82,0.25)"
-        style={{ bottom: 460, left: 80, transform: "rotate(12deg)" }}
+      <Icon2
+        size={70}
+        color="rgba(132,197,82,0.22)"
+        style={{ bottom: lp(s2, 80, 320), left: lp(s2, 30, 200), transform: `rotate(${12 + rot2}deg)` }}
       />
-      <AlienIcon
-        size={80}
-        color="rgba(179,57,196,0.22)"
-        style={{ top: 200, left: 140, transform: "rotate(5deg)" }}
-      />
-      <ShieldIcon
-        size={90}
-        color="rgba(132,197,82,0.2)"
-        style={{ bottom: 660, right: 50, transform: "rotate(8deg)" }}
-      />
-      <SwordIcon
-        size={80}
+      <Icon3
+        size={60}
         color="rgba(179,57,196,0.2)"
-        style={{ top: 640, left: 40, transform: "rotate(-18deg)" }}
+        style={{ top: lp(s3, 90, 320), left: lp(s3, 60, 250), transform: `rotate(${5 + rot3}deg)` }}
       />
 
-      {/* HUD accent bars */}
+      {/* HUD accent bar */}
       <div
         className="absolute"
         style={{
-          top: 120,
+          top: 200,
           left: 0,
           right: 0,
-          height: 2,
+          height: 1,
           background:
             "linear-gradient(90deg, rgba(179,57,196,0.5), rgba(179,57,196,0.1) 30%, transparent 50%, rgba(132,197,82,0.1) 70%, rgba(132,197,82,0.4))",
         }}
       />
-      <div
-        className="absolute"
-        style={{
-          bottom: 200,
-          left: 0,
-          right: 0,
-          height: 2,
-          background:
-            "linear-gradient(90deg, rgba(132,197,82,0.4), rgba(132,197,82,0.1) 30%, transparent 50%, rgba(179,57,196,0.1) 70%, rgba(179,57,196,0.5))",
-        }}
-      />
 
-      {/* ===== Content — spread with breathing room ===== */}
+      {/* ===== Content — Centered square layout ===== */}
       <div
-        className="relative flex flex-col items-center justify-between h-full"
+        className="relative flex flex-col items-center justify-center h-full"
         style={{
-          paddingTop: 170,
-          paddingBottom: 250,
-          paddingLeft: 80,
-          paddingRight: 80,
+          padding: "60px",
+          textAlign: "center",
+          gap: 20,
         }}
       >
-        {/* ── Logo ── */}
+        {/* Logo */}
         <img
           src="/logo.png"
           alt="GamER"
-          style={{ height: 130, width: "auto" }}
+          style={{ height: 100, width: "auto", marginBottom: 10 }}
         />
 
-        {/* ── Badge + Title block ── */}
-        <div className="flex flex-col items-center" style={{ gap: 28 }}>
+        {/* Badge */}
+        <div
+          className="panel-clip-sm font-azonix"
+          style={{
+            padding: "12px 28px",
+            background: "rgba(179,57,196,0.1)",
+            border: "1px solid rgba(179,57,196,0.3)",
+            fontSize: 22,
+            color: "#C06DD0",
+            letterSpacing: "0.15em",
+          }}
+        >
+          TORNEO PRESENCIAL
+        </div>
+
+        {/* Main title */}
+        <h1
+          className="font-azonix leading-none"
+          style={{
+            fontSize: 110,
+            color: "#E8E8F0",
+            textShadow:
+              "0 0 40px rgba(179,57,196,0.4), 0 0 80px rgba(179,57,196,0.15)",
+            margin: "8px 0",
+          }}
+        >
+          {event.title}
+        </h1>
+
+        {/* Games */}
+        <p style={{ fontSize: 30, color: "#D0D0DC", lineHeight: 1.2, margin: 0 }}>
+          <span style={{ color: "#96D068", fontWeight: 700 }}>
+            {event.gameDetails
+              ? event.gameDetails.map((g) => g.shortName).join(" · ")
+              : joinGameNames(event.games)}
+          </span>
+        </p>
+
+        {/* Date */}
+        <div
+          style={{
+            padding: "12px 28px",
+            background: "rgba(179,57,196,0.08)",
+            border: "1px solid rgba(179,57,196,0.2)",
+            borderRadius: "4px",
+            marginTop: 8,
+          }}
+        >
+          <span
+            className="font-azonix"
+            style={{
+              fontSize: 42,
+              color: "#96D068",
+              textShadow: "0 0 20px rgba(132,197,82,0.3)",
+              display: "block",
+            }}
+          >
+            {event.date.toUpperCase()}
+          </span>
+          <span style={{ fontSize: 24, color: "#E8E8F0" }}>
+            {event.time}
+          </span>
+        </div>
+
+        {/* Venue */}
+        <div style={{ display: "flex", alignItems: "center", gap: 20, justifyContent: "center" }}>
+          {event.venueLogo && (
+            <img
+              src={event.venueLogo}
+              alt={event.venue ?? "Venue"}
+              style={{ height: 44, width: "auto", opacity: 0.9 }}
+            />
+          )}
+          <span
+            className="font-azonix"
+            style={{ fontSize: 26, color: "#888899" }}
+          >
+            {event.city}
+          </span>
+        </div>
+
+        {/* Entry + Inscriptions */}
+        <div className="flex" style={{ gap: 20, marginTop: 8 }}>
+          {event.entryFee && (
+            <div
+              className="panel-clip-sm font-azonix"
+              style={{
+                padding: "14px 28px",
+                background: "rgba(132,197,82,0.12)",
+                border: "1px solid rgba(132,197,82,0.4)",
+                fontSize: 28,
+                color: "#96D068",
+                textShadow: "0 0 20px rgba(132,197,82,0.25)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {event.entryFee}
+            </div>
+          )}
           <div
             className="panel-clip-sm font-azonix"
             style={{
-              padding: "14px 40px",
-              background: "rgba(179,57,196,0.1)",
-              border: "1px solid rgba(179,57,196,0.3)",
-              fontSize: 22,
+              padding: "14px 28px",
+              background: "rgba(179,57,196,0.12)",
+              border: "1px solid rgba(179,57,196,0.4)",
+              fontSize: 28,
               color: "#C06DD0",
-              letterSpacing: "0.2em",
+              textShadow: "0 0 20px rgba(179,57,196,0.25)",
+              letterSpacing: "0.08em",
             }}
           >
-            TORNEO PRESENCIAL
-          </div>
-
-          {/* 2v2 */}
-          <div className="flex items-center gap-4">
-            <div
-              style={{
-                width: 80,
-                height: 3,
-                background:
-                  "linear-gradient(90deg, transparent, rgba(132,197,82,0.5))",
-              }}
-            />
-            <span
-              className="font-azonix"
-              style={{
-                fontSize: 44,
-                color: "#96D068",
-                letterSpacing: "0.3em",
-              }}
-            >
-              2 VS 2
-            </span>
-            <div
-              style={{
-                width: 80,
-                height: 3,
-                background:
-                  "linear-gradient(90deg, rgba(132,197,82,0.5), transparent)",
-              }}
-            />
-          </div>
-
-          {/* Title */}
-          <h1
-            className="font-azonix leading-none"
-            style={{
-              fontSize: 130,
-              color: "#E8E8F0",
-              textShadow:
-                "0 0 40px rgba(179,57,196,0.4), 0 0 80px rgba(179,57,196,0.15)",
-            }}
-          >
-            OPEN DUO
-          </h1>
-
-          {/* Games */}
-          <p style={{ fontSize: 32, color: "#D0D0DC", lineHeight: 1.4 }}>
-            <span style={{ color: "#96D068", fontWeight: 700 }}>
-              League of Legends
-            </span>{" "}
-            &{" "}
-            <span style={{ color: "#96D068", fontWeight: 700 }}>
-              Counter-Strike 2
-            </span>
-          </p>
-        </div>
-
-        {/* ── Bottom: Date + Venue + Entry ── */}
-        <div className="flex flex-col items-center" style={{ gap: 22 }}>
-          {/* Date panel */}
-          <div
-            className="panel-clip relative"
-            style={{
-              padding: "24px 56px",
-              background: "rgba(179,57,196,0.06)",
-              border: "1px solid rgba(179,57,196,0.2)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <div className="hud-bracket-tl" />
-            <div className="hud-bracket-br" />
-            <span
-              className="font-azonix"
-              style={{
-                fontSize: 46,
-                color: "#96D068",
-                textShadow: "0 0 20px rgba(132,197,82,0.3)",
-              }}
-            >
-              {event.date.toUpperCase()}
-            </span>
-            <span
-              className="font-azonix"
-              style={{ fontSize: 30, color: "#E8E8F0" }}
-            >
-              {event.time}
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center" style={{ gap: 8 }}>
-            <img
-              src="/mirador-tec.png"
-              alt="MiradorTec"
-              style={{ height: 60, width: "auto", opacity: 0.9 }}
-            />
-            <span
-              className="font-azonix"
-              style={{ fontSize: 26, color: "#888899" }}
-            >
-              {event.city}
-            </span>
-          </div>
-
-          <div className="flex gap-4">
-            {event.entryFee && (
-              <div
-                className="panel-clip-sm"
-                style={{
-                  padding: "12px 28px",
-                  background: "rgba(132,197,82,0.06)",
-                  border: "1px solid rgba(132,197,82,0.2)",
-                  fontSize: 24,
-                  color: "#96D068",
-                  fontWeight: 600,
-                }}
-              >
-                {event.entryFee}
-              </div>
-            )}
-            <div
-              className="panel-clip-sm"
-              style={{
-                padding: "12px 28px",
-                background: "rgba(179,57,196,0.06)",
-                border: "1px solid rgba(179,57,196,0.2)",
-                fontSize: 24,
-                color: "#C06DD0",
-                fontWeight: 600,
-              }}
-            >
-              INSCRIPCIONES ABIERTAS
-            </div>
+            INSCRÍBETE
           </div>
         </div>
       </div>
@@ -355,10 +289,10 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 30,
-          left: 30,
-          width: 70,
-          height: 70,
+          top: 20,
+          left: 20,
+          width: 50,
+          height: 50,
           borderTop: "3px solid rgba(179,57,196,0.5)",
           borderLeft: "3px solid rgba(179,57,196,0.5)",
         }}
@@ -366,10 +300,10 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 30,
-          right: 30,
-          width: 70,
-          height: 70,
+          top: 20,
+          right: 20,
+          width: 50,
+          height: 50,
           borderTop: "3px solid rgba(179,57,196,0.5)",
           borderRight: "3px solid rgba(179,57,196,0.5)",
         }}
@@ -377,10 +311,10 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          bottom: 30,
-          left: 30,
-          width: 70,
-          height: 70,
+          bottom: 20,
+          left: 20,
+          width: 50,
+          height: 50,
           borderBottom: "3px solid rgba(132,197,82,0.5)",
           borderLeft: "3px solid rgba(132,197,82,0.5)",
         }}
@@ -388,10 +322,10 @@ export function OpenDuoWhatsApp({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          bottom: 30,
-          right: 30,
-          width: 70,
-          height: 70,
+          bottom: 20,
+          right: 20,
+          width: 50,
+          height: 50,
           borderBottom: "3px solid rgba(132,197,82,0.5)",
           borderRight: "3px solid rgba(132,197,82,0.5)",
         }}

@@ -1,19 +1,21 @@
 "use client";
 
 import type { EventData } from "@/lib/event-data";
-import {
-  GamepadIcon,
-  GemIcon,
-  CrosshairIcon,
-  AlienIcon,
-  ShieldIcon,
-} from "./gaming-icons";
+import { joinGameNames } from "@/lib/event-data";
+import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
+import { ICON_MAP } from "./icon-map";
 
 /**
  * Open Duo — Instagram Story Announcement — 1080×1920 (9:16)
  * Safe zone: 250px top/bottom, 60px sides
  */
-export function OpenDuoStory({ event }: { event: EventData }) {
+export function OpenDuoStory({ event, variation = DEFAULT_VARIATION }: { event: EventData; variation?: BannerVariation }) {
+  const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
+  const [rot1, rot2, rot3] = variation.rotationOffsets;
+  const [s1, s2, s3] = variation.positionSeeds;
+  const [d1, d2, d3] = variation.decoratorSeeds;
+  const lp = (s: number, lo: number, hi: number) => Math.round(lo + s * (hi - lo));
+  const cv = variation.clipVariance;
   return (
     <div
       className="banner-frame relative"
@@ -32,7 +34,7 @@ export function OpenDuoStory({ event }: { event: EventData }) {
           height: 480,
           background:
             "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
-          clipPath: "polygon(0 0, 100% 0, 100% 70%, 0 100%)",
+          clipPath: `polygon(0 0, 100% 0, 100% ${70 + cv}%, 0 100%)`,
         }}
       />
       <div
@@ -44,7 +46,7 @@ export function OpenDuoStory({ event }: { event: EventData }) {
           height: 480,
           background:
             "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
-          clipPath: "polygon(0 30%, 100% 0, 100% 100%, 0 100%)",
+          clipPath: `polygon(0 ${30 - cv}%, 100% 0, 100% 100%, 0 100%)`,
         }}
       />
 
@@ -52,10 +54,10 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 160,
+          top: lp(d3, 100, 240),
           right: 0,
-          width: 200,
-          height: 300,
+          width: lp(d3, 160, 260),
+          height: lp(d3, 240, 380),
           background: "rgba(179,57,196,0.1)",
           clipPath: "polygon(30% 0, 100% 0, 100% 100%, 0 100%)",
         }}
@@ -63,10 +65,10 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          bottom: 160,
+          bottom: lp(d3, 100, 240),
           left: 0,
-          width: 180,
-          height: 280,
+          width: lp(d3, 140, 240),
+          height: lp(d3, 220, 360),
           background: "rgba(132,197,82,0.08)",
           clipPath: "polygon(0 0, 100% 0, 70% 100%, 0 100%)",
         }}
@@ -76,10 +78,10 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 260,
-          right: 30,
-          width: 300,
-          height: 300,
+          top: lp(d1, 200, 360),
+          right: lp(d1, 10, 70),
+          width: lp(d1, 260, 360),
+          height: lp(d1, 260, 360),
           borderRadius: "50%",
           border: "2px solid rgba(179,57,196,0.18)",
         }}
@@ -87,10 +89,10 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 330,
-          right: 80,
-          width: 160,
-          height: 160,
+          top: lp(d1, 270, 430),
+          right: lp(d1, 55, 115),
+          width: lp(d1, 130, 200),
+          height: lp(d1, 130, 200),
           borderRadius: "50%",
           border: "1px solid rgba(179,57,196,0.1)",
         }}
@@ -98,10 +100,10 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          bottom: 300,
-          left: 20,
-          width: 340,
-          height: 340,
+          bottom: lp(d2, 240, 400),
+          left: lp(d2, 0, 50),
+          width: lp(d2, 280, 400),
+          height: lp(d2, 280, 400),
           borderRadius: "50%",
           border: "2px solid rgba(132,197,82,0.16)",
         }}
@@ -109,10 +111,10 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          bottom: 370,
-          left: 80,
-          width: 200,
-          height: 200,
+          bottom: lp(d2, 310, 470),
+          left: lp(d2, 55, 105),
+          width: lp(d2, 160, 260),
+          height: lp(d2, 160, 260),
           borderRadius: "50%",
           border: "1px solid rgba(132,197,82,0.09)",
         }}
@@ -121,8 +123,8 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          top: 520,
-          left: 90,
+          top: lp(d1, 460, 600),
+          left: lp(d1, 60, 130),
           width: 14,
           height: 14,
           borderRadius: "50%",
@@ -132,8 +134,8 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       <div
         className="absolute"
         style={{
-          bottom: 540,
-          right: 100,
+          bottom: lp(d2, 480, 620),
+          right: lp(d2, 70, 140),
           width: 10,
           height: 10,
           borderRadius: "50%",
@@ -142,30 +144,30 @@ export function OpenDuoStory({ event }: { event: EventData }) {
       />
 
       {/* ===== Gaming iconography ===== */}
-      <GamepadIcon
+      <Icon1
         size={120}
         color="rgba(179,57,196,0.28)"
-        style={{ top: 380, right: 80, transform: "rotate(-15deg)" }}
+        style={{ top: lp(s1, 250, 700), right: lp(s1, 20, 240), transform: `rotate(${-15 + rot1}deg)` }}
       />
-      <GemIcon
+      <Icon2
         size={85}
         color="rgba(132,197,82,0.25)"
-        style={{ bottom: 480, left: 100, transform: "rotate(10deg)" }}
+        style={{ bottom: lp(s2, 350, 780), left: lp(s2, 30, 240), transform: `rotate(${10 + rot2}deg)` }}
       />
-      <CrosshairIcon
+      <Icon3
         size={100}
         color="rgba(132,197,82,0.2)"
-        style={{ bottom: 700, right: 50 }}
+        style={{ bottom: lp(s3, 520, 1020), right: lp(s3, 20, 200), transform: `rotate(${rot3}deg)` }}
       />
-      <ShieldIcon
+      <Icon1
         size={90}
         color="rgba(179,57,196,0.22)"
-        style={{ top: 700, left: 40, transform: "rotate(-8deg)" }}
+        style={{ top: lp(s1, 560, 980), left: lp(s1, 15, 200), transform: `rotate(${-8 + rot1}deg)` }}
       />
-      <AlienIcon
+      <Icon2
         size={70}
         color="rgba(179,57,196,0.2)"
-        style={{ top: 180, left: 200, transform: "rotate(5deg)" }}
+        style={{ top: lp(s2, 110, 380), left: lp(s2, 90, 380), transform: `rotate(${5 + rot2}deg)` }}
       />
 
       {/* HUD accent bars */}
@@ -307,7 +309,7 @@ export function OpenDuoStory({ event }: { event: EventData }) {
                 "0 0 40px rgba(179,57,196,0.4), 0 0 80px rgba(179,57,196,0.15)",
             }}
           >
-            OPEN DUO
+            {event.title}
           </h1>
 
           {/* Subtitle */}
@@ -322,41 +324,30 @@ export function OpenDuoStory({ event }: { event: EventData }) {
           >
             Torneos de{" "}
             <span style={{ color: "#96D068", fontWeight: 700 }}>
-              League of Legends
-            </span>{" "}
-            y{" "}
-            <span style={{ color: "#96D068", fontWeight: 700 }}>
-              Counter-Strike 2
+              {joinGameNames(event.games)}
             </span>
           </p>
 
           {/* Game format pills */}
-          <div className="flex gap-5">
-            <div
-              className="panel-clip-sm font-azonix"
-              style={{
-                padding: "14px 32px",
-                background: "rgba(132,197,82,0.08)",
-                border: "1px solid rgba(132,197,82,0.25)",
-                fontSize: 22,
-                color: "#96D068",
-              }}
-            >
-              LOL ARAM 2V2
+          {event.gameDetails && (
+            <div className="flex gap-5 flex-wrap justify-center">
+              {event.gameDetails.map((g) => (
+                <div
+                  key={g.shortName}
+                  className="panel-clip-sm font-azonix"
+                  style={{
+                    padding: "14px 32px",
+                    background: "rgba(132,197,82,0.08)",
+                    border: "1px solid rgba(132,197,82,0.25)",
+                    fontSize: 22,
+                    color: "#96D068",
+                  }}
+                >
+                  {g.shortName} {g.format}
+                </div>
+              ))}
             </div>
-            <div
-              className="panel-clip-sm font-azonix"
-              style={{
-                padding: "14px 32px",
-                background: "rgba(132,197,82,0.08)",
-                border: "1px solid rgba(132,197,82,0.25)",
-                fontSize: 22,
-                color: "#96D068",
-              }}
-            >
-              CS2 WINGMAN 2V2
-            </div>
-          </div>
+          )}
         </div>
 
         {/* ── Bottom: Date + Venue ── */}
@@ -413,28 +404,32 @@ export function OpenDuoStory({ event }: { event: EventData }) {
           <div className="flex gap-4" style={{ marginTop: 4 }}>
             {event.entryFee && (
               <div
-                className="panel-clip-sm"
+                className="panel-clip-sm font-azonix"
                 style={{
-                  padding: "10px 24px",
-                  background: "rgba(132,197,82,0.06)",
-                  border: "1px solid rgba(132,197,82,0.2)",
-                  fontSize: 22,
+                  padding: "14px 28px",
+                  background: "rgba(132,197,82,0.12)",
+                  border: "1px solid rgba(132,197,82,0.4)",
+                  fontSize: 26,
                   color: "#96D068",
-                  fontWeight: 600,
+                  textShadow: "0 0 20px rgba(132,197,82,0.25)",
+                  letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {event.entryFee}
               </div>
             )}
             <div
-              className="panel-clip-sm"
+              className="panel-clip-sm font-azonix"
               style={{
-                padding: "10px 24px",
-                background: "rgba(179,57,196,0.06)",
-                border: "1px solid rgba(179,57,196,0.2)",
-                fontSize: 22,
+                padding: "14px 28px",
+                background: "rgba(179,57,196,0.12)",
+                border: "1px solid rgba(179,57,196,0.4)",
+                fontSize: 26,
                 color: "#C06DD0",
-                fontWeight: 600,
+                textShadow: "0 0 20px rgba(179,57,196,0.25)",
+                letterSpacing: "0.08em",
+                whiteSpace: "nowrap",
               }}
             >
               INSCRIPCIONES ABIERTAS

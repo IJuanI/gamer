@@ -15,8 +15,23 @@ import {
  */
 
 /* ── Story 1080×1920 background (used by Story + WhatsApp) ── */
-export function StoryBackground({ variant }: { variant: "story" | "whatsapp" }) {
+export function StoryBackground({
+  variant,
+  accent,
+}: {
+  variant: "story" | "whatsapp";
+  accent?: "purple" | "green" | "orange";
+}) {
   const isWA = variant === "whatsapp";
+  // Primary accent color
+  const ac =
+    accent === "green"
+      ? "rgba(132,197,82,"
+      : accent === "orange"
+        ? "rgba(255,130,0,"
+        : "rgba(179,57,196,";
+  // Background accent (for dual-color layouts; defaults to green when no accent specified)
+  const bg = accent ? ac : "rgba(132,197,82,";
 
   return (
     <div
@@ -33,8 +48,7 @@ export function StoryBackground({ variant }: { variant: "story" | "whatsapp" }) 
           left: 0,
           width: "100%",
           height: isWA ? 500 : 480,
-          background:
-            "linear-gradient(180deg, rgba(179,57,196,0.14), transparent)",
+          background: `linear-gradient(180deg, ${ac}0.14), transparent)`,
           clipPath: isWA
             ? "polygon(0 0, 100% 0, 100% 65%, 0 100%)"
             : "polygon(0 0, 100% 0, 100% 70%, 0 100%)",
@@ -47,8 +61,7 @@ export function StoryBackground({ variant }: { variant: "story" | "whatsapp" }) 
           left: 0,
           width: "100%",
           height: isWA ? 500 : 480,
-          background:
-            "linear-gradient(0deg, rgba(132,197,82,0.1), transparent)",
+          background: `linear-gradient(0deg, ${bg}0.1), transparent)`,
           clipPath: isWA
             ? "polygon(0 35%, 100% 0, 100% 100%, 0 100%)"
             : "polygon(0 30%, 100% 0, 100% 100%, 0 100%)",
@@ -270,11 +283,12 @@ export function CountdownBackground() {
 }
 
 /* ── Feed 1080×1350 background ── */
-export function FeedBackground({ accent }: { accent?: "purple" | "green" | "mixed" }) {
+export function FeedBackground({ accent }: { accent?: "purple" | "green" | "orange" | "mixed" }) {
   const a = accent ?? "mixed";
   const isPurple = a === "purple";
   const isGreen = a === "green";
-  const ac = isPurple ? "rgba(179,57,196," : isGreen ? "rgba(132,197,82," : null;
+  const isOrange = a === "orange";
+  const ac = isPurple ? "rgba(179,57,196," : isGreen ? "rgba(132,197,82," : isOrange ? "rgba(255,130,0," : null;
 
   return (
     <div
@@ -307,6 +321,12 @@ export function FeedBackground({ accent }: { accent?: "purple" | "green" | "mixe
           <CrosshairIcon size={110} color={`${ac}0.22)`} style={{ bottom: 300, right: 40 }} />
           <GamepadIcon size={100} color={`${ac}0.2)`} style={{ top: 260, left: 30, transform: "rotate(-12deg)" }} />
           <GemIcon size={70} color={`${ac}0.18)`} style={{ bottom: 460, left: 110, transform: "rotate(10deg)" }} />
+        </>
+      ) : isOrange ? (
+        <>
+          <GamepadIcon size={100} color={`${ac}0.22)`} style={{ top: 300, right: 50, transform: "rotate(-10deg)" }} />
+          <SwordIcon size={90} color={`${ac}0.2)`} style={{ bottom: 260, left: 30, transform: "rotate(12deg)" }} />
+          <GemIcon size={70} color={`${ac}0.18)`} style={{ top: 480, left: 100, transform: "rotate(-8deg)" }} />
         </>
       ) : (
         <>

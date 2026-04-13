@@ -50,14 +50,14 @@ export const FORMATS: Record<string, BannerFormat> = {
   },
   "whatsapp-status": {
     id: "whatsapp-status",
-    name: "WhatsApp Status",
+    name: "WhatsApp Group",
     platform: "WhatsApp",
     width: 1080,
-    height: 1920,
-    aspectRatio: "9:16",
-    safeZone: { top: 120, bottom: 200, left: 60, right: 60 },
+    height: 1080,
+    aspectRatio: "1:1",
+    safeZone: { top: 60, bottom: 60, left: 60, right: 60 },
     description:
-      "Mismo tamaño que IG Story pero con safe zone diferente: 120px arriba (nombre de usuario), 200px abajo (botón responder).",
+      "Formato cuadrado 1:1 optimizado para compartir flyers en grupos de WhatsApp. Sin cropping en el chat.",
   },
 } as const;
 
