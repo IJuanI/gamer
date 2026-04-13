@@ -23,6 +23,7 @@ import {
 import { SAMPLE_EVENTS, type EventData, type GameDetail } from "@/lib/event-data";
 import { FORMATS } from "@/lib/formats";
 import { exportBanner } from "@/lib/export-banner";
+import { exportBannerMp4 } from "@/lib/export-mp4";
 import { generateVariation, DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 
 type Template = "anuncio" | "countdown" | "spotlight" | "publico";
@@ -126,6 +127,9 @@ export default function GalleryPage() {
   const [variation, setVariation] = useState<BannerVariation>(DEFAULT_VARIATION);
   const [isEditableEvent, setIsEditableEvent] = useState(false);
   const [editableEvent, setEditableEvent] = useState<EventData>(SAMPLE_EVENTS[0]);
+  const [animated, setAnimated] = useState(false);
+  const [animStyle, setAnimStyle] = useState<"glitch" | "scan" | "pulse" | "drift" | "matrix">("pulse");
+  const [mp4Progress, setMp4Progress] = useState<{ done: number; total: number } | null>(null);
   useEffect(() => { setVariation(generateVariation()); }, []);
 
   const event = isEditableEvent ? editableEvent : SAMPLE_EVENTS[eventIdx];
@@ -164,8 +168,7 @@ export default function GalleryPage() {
             GamER — Banners
           </h1>
           <p className="text-sm" style={{ color: t.muted }}>
-            Seleccioná un banner para previsualizar. &quot;Descargar&quot; exporta
-            PNG a resolución real.
+            Seleccioná un banner para previsualizar. PNG estático o MP4 animado.
           </p>
         </div>
         <div
@@ -691,6 +694,7 @@ export default function GalleryPage() {
         >
           <div
             ref={bannerRef}
+            className={animated ? `banner-animated banner-anim-${animStyle}` : undefined}
             style={{
               transform: `scale(${scale})`,
               transformOrigin: "top left",
@@ -700,7 +704,7 @@ export default function GalleryPage() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => setVariation(generateVariation())}
             className="px-4 py-2 text-sm font-medium cursor-pointer"
@@ -711,6 +715,17 @@ export default function GalleryPage() {
             }}
           >
             Regenerar
+          </button>
+          <button
+            onClick={() => setAnimated((v) => !v)}
+            className="px-4 py-2 text-sm font-medium cursor-pointer"
+            style={{
+              background: animated ? t.btnSelectedBg : t.btnBg,
+              border: `1px solid ${animated ? t.btnSelectedBorder : t.btnBorder}`,
+              color: animated ? t.btnSelectedText : t.btnText,
+            }}
+          >
+            {animated ? "⏸ Detener" : "▷ Animar"}
           </button>
           <button
             onClick={() => {
@@ -746,8 +761,77 @@ export default function GalleryPage() {
           >
             Descargar Fondo
           </button>
+          <button
+            disabled={mp4Progress !== null}
+            onClick={async () => {
+              if (!bannerRef.current) return;
+              const el = bannerRef.current.firstElementChild as HTMLElement;
+              if (!el) return;
+              const id = `${activeTemplate}-${format}${activeTemplate === "countdown" ? `-${days}` : ""}${activeTemplate === "spotlight" ? `-${activeGameKey}` : ""}`;
+              // Stories get 3 loops (15s) so the clip feels complete when posted.
+              const totalSeconds = format === "story" ? 15 : 5;
+              setMp4Progress({ done: 0, total: Math.round(totalSeconds * 30) });
+              try {
+                await exportBannerMp4(el, `gamer-${id}`, {
+                  loopSeconds: 5,
+                  totalSeconds,
+                  fps: 30,
+                  onProgress: (done, total) => setMp4Progress({ done, total }),
+                });
+              } catch (err) {
+                console.error(err);
+                alert(err instanceof Error ? err.message : "Error exportando MP4");
+              } finally {
+                setMp4Progress(null);
+              }
+            }}
+            className="px-4 py-2 text-sm font-medium cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+            style={{
+              background: "rgba(255,130,0,0.12)",
+              border: "1px solid rgba(255,130,0,0.35)",
+              color: "#FF8200",
+            }}
+          >
+            {mp4Progress
+              ? `Renderizando ${mp4Progress.done}/${mp4Progress.total}…`
+              : "Descargar MP4"}
+          </button>
         </div>
       </div>
+
+      {/* Animation style selector — visible only when animated */}
+      {animated && (
+        <div className="flex flex-col items-center gap-2 mt-1">
+          <span className="text-xs font-azonix" style={{ color: t.categoryLabel, letterSpacing: "0.1em" }}>
+            ESTILO DE ANIMACIÓN
+          </span>
+          <div className="flex gap-2">
+            {(
+              [
+                { id: "glitch", label: "⚡ Glitch",  desc: "Jitter + RGB split" },
+                { id: "scan",   label: "📡 Scan",    desc: "CRT scanline sweep" },
+                { id: "pulse",  label: "💜 Pulse",   desc: "Neon breathing"      },
+                { id: "drift",  label: "🌊 Drift",   desc: "Slow hue drift"      },
+                { id: "matrix", label: "🟢 Matrix",  desc: "Digital rain"        },
+              ] as const
+            ).map(({ id, label, desc }) => (
+              <button
+                key={id}
+                onClick={() => setAnimStyle(id)}
+                title={desc}
+                className="px-3 py-1.5 text-xs font-medium cursor-pointer transition-all"
+                style={{
+                  background: animStyle === id ? t.btnSelectedBg : t.btnBg,
+                  border: `1px solid ${animStyle === id ? t.btnSelectedBorder : t.btnBorder}`,
+                  color: animStyle === id ? t.btnSelectedText : t.btnText,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Offscreen background render for export */}
       <div

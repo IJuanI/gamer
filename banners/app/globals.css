@@ -339,3 +339,589 @@ body {
   position: relative;
   image-rendering: -webkit-optimize-contrast;
 }
+
+/* =====================================================================
+ * BANNER ANIMATION SYSTEM
+ * ---------------------------------------------------------------------
+ * Animations are OFF by default. Apply TWO classes to the wrapper div:
+ *   .banner-animated        — enables the system
+ *   .banner-anim-{preset}   — selects which style (glitch/scan/pulse/drift)
+ *
+ * Static PNG export never touches these classes.
+ * MP4 export adds them to the captured node temporarily.
+ *
+ * All loops are nominally 5s; stories are encoded 3× = 15s.
+ * ===================================================================== */
+
+/* ── Shared icon floats ────────────────────────────────────────────────
+ * Travel distances are expressed in absolute px but sized to be ~20% of
+ * the shortest banner canvas (1350px). At 0.4× preview scale a 260px
+ * travel = 104px on screen — clearly perceptible.
+ * Even-indexed icons are locked in place (see global anchor rule below).
+ * ─────────────────────────────────────────────────────────────────── */
+@keyframes ba-icon-float {
+  0%, 100% { translate: 0 0;      }
+  50%      { translate: 0 -260px; }
+}
+@keyframes ba-icon-float-slow {
+  0%, 100% { translate: 0 0;      }
+  50%      { translate: 0 -200px; }
+}
+@keyframes ba-icon-spin-bob {
+  0%   { translate: 0 0;      rotate: 0deg;  }
+  50%  { translate: 0 -240px; rotate: 15deg; }
+  100% { translate: 0 0;      rotate: 0deg;  }
+}
+@keyframes ba-icon-drift-h {
+  0%   { translate:   0    0;     rotate:  0deg;  }
+  33%  { translate:  60px -220px; rotate: -10deg; }
+  66%  { translate: -50px -180px; rotate:   8deg; }
+  100% { translate:   0    0;     rotate:  0deg;  }
+}
+
+/* ── Shared grid scroll ───────────────────────────────────────────── */
+@keyframes ba-grid-scroll {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 160px 160px, 160px 160px; }
+}
+@keyframes ba-grid-scroll-up {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 -200px, 0 -200px; }
+}
+@keyframes ba-grid-scroll-diag {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 200px -200px, 200px -200px; }
+}
+
+/* =================================================================
+ * PRESET 1 — GLITCH
+ * Decorative-only digital corruption. One short burst per 5s loop.
+ * No whole-frame transforms → text stays anchored.
+ * ================================================================= */
+@keyframes ba-glitch-decor {
+  /* burst A @ 0–14% (starts immediately) */
+  0%        { transform: translate(-14px, 0)  skewX(-6deg); opacity: 0.2; }
+  2%        { transform: translate(12px, 3px) skewX(4deg);  opacity: 1; }
+  4%        { transform: translate(-6px, -4px);              opacity: 0.5; }
+  6%        { transform: translate(9px, 2px)  skewX(-3deg); opacity: 1; }
+  8%        { transform: translate(-10px, -1px);             opacity: 0.3; }
+  10%       { transform: translate(5px, 3px);                opacity: 1; }
+  12%       { transform: translate(-3px, 0);                 opacity: 0.7; }
+  14%, 49%  { transform: none; opacity: 1; }
+  /* burst B @ 50–64% (stronger) */
+  50%       { transform: translate(-18px, 2px) skewX(8deg); opacity: 0.1; }
+  53%       { transform: translate(16px, -3px); opacity: 1; }
+  56%       { transform: translate(-12px, 4px) skewX(-5deg); opacity: 0.4; }
+  59%       { transform: translate(14px, -2px); opacity: 1; }
+  62%       { transform: translate(-7px, 3px); opacity: 0.6; }
+  64%, 100% { transform: none; opacity: 1; }
+}
+@keyframes ba-glitch-grid {
+  0%        { filter: hue-rotate(160deg) saturate(3) invert(0.2); opacity: 0.8; transform: scaleX(1.04); }
+  4%        { filter: hue-rotate(-80deg) saturate(2.5); opacity: 1; transform: scaleX(0.97); }
+  8%        { filter: hue-rotate(60deg) saturate(2); opacity: 0.9; transform: scaleX(1.02); }
+  12%       { filter: hue-rotate(-30deg) saturate(1.5); opacity: 1; transform: none; }
+  14%, 49%  { filter: none; opacity: 1; transform: none; }
+  50%       { filter: hue-rotate(-140deg) saturate(3) invert(0.3); opacity: 0.7; transform: scaleX(1.05); }
+  55%       { filter: hue-rotate(100deg) saturate(2.5); opacity: 1; transform: scaleX(0.96); }
+  60%       { filter: hue-rotate(-40deg) saturate(2); opacity: 0.85; transform: scaleX(1.03); }
+  64%, 100% { filter: none; opacity: 1; transform: none; }
+}
+@keyframes ba-glitch-bar {
+  0%        { opacity: 0.95; top: 22%; height: 14px; }
+  4%        { opacity: 0.8;  top: 58%; height: 8px;  }
+  8%        { opacity: 0.7;  top: 12%; height: 20px; }
+  12%       { opacity: 0.85; top: 75%; height: 12px; }
+  14%, 49%  { opacity: 0; top: 0%; }
+  50%       { opacity: 1;    top: 40%; height: 24px; }
+  54%       { opacity: 0.85; top: 70%; height: 10px; }
+  58%       { opacity: 0.9;  top: 15%; height: 16px; }
+  62%       { opacity: 0.7;  top: 52%; height: 12px; }
+  64%, 100% { opacity: 0; top: 0%; }
+}
+
+.banner-anim-glitch svg.absolute,
+.banner-anim-glitch .hud-bracket-tl,
+.banner-anim-glitch .hud-bracket-tr,
+.banner-anim-glitch .hud-bracket-bl,
+.banner-anim-glitch .hud-bracket-br,
+.banner-anim-glitch .neon-line-h,
+.banner-anim-glitch .neon-line-h-green {
+  animation: ba-glitch-decor 5s steps(1) infinite;
+}
+.banner-anim-glitch .bg-grid,
+.banner-anim-glitch .bg-grid-dense,
+.banner-anim-glitch .bg-grid-neon,
+.banner-anim-glitch .bg-grid-neon-fade {
+  animation: ba-glitch-grid 5s steps(1) infinite;
+}
+.banner-anim-glitch .banner-frame::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 10px;
+  background: linear-gradient(
+    transparent 0%, rgba(179,57,196,0.9) 50%, transparent 100%
+  );
+  mix-blend-mode: screen;
+  z-index: 9999;
+  pointer-events: none;
+  animation: ba-glitch-bar 5s steps(1) infinite;
+}
+
+/* =================================================================
+ * PRESET 2 — SCAN
+ * CRT scanline sweeps top→bottom on a 4s loop.
+ * Grid scrolls upward. HUD brackets pulse when scan passes.
+ * ================================================================= */
+@keyframes ba-scan-sweep {
+  0%   { top: -2%; opacity: 0; }
+  3%   { opacity: 1; }
+  97%  { opacity: 1; }
+  100% { top: 102%; opacity: 0; }
+}
+@keyframes ba-scan-grid {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 -80px, 0 -80px; }
+}
+@keyframes ba-scan-hud {
+  0%, 40%, 100% { filter: brightness(1);   }
+  50%           { filter: brightness(2) drop-shadow(0 0 8px rgba(132,197,82,0.9)); }
+}
+
+.banner-anim-scan .banner-frame::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(
+    transparent,
+    rgba(132,197,82,0.7) 30%,
+    rgba(255,255,255,0.9) 50%,
+    rgba(132,197,82,0.7) 70%,
+    transparent
+  );
+  box-shadow: 0 0 24px 6px rgba(132,197,82,0.4);
+  z-index: 9999;
+  pointer-events: none;
+  animation: ba-scan-sweep 5s linear infinite;
+}
+.banner-anim-scan .bg-grid,
+.banner-anim-scan .bg-grid-dense,
+.banner-anim-scan .bg-grid-neon,
+.banner-anim-scan .bg-grid-neon-fade {
+  animation: ba-grid-scroll-up 5s linear infinite;
+}
+.banner-anim-scan .hud-bracket-tl,
+.banner-anim-scan .hud-bracket-tr,
+.banner-anim-scan .hud-bracket-bl,
+.banner-anim-scan .hud-bracket-br {
+  animation: ba-scan-hud 5s ease-in-out infinite;
+}
+.banner-anim-scan svg.absolute {
+  animation: ba-icon-float-slow 5s ease-in-out infinite;
+}
+.banner-anim-scan svg.absolute:nth-of-type(2) { animation-delay: -1.66s; }
+.banner-anim-scan svg.absolute:nth-of-type(3) { animation-delay: -3.33s; }
+
+/* =================================================================
+ * PRESET 3 — PULSE
+ * Punchy rhythmic neon beat. Heavy on decorative elements:
+ * HUD brackets flash, icons bob, grid breathes, neon lines throb.
+ * Main text is untouched.
+ * ================================================================= */
+@keyframes ba-pulse-hud {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 0 rgba(179,57,196,0));
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(2.4) drop-shadow(0 0 22px rgba(179,57,196,1));
+    transform: scale(1.12);
+  }
+}
+@keyframes ba-pulse-hud-green {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 0 rgba(132,197,82,0));
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(2.4) drop-shadow(0 0 22px rgba(132,197,82,1));
+    transform: scale(1.12);
+  }
+}
+@keyframes ba-pulse-grid {
+  0%, 100% { opacity: 0.4; background-position: 0 0, 0 0; }
+  50%      { opacity: 1;   background-position: 80px 80px, 80px 80px; }
+}
+@keyframes ba-pulse-neon-line {
+  0%, 100% {
+    filter: brightness(1);
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
+  50% {
+    filter: brightness(2) drop-shadow(0 0 20px rgba(179,57,196,1));
+    transform: scaleX(1.08);
+    opacity: 1;
+  }
+}
+@keyframes ba-pulse-hud-move {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(179,57,196,0));
+  }
+  50% {
+    transform: translate(-12px, -12px) scale(1.3);
+    filter: brightness(2.8) drop-shadow(0 0 24px rgba(179,57,196,1));
+  }
+}
+@keyframes ba-pulse-hud-move-green {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(132,197,82,0));
+  }
+  50% {
+    transform: translate(12px, 12px) scale(1.3);
+    filter: brightness(2.8) drop-shadow(0 0 24px rgba(132,197,82,1));
+  }
+}
+@keyframes ba-pulse-radial {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.4); }
+}
+
+.banner-anim-pulse svg.absolute {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ba-icon-spin-bob 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse svg.absolute:nth-of-type(2) { animation-delay: -0.83s; }
+.banner-anim-pulse svg.absolute:nth-of-type(3) { animation-delay: -1.66s; }
+
+.banner-anim-pulse .bg-grid,
+.banner-anim-pulse .bg-grid-dense,
+.banner-anim-pulse .bg-grid-neon,
+.banner-anim-pulse .bg-grid-neon-fade {
+  animation: ba-pulse-grid 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .hud-bracket-tl,
+.banner-anim-pulse .hud-bracket-tr {
+  animation: ba-pulse-hud-move 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .hud-bracket-bl,
+.banner-anim-pulse .hud-bracket-br {
+  animation: ba-pulse-hud-move-green 2.5s ease-in-out infinite;
+  animation-delay: -1.25s;
+}
+.banner-anim-pulse .neon-line-h,
+.banner-anim-pulse .neon-line-h-green {
+  animation: ba-pulse-neon-line 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .radial-glow-purple,
+.banner-anim-pulse .radial-glow-green {
+  animation: ba-pulse-radial 2.5s ease-in-out infinite;
+}
+
+/* extra elements joining the beat */
+@keyframes ba-pulse-stripe {
+  0%, 100% { opacity: 0.10; background-position: 0 0; }
+  50%      { opacity: 0.35; background-position: 40px 0; }
+}
+@keyframes ba-pulse-box-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(179,57,196,0.25),
+      0 0 25px rgba(179,57,196,0.10);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(179,57,196,0.75),
+      0 0 70px rgba(179,57,196,0.35),
+      inset 0 0 20px rgba(179,57,196,0.2);
+  }
+}
+@keyframes ba-pulse-box-glow-green {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(132,197,82,0.25),
+      0 0 25px rgba(132,197,82,0.10);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(132,197,82,0.75),
+      0 0 70px rgba(132,197,82,0.35),
+      inset 0 0 20px rgba(132,197,82,0.2);
+  }
+}
+@keyframes ba-pulse-text-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(179,57,196,0.5), 0 0 30px rgba(179,57,196,0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 14px rgba(179,57,196,1),
+      0 0 40px rgba(179,57,196,0.7),
+      0 0 80px rgba(179,57,196,0.4);
+  }
+}
+@keyframes ba-pulse-text-glow-green {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(132,197,82,0.5), 0 0 30px rgba(132,197,82,0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 14px rgba(132,197,82,1),
+      0 0 40px rgba(132,197,82,0.7),
+      0 0 80px rgba(132,197,82,0.4);
+  }
+}
+@keyframes ba-pulse-pixel {
+  0%, 100% { opacity: 0.08; }
+  50%      { opacity: 0.25; }
+}
+
+.banner-anim-pulse .diagonal-stripe,
+.banner-anim-pulse .diagonal-stripe-green {
+  animation: ba-pulse-stripe 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .box-glow-purple,
+.banner-anim-pulse .box-glow-purple-intense,
+.banner-anim-pulse .neon-border-purple {
+  animation: ba-pulse-box-glow 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .box-glow-green,
+.banner-anim-pulse .box-glow-green-intense,
+.banner-anim-pulse .neon-border-green {
+  animation: ba-pulse-box-glow-green 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .glow-purple,
+.banner-anim-pulse .glow-purple-intense {
+  animation: ba-pulse-text-glow 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .glow-green,
+.banner-anim-pulse .glow-green-intense {
+  animation: ba-pulse-text-glow-green 2.5s ease-in-out infinite;
+}
+.banner-anim-pulse .pixel-scatter::before {
+  animation: ba-pulse-pixel 2.5s ease-in-out infinite;
+}
+
+/* Floating orbs — split across ::before (horizontal) and ::after (vertical)
+   with different prime durations (7s / 11s). They never flash at the same
+   time, and alternate direction means neither ever jumps at the loop point.
+   Opacity breathes independently with ease-in-out. */
+/* Orbs slide in one direction, fade at edges so the loop-point jump
+   is always invisible (orbs are off-screen / transparent when it fires). */
+@keyframes ba-pulse-orb-x {
+  0%   { transform: translateX(-55%); opacity: 0;    }
+  12%  { opacity: 1;                                 }
+  88%  { opacity: 1;                                 }
+  100% { transform: translateX(55%);  opacity: 0;    }
+}
+@keyframes ba-pulse-orb-y {
+  0%   { transform: translateY(-55%); opacity: 0;    }
+  12%  { opacity: 1;                                 }
+  88%  { opacity: 1;                                 }
+  100% { transform: translateY(55%);  opacity: 0;    }
+}
+
+/* Group A — drifts left → right, 5s (loops cleanly) */
+.banner-anim-pulse .banner-frame::before {
+  content: '';
+  position: absolute;
+  top: -25%; left: -30%;
+  width: 160%; height: 150%;
+  background-image:
+    radial-gradient(circle 130px at 22% 28%, rgba(179,57,196,0.65), transparent 60%),
+    radial-gradient(circle 100px at 68% 18%, rgba(132,197,82,0.55), transparent 60%),
+    radial-gradient(circle 110px at 78% 62%, rgba(179,57,196,0.50), transparent 60%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+  animation: ba-pulse-orb-x 5s linear infinite;
+}
+
+/* Group B — drifts top → bottom, 5s, offset −2.5s so groups are never
+   simultaneously invisible (B is always mid-travel when A fades out). */
+.banner-anim-pulse .banner-frame::after {
+  content: '';
+  position: absolute;
+  top: -30%; left: -20%;
+  width: 140%; height: 160%;
+  background-image:
+    radial-gradient(circle 150px at 50% 70%, rgba(179,57,196,0.45), transparent 60%),
+    radial-gradient(circle  85px at 18% 80%, rgba(132,197,82,0.60), transparent 60%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+  animation: ba-pulse-orb-y 5s linear -2.5s infinite;
+}
+
+/* =================================================================
+ * PRESET 4 — DRIFT
+ * Slow cinematic parallax. No hue changes — pure spatial motion.
+ * A soft light sweeps diagonally; grid scrolls; icons drift slowly.
+ * ================================================================= */
+@keyframes ba-drift-light {
+  0%   { transform: translate(-40%, -40%); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(40%, 40%);   opacity: 0; }
+}
+@keyframes ba-drift-hud {
+  0%, 100% { transform: translate(0, 0);       opacity: 0.6; }
+  50%      { transform: translate(20px, 20px); opacity: 1;   }
+}
+@keyframes ba-drift-hud-rev {
+  0%, 100% { transform: translate(0, 0);         opacity: 0.6; }
+  50%      { transform: translate(-20px, -20px); opacity: 1;   }
+}
+
+.banner-anim-drift .bg-grid,
+.banner-anim-drift .bg-grid-dense,
+.banner-anim-drift .bg-grid-neon,
+.banner-anim-drift .bg-grid-neon-fade {
+  animation: ba-grid-scroll-diag 5s linear infinite;
+}
+.banner-anim-drift svg.absolute {
+  animation: ba-icon-drift-h 5s ease-in-out infinite;
+}
+.banner-anim-drift svg.absolute:nth-of-type(2) { animation-delay: -1.66s; }
+.banner-anim-drift svg.absolute:nth-of-type(3) { animation-delay: -3.33s; }
+.banner-anim-drift .hud-bracket-tl,
+.banner-anim-drift .hud-bracket-br {
+  animation: ba-drift-hud 5s ease-in-out infinite;
+}
+.banner-anim-drift .hud-bracket-tr,
+.banner-anim-drift .hud-bracket-bl {
+  animation: ba-drift-hud-rev 5s ease-in-out infinite;
+}
+.banner-anim-drift .banner-frame::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(
+    ellipse 40% 60% at 50% 50%,
+    rgba(179,57,196,0.25),
+    rgba(132,197,82,0.10) 40%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+  animation: ba-drift-light 5s ease-in-out infinite;
+}
+
+/* =================================================================
+ * PRESET 5 — MATRIX
+ * Digital rain. Columns of green glyph-like dashes fall downward at
+ * different speeds via layered background-positions on ::after.
+ * Decorative elements get a cold green wash + subtle flicker.
+ * ================================================================= */
+@keyframes ba-matrix-rain {
+  0%   { background-position:
+           0 0, 90px -320px, 200px -120px, 60px -420px; }
+  100% { background-position:
+           0 1400px, 90px 920px, 200px 1560px, 60px 1020px; }
+}
+@keyframes ba-matrix-wash-dim {
+  0%, 100% { filter: hue-rotate(-10deg) saturate(1.3) brightness(1.05); }
+  50%      { filter: hue-rotate(-20deg) saturate(1.6) brightness(1.1); }
+}
+@keyframes ba-matrix-flicker {
+  0%, 100% { opacity: 0.9; }
+  47%      { opacity: 0.7; }
+  50%      { opacity: 1;   }
+  53%      { opacity: 0.8; }
+}
+@keyframes ba-matrix-wash {
+  0%, 100% { filter: hue-rotate(-20deg) saturate(1.3) brightness(1); }
+  50%      { filter: hue-rotate(-30deg) saturate(1.6) brightness(1.15); }
+}
+
+.banner-anim-matrix .banner-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Thin vertical raindrop streaks via elliptical radial-gradients
+     inside wide tiles. Each tile is mostly transparent, with a thin
+     tall ellipse placed at a specific x-offset — producing discrete
+     falling streaks instead of green stripes. */
+  background-image:
+    radial-gradient(ellipse 2px 180px at 18% 45%, rgba(180,240,140,0.55), transparent 70%),
+    radial-gradient(ellipse 2px 150px at 62% 50%, rgba(180,240,140,0.45), transparent 70%),
+    radial-gradient(ellipse 2px 210px at 32% 55%, rgba(180,240,140,0.38), transparent 70%),
+    radial-gradient(ellipse 2px 130px at 78% 40%, rgba(180,240,140,0.50), transparent 70%);
+  /* Very wide tiles → raindrops are rare and far apart. */
+  background-size:
+    280px 700px, 320px 620px, 380px 780px, 300px 680px;
+  background-repeat: repeat;
+  background-position:
+    0 0, 90px -320px, 200px -120px, 60px -420px;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 2;
+  animation:
+    ba-matrix-rain 5s linear infinite,
+    ba-matrix-flicker 5s steps(1) infinite;
+}
+.banner-anim-matrix .bg-grid,
+.banner-anim-matrix .bg-grid-dense,
+.banner-anim-matrix .bg-grid-neon,
+.banner-anim-matrix .bg-grid-neon-fade {
+  /* ba-matrix-grid-drift keeps background-position advancing linearly so
+   * the export fingerprint (which reads backgroundPosition) always sees a
+   * distinct value every frame, preventing choppy frame skipping. */
+  animation: ba-matrix-wash-dim 5s ease-in-out infinite,
+             ba-matrix-grid-drift 5s linear infinite;
+}
+@keyframes ba-matrix-grid-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 200px; }
+}
+.banner-anim-matrix svg.absolute {
+  animation: ba-matrix-flicker 5s steps(1) infinite;
+}
+.banner-anim-matrix svg.absolute:nth-of-type(2) { animation-delay: -1.66s; }
+.banner-anim-matrix svg.absolute:nth-of-type(3) { animation-delay: -3.33s; }
+
+/* =================================================================
+ * ICON ANCHOR RULE
+ * Even-indexed decorative icons never move regardless of preset.
+ * This keeps visual density balanced — anchored icons give moving
+ * ones a reference point, making the travel more readable.
+ * ================================================================= */
+.banner-animated svg.absolute:nth-of-type(2n) {
+  animation: none !important;
+}
+
+/* =================================================================
+ * FRAME-SEEK MODE (MP4 export)
+ * Pauses every animation in the subtree and positions it at
+ * --banner-t seconds via negative animation-delay.
+ *
+ * IMPORTANT: banner-frame-seek is added to `el` (the .banner-frame
+ * element itself, not a wrapper), so pseudo-elements must use the
+ * same-element form  .banner-frame-seek::before / ::after  rather
+ * than the descendant form  .banner-frame-seek .banner-frame::before.
+ * ================================================================= */
+.banner-frame-seek,
+.banner-frame-seek *,
+.banner-frame-seek::before,
+.banner-frame-seek::after {
+  animation-play-state: paused !important;
+  animation-delay: calc(var(--banner-t, 0) * -1s) !important;
+}
+/* Pulse group B (::after) has a natural −2.5s offset baked in;
+ * re-apply it during seek so preview and render match.
+ * .banner-anim-pulse lives on the parent wrapper, which IS an
+ * ancestor of .banner-frame-seek, so this descendant selector works. */
+.banner-anim-pulse .banner-frame-seek::after {
+  animation-delay: calc(var(--banner-t, 0) * -1s - 2.5s) !important;
+}
