@@ -102,7 +102,7 @@ export const OPEN_DUO_EVENT: EventData = {
   city: "Paraná, Entre Ríos",
   entryFee: "$7.500 por persona",
   publicEntryFee: "$3.000 por persona",
-  consoleGames: ["FIFA 25", "Mortal Kombat 1", "Tekken 8"],
+  consoleGames: ["Mario Kart 8", "DBZ Tenkaichi 4", "Y más"],
   prizes: ["1° - $65.000", "2° - $35.000"],
   platforms: ["PC"],
   maxPlayers: 16,
