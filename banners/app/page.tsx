@@ -11,9 +11,9 @@ import {
   OpenDuoGameSpotlight,
   OpenDuoSpotlightStory,
   OpenDuoSpotlightWhatsApp,
-  OpenDuoPublicStory,
   OpenDuoPublicFeed,
   OpenDuoPublicWhatsApp,
+  PublicStoryB,
 } from "@/components/banners";
 import {
   StoryBackground,
@@ -106,7 +106,7 @@ function resolveBanner(
     case "spotlight-story":   return { format: FORMAT_DIMS.story,    render: () => game ? <OpenDuoSpotlightStory event={event} game={game} variation={variation} /> : null,    renderBg: () => <FeedBackground accent={bgAccent} /> };
     case "spotlight-feed":    return { format: FORMAT_DIMS.feed,     render: () => game ? <OpenDuoGameSpotlight event={event} game={game} variation={variation} /> : null,     renderBg: () => <FeedBackground accent={bgAccent} /> };
     case "spotlight-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => game ? <OpenDuoSpotlightWhatsApp event={event} game={game} variation={variation} /> : null, renderBg: () => <FeedBackground accent={bgAccent} /> };
-    case "publico-story":     return { format: FORMAT_DIMS.story,    render: () => <OpenDuoPublicStory event={event} variation={variation} />,    renderBg: () => <StoryBackground variant="story" /> };
+    case "publico-story":     return { format: FORMAT_DIMS.story,    render: () => <PublicStoryB event={event} variation={variation} />,         renderBg: () => <StoryBackground variant="story" /> };
     case "publico-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoPublicFeed event={event} variation={variation} />,     renderBg: () => <FeedBackground accent="mixed" /> };
     case "publico-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoPublicWhatsApp event={event} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
     default:                  return { format: FORMAT_DIMS.story,    render: () => null, renderBg: () => null };

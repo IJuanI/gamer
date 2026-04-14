@@ -16,3 +16,4 @@ export { OpenDuoSpotlightWhatsApp } from "./open-duo-spotlight-whatsapp";
 export { OpenDuoPublicStory } from "./open-duo-public-story";
 export { OpenDuoPublicFeed } from "./open-duo-public-feed";
 export { OpenDuoPublicWhatsApp } from "./open-duo-public-whatsapp";
+export { PublicStoryA, PublicStoryB, PublicStoryC, PublicStoryD, PublicStoryE } from "./public-story-variants";

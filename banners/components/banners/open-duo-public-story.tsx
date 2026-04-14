@@ -2,7 +2,18 @@
 
 import type { EventData } from "@/lib/event-data";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
+import { GamepadIcon } from "./gaming-icons";
 import { ICON_MAP } from "./icon-map";
+
+function InstagramIcon({ size = 28, color = "#96D068" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="6" stroke={color} strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="4.5" stroke={color} strokeWidth="1.5" />
+      <circle cx="17.5" cy="6.5" r="1.2" fill={color} />
+    </svg>
+  );
+}
 
 /**
  * Open Duo — Público General Story — 1080×1920 (9:16)
@@ -80,19 +91,6 @@ export function OpenDuoPublicStory({
         {/* Top: Logo + badge */}
         <div className="flex flex-col items-center" style={{ gap: 18 }}>
           <img src="/logo.png" alt="GamER" style={{ height: 130, width: "auto" }} />
-          <div
-            className="panel-clip-sm font-azonix"
-            style={{
-              padding: "12px 40px",
-              background: "rgba(132,197,82,0.1)",
-              border: "1px solid rgba(132,197,82,0.35)",
-              fontSize: 20,
-              color: "#96D068",
-              letterSpacing: "0.2em",
-            }}
-          >
-            PÚBLICO GENERAL
-          </div>
         </div>
 
         {/* Center: title + features */}
@@ -124,30 +122,21 @@ export function OpenDuoPublicStory({
             </div>
           </div>
 
-          {/* Console game pills */}
+          {/* Console games — lightweight inline list */}
           {event.consoleGames && event.consoleGames.length > 0 && (
-            <div className="flex gap-4 flex-wrap justify-center">
-              {event.consoleGames.map((g) => (
-                <div
-                  key={g}
-                  className="panel-clip-sm font-azonix"
-                  style={{
-                    padding: "12px 28px",
-                    background: "rgba(132,197,82,0.07)",
-                    border: "1px solid rgba(132,197,82,0.2)",
-                    fontSize: 20,
-                    color: "#96D068",
-                  }}
-                >
-                  {g}
-                </div>
+            <div className="flex items-center flex-wrap justify-center" style={{ gap: 14 }}>
+              <GamepadIcon size={34} color="rgba(132,197,82,0.6)" className="" />
+              {event.consoleGames.map((g, i) => (
+                <span key={g} style={{ fontSize: 30, color: "rgba(132,197,82,0.7)" }}>
+                  {g}{i < event.consoleGames!.length - 1 ? " ·" : ""}
+                </span>
               ))}
             </div>
           )}
         </div>
 
-        {/* Bottom: date + venue + price */}
-        <div className="flex flex-col items-center" style={{ gap: 22 }}>
+        {/* Bottom: date + venue + price + CTA */}
+        <div className="flex flex-col items-center" style={{ gap: 32 }}>
           <div
             className="panel-clip relative"
             style={{
@@ -179,22 +168,46 @@ export function OpenDuoPublicStory({
             </span>
           </div>
 
-          {event.publicEntryFee && (
-            <div
-              className="panel-clip-sm font-azonix"
-              style={{
-                padding: "14px 48px",
-                background: "rgba(132,197,82,0.12)",
-                border: "1px solid rgba(132,197,82,0.4)",
-                fontSize: 32,
-                color: "#96D068",
-                textShadow: "0 0 20px rgba(132,197,82,0.25)",
-                letterSpacing: "0.05em",
-              }}
-            >
-              {event.publicEntryFee}
+          {/* Price + Instagram CTA — unified panel */}
+          <div
+            className="panel-clip-sm"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 10,
+              padding: "20px 52px",
+              background: "rgba(132,197,82,0.08)",
+              border: "1px solid rgba(132,197,82,0.35)",
+            }}
+          >
+            {event.publicEntryFee && (
+              <span
+                className="font-azonix"
+                style={{
+                  fontSize: 34,
+                  color: "#96D068",
+                  textShadow: "0 0 20px rgba(132,197,82,0.25)",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {event.publicEntryFee}
+              </span>
+            )}
+            <div style={{ width: "100%", height: 1, background: "linear-gradient(90deg, transparent, rgba(132,197,82,0.3) 20%, rgba(132,197,82,0.3) 80%, transparent)" }} />
+            <div className="flex items-center" style={{ gap: 12 }}>
+              <InstagramIcon size={28} color="#96D068" />
+              <span style={{ fontSize: 24, color: "#B0B0BC", letterSpacing: "0.04em" }}>
+                ¡Conseguí tu entrada por Instagram!
+              </span>
             </div>
-          )}
+            <span
+              className="font-azonix"
+              style={{ fontSize: 28, color: "#96D068", letterSpacing: "0.08em" }}
+            >
+              @gamer_eerr
+            </span>
+          </div>
         </div>
       </div>
 
