@@ -4,12 +4,23 @@ import type { EventData } from "@/lib/event-data";
 import { joinGameNames } from "@/lib/event-data";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 import { ICON_MAP } from "./icon-map";
+import { SponsorStrip } from "./sponsor-strip";
 
 /**
  * Open Duo — Instagram Feed Post — 1080×1350 (4:5)
  * Safe zone: 40px all sides
  */
-export function OpenDuoFeed({ event, variation = DEFAULT_VARIATION }: { event: EventData; variation?: BannerVariation }) {
+export function OpenDuoFeed({
+  event,
+  variation = DEFAULT_VARIATION,
+  sponsorLogos,
+  bgImage,
+}: {
+  event: EventData;
+  variation?: BannerVariation;
+  sponsorLogos?: string[];
+  bgImage?: string;
+}) {
   const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
   const [rot1, rot2, rot3] = variation.rotationOffsets;
   const [s1, s2, s3] = variation.positionSeeds;
@@ -19,8 +30,14 @@ export function OpenDuoFeed({ event, variation = DEFAULT_VARIATION }: { event: E
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1350, background: "#1c1435" }}
+      style={{ width: 1080, height: 1350, background: bgImage ? "transparent" : "#1c1435" }}
     >
+      {bgImage && (
+        <img
+          src={bgImage}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      )}
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
@@ -170,7 +187,7 @@ export function OpenDuoFeed({ event, variation = DEFAULT_VARIATION }: { event: E
       {/* ===== Content ===== */}
       <div
         className="relative flex flex-col h-full"
-        style={{ padding: "50px 60px" }}
+        style={{ padding: `50px 60px ${sponsorLogos !== undefined ? 180 : 50}px` }}
       >
         {/* ── Header: Logo + Badge ── */}
         <div className="flex items-center justify-between">
@@ -423,6 +440,7 @@ export function OpenDuoFeed({ event, variation = DEFAULT_VARIATION }: { event: E
           borderRight: "3px solid rgba(132,197,82,0.5)",
         }}
       />
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} bottom={40} />}
     </div>
   );
 }

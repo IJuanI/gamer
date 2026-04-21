@@ -101,16 +101,16 @@ function resolveBanner(
 
   switch (`${template}-${format}` as `${Template}-${Format}`) {
     case "anuncio-story":     return { format: FORMAT_DIMS.story,    render: () => <OpenDuoStory event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,                            renderBg: () => <StoryBackground variant="story" /> };
-    case "anuncio-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoFeed event={event} variation={variation} />,                             renderBg: () => <FeedBackground accent="mixed" /> };
+    case "anuncio-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoFeed event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,                             renderBg: () => <FeedBackground accent="mixed" /> };
     case "anuncio-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoWhatsApp event={event} variation={variation} />,                         renderBg: () => <StoryBackground variant="whatsapp" /> };
     case "countdown-story":   return { format: FORMAT_DIMS.story,    render: () => <OpenDuoCountdownStory event={event} daysLeft={days} variation={variation} sponsorLogos={sl} bgImage={bi} />,   renderBg: () => <CountdownBackground /> };
-    case "countdown-feed":    return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoCountdownFeed event={event} daysLeft={days} variation={variation} />,    renderBg: () => <FeedBackground accent="mixed" /> };
+    case "countdown-feed":    return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoCountdownFeed event={event} daysLeft={days} variation={variation} sponsorLogos={sl} bgImage={bi} />,    renderBg: () => <FeedBackground accent="mixed" /> };
     case "countdown-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoCountdownWhatsApp event={event} daysLeft={days} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
     case "spotlight-story":   return { format: FORMAT_DIMS.story,    render: () => game ? <OpenDuoSpotlightStory event={event} game={game} variation={variation} sponsorLogos={sl} bgImage={bi} /> : null,    renderBg: () => <FeedBackground accent={bgAccent} /> };
-    case "spotlight-feed":    return { format: FORMAT_DIMS.feed,     render: () => game ? <OpenDuoGameSpotlight event={event} game={game} variation={variation} /> : null,     renderBg: () => <FeedBackground accent={bgAccent} /> };
+    case "spotlight-feed":    return { format: FORMAT_DIMS.feed,     render: () => game ? <OpenDuoGameSpotlight event={event} game={game} variation={variation} sponsorLogos={sl} bgImage={bi} /> : null,     renderBg: () => <FeedBackground accent={bgAccent} /> };
     case "spotlight-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => game ? <OpenDuoSpotlightWhatsApp event={event} game={game} variation={variation} /> : null, renderBg: () => <FeedBackground accent={bgAccent} /> };
     case "publico-story":     return { format: FORMAT_DIMS.story,    render: () => <PublicStoryB event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,         renderBg: () => <StoryBackground variant="story" /> };
-    case "publico-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoPublicFeed event={event} variation={variation} />,     renderBg: () => <FeedBackground accent="mixed" /> };
+    case "publico-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoPublicFeed event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,     renderBg: () => <FeedBackground accent="mixed" /> };
     case "publico-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoPublicWhatsApp event={event} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
     default:                  return { format: FORMAT_DIMS.story,    render: () => null, renderBg: () => null };
   }
@@ -156,7 +156,8 @@ export default function GalleryPage() {
     ? gameKey
     : (gameDetails[0]?.shortName.toLowerCase() ?? "");
 
-  const sponsorProps = format === "story" && sponsorMode ? { logos: sponsorLogos, bgImage: bgImage ?? undefined } : undefined;
+  const sponsorSupported = format === "story" || format === "feed";
+  const sponsorProps = sponsorSupported && sponsorMode ? { logos: sponsorLogos, bgImage: bgImage ?? undefined } : undefined;
   const selected = resolveBanner(event, activeTemplate, activeGameKey, format, days, variation, sponsorProps);
   const scale = Math.min(450 / selected.format.width, 1);
   const t = THEME[theme];
@@ -671,8 +672,8 @@ export default function GalleryPage() {
           )}
         </div>
 
-        {/* SPONSORS — only for IG Story format */}
-        {format === "story" && (
+        {/* SPONSORS — available for IG Story and IG Feed */}
+        {sponsorSupported && (
           <div>
             <span className="text-xs font-azonix mb-2 block" style={{ letterSpacing: "0.1em", color: t.categoryLabel }}>
               SPONSORS

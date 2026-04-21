@@ -3,6 +3,7 @@
 import type { EventData } from "@/lib/event-data";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 import { ICON_MAP } from "./icon-map";
+import { SponsorStrip } from "./sponsor-strip";
 
 /**
  * Open Duo — Countdown Feed Post — 1080×1350 (4:5)
@@ -14,10 +15,14 @@ export function OpenDuoCountdownFeed({
   event,
   daysLeft,
   variation = DEFAULT_VARIATION,
+  sponsorLogos,
+  bgImage,
 }: {
   event: EventData;
   daysLeft: number;
   variation?: BannerVariation;
+  sponsorLogos?: string[];
+  bgImage?: string;
 }) {
   const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
   const [rot1, rot2, rot3] = variation.rotationOffsets;
@@ -32,8 +37,14 @@ export function OpenDuoCountdownFeed({
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1350, background: "#1c1435" }}
+      style={{ width: 1080, height: 1350, background: bgImage ? "transparent" : "#1c1435" }}
     >
+      {bgImage && (
+        <img
+          src={bgImage}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      )}
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
@@ -240,7 +251,7 @@ export function OpenDuoCountdownFeed({
       {/* ===== Content ===== */}
       <div
         className="relative flex flex-col h-full items-center"
-        style={{ padding: "50px 60px" }}
+        style={{ padding: `50px 60px ${sponsorLogos !== undefined ? 180 : 50}px` }}
       >
         {/* Logo */}
         <img
@@ -345,6 +356,7 @@ export function OpenDuoCountdownFeed({
           </div>
         </div>
       </div>
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} bottom={40} />}
     </div>
   );
 }

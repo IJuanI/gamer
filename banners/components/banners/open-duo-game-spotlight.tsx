@@ -10,6 +10,7 @@ import {
   SwordIcon,
 } from "./gaming-icons";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
+import { SponsorStrip } from "./sponsor-strip";
 
 /**
  * Open Duo — Game Spotlight Feed Post — 1080×1350 (4:5)
@@ -31,7 +32,13 @@ interface GameSpotlightProps {
   };
 }
 
-export function OpenDuoGameSpotlight({ event, game, variation = DEFAULT_VARIATION }: GameSpotlightProps & { variation?: BannerVariation }) {
+export function OpenDuoGameSpotlight({
+  event,
+  game,
+  variation = DEFAULT_VARIATION,
+  sponsorLogos,
+  bgImage,
+}: GameSpotlightProps & { variation?: BannerVariation; sponsorLogos?: string[]; bgImage?: string }) {
   const [rot1, rot2, rot3] = variation.rotationOffsets;
   const [s1, s2, s3] = variation.positionSeeds;
   const [d1, d2, d3] = variation.decoratorSeeds;
@@ -45,8 +52,14 @@ export function OpenDuoGameSpotlight({ event, game, variation = DEFAULT_VARIATIO
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1350, background: "#1c1435" }}
+      style={{ width: 1080, height: 1350, background: bgImage ? "transparent" : "#1c1435" }}
     >
+      {bgImage && (
+        <img
+          src={bgImage}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      )}
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
@@ -224,7 +237,7 @@ export function OpenDuoGameSpotlight({ event, game, variation = DEFAULT_VARIATIO
       {/* ===== Content ===== */}
       <div
         className="relative flex flex-col h-full"
-        style={{ padding: "50px 60px" }}
+        style={{ padding: `50px 60px ${sponsorLogos !== undefined ? 180 : 50}px` }}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -437,6 +450,7 @@ export function OpenDuoGameSpotlight({ event, game, variation = DEFAULT_VARIATIO
           borderRight: `3px solid ${accent}0.5)`,
         }}
       />
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} bottom={40} />}
     </div>
   );
 }
