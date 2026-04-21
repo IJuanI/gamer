@@ -4,12 +4,13 @@ import type { EventData } from "@/lib/event-data";
 import { joinGameNames } from "@/lib/event-data";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 import { ICON_MAP } from "./icon-map";
+import { SponsorStrip } from "./sponsor-strip";
 
 /**
  * Open Duo — Instagram Story Announcement — 1080×1920 (9:16)
  * Safe zone: 250px top/bottom, 60px sides
  */
-export function OpenDuoStory({ event, variation = DEFAULT_VARIATION }: { event: EventData; variation?: BannerVariation }) {
+export function OpenDuoStory({ event, variation = DEFAULT_VARIATION, sponsorLogos, bgImage }: { event: EventData; variation?: BannerVariation; sponsorLogos?: string[]; bgImage?: string }) {
   const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
   const [rot1, rot2, rot3] = variation.rotationOffsets;
   const [s1, s2, s3] = variation.positionSeeds;
@@ -19,8 +20,9 @@ export function OpenDuoStory({ event, variation = DEFAULT_VARIATION }: { event: 
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1920, background: "#1c1435" }}
+      style={{ width: 1080, height: 1920, background: bgImage ? "transparent" : "#1c1435" }}
     >
+      {bgImage && <img src={bgImage} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
@@ -509,6 +511,7 @@ export function OpenDuoStory({ event, variation = DEFAULT_VARIATION }: { event: 
           />
         </div>
       ))}
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} />}
     </div>
   );
 }

@@ -92,21 +92,24 @@ function resolveBanner(
   format: Format,
   days: number,
   variation: BannerVariation,
+  sponsor?: { logos: string[]; bgImage?: string },
 ): BannerEntry {
   const game = event.gameDetails?.find((g) => g.shortName.toLowerCase() === gameKey);
   const bgAccent = (game?.accent ?? "purple") as "purple" | "green" | "orange";
+  const sl = sponsor?.logos;
+  const bi = sponsor?.bgImage;
 
   switch (`${template}-${format}` as `${Template}-${Format}`) {
-    case "anuncio-story":     return { format: FORMAT_DIMS.story,    render: () => <OpenDuoStory event={event} variation={variation} />,                            renderBg: () => <StoryBackground variant="story" /> };
+    case "anuncio-story":     return { format: FORMAT_DIMS.story,    render: () => <OpenDuoStory event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,                            renderBg: () => <StoryBackground variant="story" /> };
     case "anuncio-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoFeed event={event} variation={variation} />,                             renderBg: () => <FeedBackground accent="mixed" /> };
     case "anuncio-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoWhatsApp event={event} variation={variation} />,                         renderBg: () => <StoryBackground variant="whatsapp" /> };
-    case "countdown-story":   return { format: FORMAT_DIMS.story,    render: () => <OpenDuoCountdownStory event={event} daysLeft={days} variation={variation} />,   renderBg: () => <CountdownBackground /> };
+    case "countdown-story":   return { format: FORMAT_DIMS.story,    render: () => <OpenDuoCountdownStory event={event} daysLeft={days} variation={variation} sponsorLogos={sl} bgImage={bi} />,   renderBg: () => <CountdownBackground /> };
     case "countdown-feed":    return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoCountdownFeed event={event} daysLeft={days} variation={variation} />,    renderBg: () => <FeedBackground accent="mixed" /> };
     case "countdown-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoCountdownWhatsApp event={event} daysLeft={days} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
-    case "spotlight-story":   return { format: FORMAT_DIMS.story,    render: () => game ? <OpenDuoSpotlightStory event={event} game={game} variation={variation} /> : null,    renderBg: () => <FeedBackground accent={bgAccent} /> };
+    case "spotlight-story":   return { format: FORMAT_DIMS.story,    render: () => game ? <OpenDuoSpotlightStory event={event} game={game} variation={variation} sponsorLogos={sl} bgImage={bi} /> : null,    renderBg: () => <FeedBackground accent={bgAccent} /> };
     case "spotlight-feed":    return { format: FORMAT_DIMS.feed,     render: () => game ? <OpenDuoGameSpotlight event={event} game={game} variation={variation} /> : null,     renderBg: () => <FeedBackground accent={bgAccent} /> };
     case "spotlight-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => game ? <OpenDuoSpotlightWhatsApp event={event} game={game} variation={variation} /> : null, renderBg: () => <FeedBackground accent={bgAccent} /> };
-    case "publico-story":     return { format: FORMAT_DIMS.story,    render: () => <PublicStoryB event={event} variation={variation} />,         renderBg: () => <StoryBackground variant="story" /> };
+    case "publico-story":     return { format: FORMAT_DIMS.story,    render: () => <PublicStoryB event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,         renderBg: () => <StoryBackground variant="story" /> };
     case "publico-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoPublicFeed event={event} variation={variation} />,     renderBg: () => <FeedBackground accent="mixed" /> };
     case "publico-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoPublicWhatsApp event={event} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
     default:                  return { format: FORMAT_DIMS.story,    render: () => null, renderBg: () => null };
@@ -130,6 +133,9 @@ export default function GalleryPage() {
   const [animated, setAnimated] = useState(false);
   const [animStyle, setAnimStyle] = useState<"glitch" | "scan" | "pulse" | "drift" | "matrix">("pulse");
   const [mp4Progress, setMp4Progress] = useState<{ done: number; total: number } | null>(null);
+  const [sponsorMode, setSponsorMode] = useState(false);
+  const [sponsorLogos, setSponsorLogos] = useState<string[]>([]);
+  const [bgImage, setBgImage] = useState<string | null>(null);
   useEffect(() => { setVariation(generateVariation()); }, []);
 
   const event = isEditableEvent ? editableEvent : SAMPLE_EVENTS[eventIdx];
@@ -150,7 +156,8 @@ export default function GalleryPage() {
     ? gameKey
     : (gameDetails[0]?.shortName.toLowerCase() ?? "");
 
-  const selected = resolveBanner(event, activeTemplate, activeGameKey, format, days, variation);
+  const sponsorProps = format === "story" && sponsorMode ? { logos: sponsorLogos, bgImage: bgImage ?? undefined } : undefined;
+  const selected = resolveBanner(event, activeTemplate, activeGameKey, format, days, variation, sponsorProps);
   const scale = Math.min(450 / selected.format.width, 1);
   const t = THEME[theme];
 
@@ -663,6 +670,104 @@ export default function GalleryPage() {
             </div>
           )}
         </div>
+
+        {/* SPONSORS — only for IG Story format */}
+        {format === "story" && (
+          <div>
+            <span className="text-xs font-azonix mb-2 block" style={{ letterSpacing: "0.1em", color: t.categoryLabel }}>
+              SPONSORS
+            </span>
+            <div className="flex gap-2 flex-wrap items-center">
+              <button
+                onClick={() => {
+                  setSponsorMode((v) => {
+                    if (v) { setSponsorLogos([]); setBgImage(null); }
+                    return !v;
+                  });
+                }}
+                className="px-3 py-1.5 text-xs font-medium cursor-pointer transition-all"
+                style={{
+                  background: sponsorMode ? t.btnSelectedBg : t.btnBg,
+                  border: `1px solid ${sponsorMode ? t.btnSelectedBorder : t.btnBorder}`,
+                  color: sponsorMode ? t.btnSelectedText : t.btnText,
+                }}
+              >
+                {sponsorMode ? "✓ Modo Sponsors" : "Modo Sponsors"}
+              </button>
+              {sponsorMode && (
+                <>
+                  <label
+                    className="px-3 py-1.5 text-xs font-medium cursor-pointer transition-all"
+                    style={{ background: t.btnBg, border: `1px solid ${t.btnBorder}`, color: t.btnText }}
+                  >
+                    + Logos
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files ?? []);
+                        Promise.all(
+                          files.map(
+                            (f) =>
+                              new Promise<string>((resolve) => {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => resolve(ev.target?.result as string);
+                                reader.readAsDataURL(f);
+                              }),
+                          ),
+                        ).then((urls) => setSponsorLogos((prev) => [...prev, ...urls]));
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                  {sponsorLogos.length > 0 && (
+                    <button
+                      onClick={() => setSponsorLogos([])}
+                      className="px-3 py-1.5 text-xs font-medium cursor-pointer transition-all"
+                      style={{ background: "rgba(220,80,80,0.08)", border: "1px solid rgba(220,80,80,0.25)", color: "rgba(220,100,100,0.9)" }}
+                    >
+                      × Limpiar logos ({sponsorLogos.length})
+                    </button>
+                  )}
+                  <label
+                    className="px-3 py-1.5 text-xs font-medium cursor-pointer transition-all"
+                    style={{
+                      background: bgImage ? t.btnSelectedBg : t.btnBg,
+                      border: `1px solid ${bgImage ? t.btnSelectedBorder : t.btnBorder}`,
+                      color: bgImage ? t.btnSelectedText : t.btnText,
+                    }}
+                  >
+                    {bgImage ? "✓ Fondo subido" : "Subir fondo"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setBgImage(ev.target?.result as string);
+                        reader.readAsDataURL(file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                  {bgImage && (
+                    <button
+                      onClick={() => setBgImage(null)}
+                      className="px-3 py-1.5 text-xs font-medium cursor-pointer transition-all"
+                      style={{ background: "rgba(220,80,80,0.08)", border: "1px solid rgba(220,80,80,0.25)", color: "rgba(220,100,100,0.9)" }}
+                    >
+                      × Quitar fondo
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Preview */}

@@ -3,6 +3,7 @@
 import type { EventData } from "@/lib/event-data";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 import { ICON_MAP } from "./icon-map";
+import { SponsorStrip } from "./sponsor-strip";
 
 /**
  * Open Duo — Countdown Story — 1080×1920 (9:16)
@@ -14,10 +15,14 @@ export function OpenDuoCountdownStory({
   event,
   daysLeft,
   variation = DEFAULT_VARIATION,
+  sponsorLogos,
+  bgImage,
 }: {
   event: EventData;
   daysLeft: number;
   variation?: BannerVariation;
+  sponsorLogos?: string[];
+  bgImage?: string;
 }) {
   const [Icon1, Icon2, Icon3] = variation.icons.map((n) => ICON_MAP[n]);
   const [rot1, rot2, rot3] = variation.rotationOffsets;
@@ -28,8 +33,9 @@ export function OpenDuoCountdownStory({
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1920, background: "#1c1435" }}
+      style={{ width: 1080, height: 1920, background: bgImage ? "transparent" : "#1c1435" }}
     >
+      {bgImage && <img src={bgImage} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
@@ -438,6 +444,7 @@ export function OpenDuoCountdownStory({
           />
         </div>
       ))}
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} />}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import type { EventData } from "@/lib/event-data";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 import { GamepadIcon } from "./gaming-icons";
 import { ICON_MAP } from "./icon-map";
+import { SponsorStrip } from "./sponsor-strip";
 
 function InstagramIcon({ size = 28, color = "#96D068" }: { size?: number; color?: string }) {
   return (
@@ -97,6 +98,8 @@ function PriceCTA({ fee }: { fee?: string }) {
 interface Props {
   event: EventData;
   variation?: BannerVariation;
+  sponsorLogos?: string[];
+  bgImage?: string;
 }
 
 // ─────────────────────────────────────────────
@@ -156,9 +159,10 @@ export function PublicStoryA({ event, variation = DEFAULT_VARIATION }: Props) {
 // OPTION B — "What you get"
 // Two big activity blocks: JUGÁ EN CONSOLAS / MIRÁ EL TORNEO
 // ─────────────────────────────────────────────
-export function PublicStoryB({ event, variation = DEFAULT_VARIATION }: Props) {
+export function PublicStoryB({ event, variation = DEFAULT_VARIATION, sponsorLogos, bgImage }: Props) {
   return (
-    <div className="banner-frame relative" style={{ width: 1080, height: 1920, background: "#1c1435" }}>
+    <div className="banner-frame relative" style={{ width: 1080, height: 1920, background: bgImage ? "transparent" : "#1c1435" }}>
+      {bgImage && <img src={bgImage} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
       <SharedBackground variation={variation} />
       <div className="relative flex flex-col items-center justify-between h-full" style={{ paddingTop: 280, paddingBottom: 280, paddingLeft: 80, paddingRight: 80 }}>
         {/* Top — logo only */}
@@ -205,15 +209,16 @@ export function PublicStoryB({ event, variation = DEFAULT_VARIATION }: Props) {
         </div>
       </div>
 
-      {/* Venue — sponsor strip at bottom edge */}
+      {/* Venue — sponsor strip at bottom edge; shifts up when sponsor mode is on */}
       {event.venueLogo && (
-        <div className="absolute flex items-center justify-center" style={{ bottom: 44, left: 0, right: 0, gap: 14 }}>
+        <div className="absolute flex items-center justify-center" style={{ bottom: sponsorLogos !== undefined ? 160 : 44, left: 0, right: 0, gap: 14 }}>
           <div style={{ width: 50, height: 1, background: "rgba(132,197,82,0.2)" }} />
           <img src={event.venueLogo} alt={event.venue ?? "Venue"} style={{ height: 48, width: "auto", opacity: 0.75 }} />
           <span style={{ fontSize: 28, color: "#777788" }}>{event.city}</span>
           <div style={{ width: 50, height: 1, background: "rgba(132,197,82,0.2)" }} />
         </div>
       )}
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} />}
     </div>
   );
 }

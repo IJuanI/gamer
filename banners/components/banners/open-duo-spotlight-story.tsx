@@ -10,6 +10,7 @@ import {
   SwordIcon,
 } from "./gaming-icons";
 import { DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
+import { SponsorStrip } from "./sponsor-strip";
 
 /**
  * Open Duo — Spotlight Story — 1080×1920 (9:16)
@@ -31,7 +32,7 @@ interface GameSpotlightProps {
   };
 }
 
-export function OpenDuoSpotlightStory({ event, game, variation = DEFAULT_VARIATION }: GameSpotlightProps & { variation?: BannerVariation }) {
+export function OpenDuoSpotlightStory({ event, game, variation = DEFAULT_VARIATION, sponsorLogos, bgImage }: GameSpotlightProps & { variation?: BannerVariation; sponsorLogos?: string[]; bgImage?: string }) {
   const [rot1, rot2, rot3] = variation.rotationOffsets;
   const [s1, s2, s3] = variation.positionSeeds;
   const [d1, d2, d3] = variation.decoratorSeeds;
@@ -45,8 +46,9 @@ export function OpenDuoSpotlightStory({ event, game, variation = DEFAULT_VARIATI
   return (
     <div
       className="banner-frame relative"
-      style={{ width: 1080, height: 1920, background: "#1c1435" }}
+      style={{ width: 1080, height: 1920, background: bgImage ? "transparent" : "#1c1435" }}
     >
+      {bgImage && <img src={bgImage} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
       {/* ===== Background layers ===== */}
       <div className="absolute inset-0 bg-grid-neon-fade" />
 
@@ -411,6 +413,7 @@ export function OpenDuoSpotlightStory({ event, game, variation = DEFAULT_VARIATI
           borderRight: `3px solid ${accent}0.5)`,
         }}
       />
+      {sponsorLogos !== undefined && <SponsorStrip logos={sponsorLogos} />}
     </div>
   );
 }
