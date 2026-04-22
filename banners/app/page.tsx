@@ -1,52 +1,18 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import {
-  OpenDuoStory,
-  OpenDuoFeed,
-  OpenDuoWhatsApp,
-  OpenDuoCountdownStory,
-  OpenDuoCountdownFeed,
-  OpenDuoCountdownWhatsApp,
-  OpenDuoGameSpotlight,
-  OpenDuoSpotlightStory,
-  OpenDuoSpotlightWhatsApp,
-  OpenDuoPublicFeed,
-  OpenDuoPublicWhatsApp,
-  PublicStoryB,
-} from "@/components/banners";
-import {
-  StoryBackground,
-  CountdownBackground,
-  FeedBackground,
-} from "@/components/banners/backgrounds";
+import Link from "next/link";
 import { SAMPLE_EVENTS, type EventData, type GameDetail } from "@/lib/event-data";
-import { FORMATS } from "@/lib/formats";
 import { exportBanner } from "@/lib/export-banner";
 import { exportBannerMp4 } from "@/lib/export-mp4";
 import { generateVariation, DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
-
-type Template = "anuncio" | "countdown" | "spotlight" | "publico";
-type Format = "story" | "feed" | "whatsapp";
-
-const FORMAT_LABELS: Record<Format, string> = {
-  story: "IG Story",
-  feed: "IG Feed",
-  whatsapp: "WhatsApp",
-};
-
-const TEMPLATE_LABELS: Record<Template, string> = {
-  anuncio: "Anuncio",
-  countdown: "Countdown",
-  spotlight: "Spotlight",
-  publico: "Público",
-};
-
-const FORMAT_DIMS = {
-  story:    FORMATS["instagram-story"],
-  feed:     FORMATS["instagram-feed-post"],
-  whatsapp: FORMATS["whatsapp-status"],
-} satisfies Record<Format, object>;
+import {
+  resolveBanner,
+  TEMPLATE_LABELS,
+  FORMAT_LABELS,
+  type Template,
+  type Format,
+} from "@/lib/banner-registry";
 
 const THEME = {
   dark: {
@@ -78,43 +44,6 @@ const THEME = {
     frameBorder: "rgba(179,57,196,0.3)",
   },
 };
-
-interface BannerEntry {
-  format: { width: number; height: number; aspectRatio: string };
-  render: () => React.ReactNode;
-  renderBg: () => React.ReactNode;
-}
-
-function resolveBanner(
-  event: EventData,
-  template: Template,
-  gameKey: string,
-  format: Format,
-  days: number,
-  variation: BannerVariation,
-  sponsor?: { logos: string[]; bgImage?: string },
-): BannerEntry {
-  const game = event.gameDetails?.find((g) => g.shortName.toLowerCase() === gameKey);
-  const bgAccent = (game?.accent ?? "purple") as "purple" | "green" | "orange";
-  const sl = sponsor?.logos;
-  const bi = sponsor?.bgImage;
-
-  switch (`${template}-${format}` as `${Template}-${Format}`) {
-    case "anuncio-story":     return { format: FORMAT_DIMS.story,    render: () => <OpenDuoStory event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,                            renderBg: () => <StoryBackground variant="story" /> };
-    case "anuncio-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoFeed event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,                             renderBg: () => <FeedBackground accent="mixed" /> };
-    case "anuncio-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoWhatsApp event={event} variation={variation} />,                         renderBg: () => <StoryBackground variant="whatsapp" /> };
-    case "countdown-story":   return { format: FORMAT_DIMS.story,    render: () => <OpenDuoCountdownStory event={event} daysLeft={days} variation={variation} sponsorLogos={sl} bgImage={bi} />,   renderBg: () => <CountdownBackground /> };
-    case "countdown-feed":    return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoCountdownFeed event={event} daysLeft={days} variation={variation} sponsorLogos={sl} bgImage={bi} />,    renderBg: () => <FeedBackground accent="mixed" /> };
-    case "countdown-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoCountdownWhatsApp event={event} daysLeft={days} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
-    case "spotlight-story":   return { format: FORMAT_DIMS.story,    render: () => game ? <OpenDuoSpotlightStory event={event} game={game} variation={variation} sponsorLogos={sl} bgImage={bi} /> : null,    renderBg: () => <FeedBackground accent={bgAccent} /> };
-    case "spotlight-feed":    return { format: FORMAT_DIMS.feed,     render: () => game ? <OpenDuoGameSpotlight event={event} game={game} variation={variation} sponsorLogos={sl} bgImage={bi} /> : null,     renderBg: () => <FeedBackground accent={bgAccent} /> };
-    case "spotlight-whatsapp":return { format: FORMAT_DIMS.whatsapp, render: () => game ? <OpenDuoSpotlightWhatsApp event={event} game={game} variation={variation} /> : null, renderBg: () => <FeedBackground accent={bgAccent} /> };
-    case "publico-story":     return { format: FORMAT_DIMS.story,    render: () => <PublicStoryB event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,         renderBg: () => <StoryBackground variant="story" /> };
-    case "publico-feed":      return { format: FORMAT_DIMS.feed,     render: () => <OpenDuoPublicFeed event={event} variation={variation} sponsorLogos={sl} bgImage={bi} />,     renderBg: () => <FeedBackground accent="mixed" /> };
-    case "publico-whatsapp":  return { format: FORMAT_DIMS.whatsapp, render: () => <OpenDuoPublicWhatsApp event={event} variation={variation} />, renderBg: () => <StoryBackground variant="whatsapp" /> };
-    default:                  return { format: FORMAT_DIMS.story,    render: () => null, renderBg: () => null };
-  }
-}
 
 export default function GalleryPage() {
   const bannerRef = useRef<HTMLDivElement | null>(null);
@@ -179,6 +108,22 @@ export default function GalleryPage() {
             Seleccioná un banner para previsualizar. PNG estático o MP4 animado.
           </p>
         </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <Link
+          href="/editor"
+          style={{
+            padding: "6px 14px",
+            background: "rgba(132,197,82,0.12)",
+            border: "1px solid rgba(132,197,82,0.35)",
+            borderRadius: "6px",
+            color: "#84C552",
+            fontSize: "0.8125rem",
+            fontWeight: 500,
+            textDecoration: "none",
+          }}
+        >
+          ▶ Editor de video
+        </Link>
         <div
           style={{
             display: "flex",
@@ -221,6 +166,7 @@ export default function GalleryPage() {
           >
             ☀ Claro
           </button>
+        </div>
         </div>
       </header>
 

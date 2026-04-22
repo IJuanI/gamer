@@ -914,7 +914,9 @@ body {
 .banner-frame-seek,
 .banner-frame-seek *,
 .banner-frame-seek::before,
-.banner-frame-seek::after {
+.banner-frame-seek::after,
+.banner-frame-seek *::before,
+.banner-frame-seek *::after {
   animation-play-state: paused !important;
   animation-delay: calc(var(--banner-t, 0) * -1s) !important;
 }
