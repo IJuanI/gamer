@@ -59,6 +59,40 @@ export const FORMATS: Record<string, BannerFormat> = {
     description:
       "Formato cuadrado 1:1 optimizado para compartir flyers en grupos de WhatsApp. Sin cropping en el chat.",
   },
+  // ── Print formats — pixel sizes assume 300dpi ─────────────────────────
+  "print-a6-portrait": {
+    id: "print-a6-portrait",
+    name: "A6 vertical (impresión)",
+    platform: "Print",
+    width: 1240,
+    height: 1748,
+    aspectRatio: "5:7",
+    safeZone: { top: 90, bottom: 90, left: 90, right: 90 },
+    description:
+      "A6 vertical 105×148mm @300dpi. Para señalética con QR (wifi, redes sociales).",
+  },
+  "print-a4-landscape": {
+    id: "print-a4-landscape",
+    name: "A4 horizontal (impresión)",
+    platform: "Print",
+    width: 3508,
+    height: 2480,
+    aspectRatio: "297:210",
+    safeZone: { top: 200, bottom: 200, left: 200, right: 200 },
+    description:
+      "A4 horizontal 297×210mm @300dpi. Señalización direccional (BAÑOS, ENTRADA) y menús de evento.",
+  },
+  "print-a4-portrait": {
+    id: "print-a4-portrait",
+    name: "A4 vertical (impresión)",
+    platform: "Print",
+    width: 2480,
+    height: 3508,
+    aspectRatio: "210:297",
+    safeZone: { top: 200, bottom: 200, left: 180, right: 180 },
+    description:
+      "A4 vertical 210×297mm @300dpi. Cronograma de evento.",
+  },
 } as const;
 
 export const FORMAT_LIST = Object.values(FORMATS);

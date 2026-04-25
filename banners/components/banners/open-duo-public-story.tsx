@@ -205,7 +205,7 @@ export function OpenDuoPublicStory({
               className="font-azonix"
               style={{ fontSize: 28, color: "#96D068", letterSpacing: "0.08em" }}
             >
-              @gamer_eerr
+              @gaming_eerr
             </span>
           </div>
         </div>

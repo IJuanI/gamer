@@ -124,6 +124,21 @@ export default function GalleryPage() {
         >
           ▶ Editor de video
         </Link>
+        <Link
+          href="/print"
+          style={{
+            padding: "6px 14px",
+            background: "rgba(179,57,196,0.12)",
+            border: "1px solid rgba(179,57,196,0.35)",
+            borderRadius: "6px",
+            color: "#C06DD0",
+            fontSize: "0.8125rem",
+            fontWeight: 500,
+            textDecoration: "none",
+          }}
+        >
+          🖨 Impresos
+        </Link>
         <div
           style={{
             display: "flex",

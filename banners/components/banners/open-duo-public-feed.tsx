@@ -149,7 +149,7 @@ export function OpenDuoPublicFeed({
             <div style={{ width: "100%", height: 1, background: "linear-gradient(90deg, transparent, rgba(132,197,82,0.3) 20%, rgba(132,197,82,0.3) 80%, transparent)" }} />
             <div className="flex items-center" style={{ gap: 12 }}>
               <InstagramIcon size={26} color="#96D068" />
-              <span className="font-azonix" style={{ fontSize: 28, color: "#96D068", letterSpacing: "0.06em" }}>@gamer_eerr</span>
+              <span className="font-azonix" style={{ fontSize: 28, color: "#96D068", letterSpacing: "0.06em" }}>@gaming_eerr</span>
             </div>
           </div>
         </div>

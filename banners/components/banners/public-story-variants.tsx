@@ -89,7 +89,7 @@ function PriceCTA({ fee }: { fee?: string }) {
         </span>
       </div>
       <span className="font-azonix" style={{ fontSize: 28, color: "#96D068", letterSpacing: "0.08em" }}>
-        @gamer_eerr
+        @gaming_eerr
       </span>
     </div>
   );
@@ -204,7 +204,7 @@ export function PublicStoryB({ event, variation = DEFAULT_VARIATION, sponsorLogo
           )}
           <div className="flex items-center" style={{ gap: 12 }}>
             <InstagramIcon size={30} color="#96D068" />
-            <span className="font-azonix" style={{ fontSize: 30, color: "#96D068", letterSpacing: "0.06em" }}>@gamer_eerr</span>
+            <span className="font-azonix" style={{ fontSize: 30, color: "#96D068", letterSpacing: "0.06em" }}>@gaming_eerr</span>
           </div>
         </div>
       </div>
