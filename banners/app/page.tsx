@@ -45,6 +45,24 @@ const THEME = {
   },
 };
 
+function getGameDisplayNames(gameDetails?: GameDetail[]) {
+  return (gameDetails ?? [])
+    .map((game) => game.name.trim())
+    .filter(Boolean);
+}
+
+function cloneEventForEditing(event: EventData): EventData {
+  const gameDetails = event.gameDetails?.map((game) => ({ ...game }));
+
+  return {
+    ...event,
+    availableTemplates: [...event.availableTemplates],
+    games: getGameDisplayNames(gameDetails),
+    gameDetails,
+    consoleGames: event.consoleGames ? [...event.consoleGames] : undefined,
+  };
+}
+
 export default function GalleryPage() {
   const bannerRef = useRef<HTMLDivElement | null>(null);
   const bgRef = useRef<HTMLDivElement | null>(null);
@@ -58,26 +76,65 @@ export default function GalleryPage() {
   const [inputValue, setInputValue] = useState<string>("14");
   const [variation, setVariation] = useState<BannerVariation>(DEFAULT_VARIATION);
   const [isEditableEvent, setIsEditableEvent] = useState(false);
-  const [editableEvent, setEditableEvent] = useState<EventData>(SAMPLE_EVENTS[0]);
+  const [editableEvent, setEditableEvent] = useState<EventData>(() => cloneEventForEditing(SAMPLE_EVENTS[0]));
   const [animated, setAnimated] = useState(false);
   const [animStyle, setAnimStyle] = useState<"glitch" | "scan" | "pulse" | "drift" | "matrix">("pulse");
   const [mp4Progress, setMp4Progress] = useState<{ done: number; total: number } | null>(null);
   const [sponsorMode, setSponsorMode] = useState(false);
   const [sponsorLogos, setSponsorLogos] = useState<string[]>([]);
   const [bgImage, setBgImage] = useState<string | null>(null);
-  useEffect(() => { setVariation(generateVariation()); }, []);
+
+  useEffect(() => {
+    setVariation(generateVariation());
+  }, []);
 
   const event = isEditableEvent ? editableEvent : SAMPLE_EVENTS[eventIdx];
 
   function updateEvent(updates: Partial<EventData>) {
     setEditableEvent((prev) => ({ ...prev, ...updates }));
   }
+
   function updateGame(idx: number, updates: Partial<GameDetail>) {
-    setEditableEvent((prev) => ({
-      ...prev,
-      gameDetails: prev.gameDetails?.map((g, i) => (i === idx ? { ...g, ...updates } : g)),
-    }));
+    setEditableEvent((prev) => {
+      const nextGameDetails = prev.gameDetails?.map((game, i) =>
+        i === idx ? { ...game, ...updates } : game,
+      );
+
+      return {
+        ...prev,
+        gameDetails: nextGameDetails,
+        games: getGameDisplayNames(nextGameDetails),
+      };
+    });
   }
+
+  function addGame() {
+    setEditableEvent((prev) => {
+      const nextGameDetails = [
+        ...(prev.gameDetails ?? []),
+        { name: "", shortName: "", format: "", teams: "", schedule: "", accent: "green" as const },
+      ];
+
+      return {
+        ...prev,
+        gameDetails: nextGameDetails,
+        games: getGameDisplayNames(nextGameDetails),
+      };
+    });
+  }
+
+  function removeGame(idx: number) {
+    setEditableEvent((prev) => {
+      const nextGameDetails = prev.gameDetails?.filter((_, i) => i !== idx);
+
+      return {
+        ...prev,
+        gameDetails: nextGameDetails,
+        games: getGameDisplayNames(nextGameDetails),
+      };
+    });
+  }
+
   const availableTemplates = event.availableTemplates;
   const activeTemplate = availableTemplates.includes(template) ? template : availableTemplates[0];
   const gameDetails = event.gameDetails ?? [];
@@ -109,79 +166,79 @@ export default function GalleryPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <Link
-          href="/editor"
-          style={{
-            padding: "6px 14px",
-            background: "rgba(132,197,82,0.12)",
-            border: "1px solid rgba(132,197,82,0.35)",
-            borderRadius: "6px",
-            color: "#84C552",
-            fontSize: "0.8125rem",
-            fontWeight: 500,
-            textDecoration: "none",
-          }}
-        >
-          ▶ Editor de video
-        </Link>
-        <Link
-          href="/print"
-          style={{
-            padding: "6px 14px",
-            background: "rgba(179,57,196,0.12)",
-            border: "1px solid rgba(179,57,196,0.35)",
-            borderRadius: "6px",
-            color: "#C06DD0",
-            fontSize: "0.8125rem",
-            fontWeight: 500,
-            textDecoration: "none",
-          }}
-        >
-          🖨 Impresos
-        </Link>
-        <div
-          style={{
-            display: "flex",
-            background: theme === "dark" ? "rgba(179,57,196,0.08)" : "rgba(179,57,196,0.04)",
-            border: `1px solid ${theme === "dark" ? "rgba(179,57,196,0.25)" : "rgba(179,57,196,0.15)"}`,
-            borderRadius: "6px",
-            padding: "4px",
-            gap: "4px",
-          }}
-        >
-          <button
-            onClick={() => setTheme("dark")}
+          <Link
+            href="/editor"
             style={{
               padding: "6px 14px",
-              background: theme === "dark" ? "rgba(179,57,196,0.25)" : "transparent",
-              border: "none",
-              borderRadius: "4px",
-              color: theme === "dark" ? "#B339C4" : t.muted,
+              background: "rgba(132,197,82,0.12)",
+              border: "1px solid rgba(132,197,82,0.35)",
+              borderRadius: "6px",
+              color: "#84C552",
               fontSize: "0.8125rem",
               fontWeight: 500,
-              cursor: "pointer",
-              transition: "all 0.2s",
+              textDecoration: "none",
             }}
           >
-            ☾ Oscuro
-          </button>
-          <button
-            onClick={() => setTheme("light")}
+            ▶ Editor de video
+          </Link>
+          <Link
+            href="/print"
             style={{
               padding: "6px 14px",
-              background: theme === "light" ? "rgba(179,57,196,0.25)" : "transparent",
-              border: "none",
-              borderRadius: "4px",
-              color: theme === "light" ? "#8B22A0" : t.muted,
+              background: "rgba(179,57,196,0.12)",
+              border: "1px solid rgba(179,57,196,0.35)",
+              borderRadius: "6px",
+              color: "#C06DD0",
               fontSize: "0.8125rem",
               fontWeight: 500,
-              cursor: "pointer",
-              transition: "all 0.2s",
+              textDecoration: "none",
             }}
           >
-            ☀ Claro
-          </button>
-        </div>
+            🖨 Impresos
+          </Link>
+          <div
+            style={{
+              display: "flex",
+              background: theme === "dark" ? "rgba(179,57,196,0.08)" : "rgba(179,57,196,0.04)",
+              border: `1px solid ${theme === "dark" ? "rgba(179,57,196,0.25)" : "rgba(179,57,196,0.15)"}`,
+              borderRadius: "6px",
+              padding: "4px",
+              gap: "4px",
+            }}
+          >
+            <button
+              onClick={() => setTheme("dark")}
+              style={{
+                padding: "6px 14px",
+                background: theme === "dark" ? "rgba(179,57,196,0.25)" : "transparent",
+                border: "none",
+                borderRadius: "4px",
+                color: theme === "dark" ? "#B339C4" : t.muted,
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              ☾ Oscuro
+            </button>
+            <button
+              onClick={() => setTheme("light")}
+              style={{
+                padding: "6px 14px",
+                background: theme === "light" ? "rgba(179,57,196,0.25)" : "transparent",
+                border: "none",
+                borderRadius: "4px",
+                color: theme === "light" ? "#8B22A0" : t.muted,
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              ☀ Claro
+            </button>
+          </div>
         </div>
       </header>
 
@@ -218,7 +275,7 @@ export default function GalleryPage() {
             <button
               onClick={() => {
                 if (!isEditableEvent) {
-                  setEditableEvent({ ...SAMPLE_EVENTS[eventIdx] });
+                  setEditableEvent(cloneEventForEditing(SAMPLE_EVENTS[eventIdx]));
                 }
                 setIsEditableEvent((v) => !v);
               }}
@@ -251,7 +308,7 @@ export default function GalleryPage() {
                   { label: "Título", field: "title" as const },
                   { label: "Fecha", field: "date" as const },
                   { label: "Horario", field: "time" as const },
-                ] .map(({ label, field }) => (
+                ].map(({ label, field }) => (
                   <label key={field} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     <span style={{ fontSize: 10, color: t.categoryLabel, letterSpacing: "0.08em", fontFamily: "azonix, sans-serif" }}>{label.toUpperCase()}</span>
                     <input
@@ -270,6 +327,7 @@ export default function GalleryPage() {
                   </label>
                 ))}
               </div>
+
               {/* Row 2 */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                 {[
@@ -295,6 +353,7 @@ export default function GalleryPage() {
                   </label>
                 ))}
               </div>
+
               {/* Row 3: publico fields */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 8 }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -337,6 +396,7 @@ export default function GalleryPage() {
                   />
                 </label>
               </div>
+
               {/* Available templates */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <span style={{ fontSize: 10, color: t.categoryLabel, letterSpacing: "0.08em", fontFamily: "azonix, sans-serif" }}>PLANTILLAS DISPONIBLES</span>
@@ -350,7 +410,7 @@ export default function GalleryPage() {
                           const next = active
                             ? editableEvent.availableTemplates.filter((t) => t !== tmpl)
                             : [...editableEvent.availableTemplates, tmpl];
-                          if (next.length === 0) return; // must keep at least one
+                          if (next.length === 0) return;
                           updateEvent({ availableTemplates: next });
                         }}
                         className="px-3 py-1 text-xs font-medium cursor-pointer transition-all"
@@ -367,20 +427,13 @@ export default function GalleryPage() {
                   })}
                 </div>
               </div>
+
               {/* Game details */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 10, color: t.categoryLabel, letterSpacing: "0.08em", fontFamily: "azonix, sans-serif" }}>JUEGOS</span>
                   <button
-                    onClick={() =>
-                      setEditableEvent((prev) => ({
-                        ...prev,
-                        gameDetails: [
-                          ...(prev.gameDetails ?? []),
-                          { name: "", shortName: "", format: "", teams: "", schedule: "", accent: "green" as const },
-                        ],
-                      }))
-                    }
+                    onClick={addGame}
                     className="cursor-pointer"
                     style={{
                       fontSize: 11,
@@ -436,12 +489,7 @@ export default function GalleryPage() {
                         {mkLabel("ID", "shortName")}
                         {mkLabel("Formato", "format")}
                         <button
-                          onClick={() =>
-                            setEditableEvent((prev) => ({
-                              ...prev,
-                              gameDetails: prev.gameDetails?.filter((_, i) => i !== gi),
-                            }))
-                          }
+                          onClick={() => removeGame(gi)}
                           title="Eliminar juego"
                           className="cursor-pointer"
                           style={{
@@ -458,6 +506,7 @@ export default function GalleryPage() {
                           ×
                         </button>
                       </div>
+
                       {/* Row B: Equipos | Horario | Caster */}
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
                         {mkLabel("Equipos", "teams")}
@@ -643,7 +692,10 @@ export default function GalleryPage() {
               <button
                 onClick={() => {
                   setSponsorMode((v) => {
-                    if (v) { setSponsorLogos([]); setBgImage(null); }
+                    if (v) {
+                      setSponsorLogos([]);
+                      setBgImage(null);
+                    }
                     return !v;
                   });
                 }}
@@ -835,9 +887,10 @@ export default function GalleryPage() {
               const el = bannerRef.current.firstElementChild as HTMLElement;
               if (!el) return;
               const id = `${activeTemplate}-${format}${activeTemplate === "countdown" ? `-${days}` : ""}${activeTemplate === "spotlight" ? `-${activeGameKey}` : ""}`;
-              // Stories get 3 loops (15s) so the clip feels complete when posted.
+
               const totalSeconds = format === "story" ? 15 : 5;
               setMp4Progress({ done: 0, total: Math.round(totalSeconds * 30) });
+
               try {
                 await exportBannerMp4(el, `gamer-${id}`, {
                   loopSeconds: 5,
@@ -875,11 +928,11 @@ export default function GalleryPage() {
           <div className="flex gap-2">
             {(
               [
-                { id: "glitch", label: "⚡ Glitch",  desc: "Jitter + RGB split" },
-                { id: "scan",   label: "📡 Scan",    desc: "CRT scanline sweep" },
-                { id: "pulse",  label: "💜 Pulse",   desc: "Neon breathing"      },
-                { id: "drift",  label: "🌊 Drift",   desc: "Slow hue drift"      },
-                { id: "matrix", label: "🟢 Matrix",  desc: "Digital rain"        },
+                { id: "glitch", label: "⚡ Glitch", desc: "Jitter + RGB split" },
+                { id: "scan", label: "📡 Scan", desc: "CRT scanline sweep" },
+                { id: "pulse", label: "💜 Pulse", desc: "Neon breathing" },
+                { id: "drift", label: "🌊 Drift", desc: "Slow hue drift" },
+                { id: "matrix", label: "🟢 Matrix", desc: "Digital rain" },
               ] as const
             ).map(({ id, label, desc }) => (
               <button
