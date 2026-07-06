@@ -39,6 +39,8 @@ export interface GameDetail {
   caster?: string;
   /** Accent color for this game's spotlight */
   accent: AccentColor;
+  /** Match format for banners, e.g. "2 VS 2", "1 VS 1" */
+  matchFormat?: string;
 }
 
 export interface EventData {
@@ -136,6 +138,7 @@ export const OPEN_DUO_EVENT: EventData = {
       schedule: "16:00 a 18:25 HS",
       caster: 'Martin "TroyanoLoco" Garcia',
       accent: "purple",
+      matchFormat: "2 VS 2",
     },
     {
       name: "COUNTER-STRIKE 2",
@@ -145,6 +148,7 @@ export const OPEN_DUO_EVENT: EventData = {
       schedule: "18:45 a 21:00 HS",
       caster: "Limoncete",
       accent: "green",
+      matchFormat: "2 VS 2",
     },
   ],
 };
@@ -176,6 +180,7 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
       teams: "16 jugadores",
       schedule: "16:00 a 18:30 HS",
       accent: "orange",
+      matchFormat: "1 VS 1",
     },
     {
       name: "SUPER SMASH BROS ULTIMATE",
@@ -184,6 +189,7 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
       teams: "16 jugadores",
       schedule: "19:00 a 22:00 HS",
       accent: "purple",
+      matchFormat: "1 VS 1",
     },
   ],
 };
@@ -215,6 +221,7 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
       teams: "8 equipos",
       schedule: "15:00 a 17:30 HS",
       accent: "green",
+      matchFormat: "2 VS 2",
     },
     {
       name: "VALORANT",
@@ -223,6 +230,7 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
       teams: "8 equipos",
       schedule: "18:00 a 21:00 HS",
       accent: "blue",
+      matchFormat: "2 VS 2",
     },
   ],
 };

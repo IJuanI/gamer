@@ -271,35 +271,37 @@ export function OpenDuoStory({ event, variation = DEFAULT_VARIATION, sponsorLogo
           className="flex flex-col items-center"
           style={{ gap: 30 }}
         >
-          {/* 2v2 */}
-          <div className="flex items-center gap-4">
-            <div
-              style={{
-                width: 80,
-                height: 3,
-                background:
-                  "linear-gradient(90deg, transparent, rgba(132,197,82,0.5))",
-              }}
-            />
-            <span
-              className="font-azonix"
-              style={{
-                fontSize: 38,
-                color: "#96D068",
-                letterSpacing: "0.3em",
-              }}
-            >
-              2 VS 2
-            </span>
-            <div
-              style={{
-                width: 80,
-                height: 3,
-                background:
-                  "linear-gradient(90deg, rgba(132,197,82,0.5), transparent)",
-              }}
-            />
-          </div>
+          {/* Match format label */}
+          {event.gameDetails?.[0]?.matchFormat && (
+            <div className="flex items-center gap-4">
+              <div
+                style={{
+                  width: 80,
+                  height: 3,
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(132,197,82,0.5))",
+                }}
+              />
+              <span
+                className="font-azonix"
+                style={{
+                  fontSize: 38,
+                  color: "#96D068",
+                  letterSpacing: "0.3em",
+                }}
+              >
+                {event.gameDetails[0].matchFormat}
+              </span>
+              <div
+                style={{
+                  width: 80,
+                  height: 3,
+                  background:
+                    "linear-gradient(90deg, rgba(132,197,82,0.5), transparent)",
+                }}
+              />
+            </div>
+          )}
 
           {/* Title */}
           <h1
