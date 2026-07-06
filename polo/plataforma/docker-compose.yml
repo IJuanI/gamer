@@ -1,0 +1,40 @@
+---
+# Dev-oriented compose: hot-reloading Next.js with logs streamed to ./logs
+# on the host so AI agents (and you) can tail run output from a file.
+
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "file:./prisma/dev.db"
+      SESSION_SECRET: "dev-compose-secret-change-me"
+      # reliable file-watching inside the container:
+      WATCHPACK_POLLING: "true"
+    volumes:
+      # mount source for hot reload:
+      - .:/app
+      # keep container's installed modules:
+      - /app/node_modules
+      # stream logs/dev.log back to the host:
+      - ./logs:/app/logs
+    command: sh -c "npx prisma db push && npm run db:seed && npm run dev:log"
+
+  # --- Optional Postgres for production-like runs ---
+  # To use: switch prisma/schema.prisma `provider` to "postgresql",
+  # set DATABASE_URL below on the app service, and uncomment this service.
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: polo
+  #     POSTGRES_PASSWORD: polo
+  #     POSTGRES_DB: polo
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+# volumes:
+#   pgdata:

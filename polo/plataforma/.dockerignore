@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+logs
+test-results
+playwright-report
+*.db
+*.db-journal
+.DS_Store

@@ -1,5 +1,22 @@
 import type { ScheduleItem } from "@/components/print/cronograma";
 import type { MenuCategory } from "@/components/print/menu-gastronomico";
+import type { CredentialAccent } from "@/components/print/staff-credential";
+
+export interface CredentialEntry {
+  id: string;
+  name: string;
+  accent: CredentialAccent;
+}
+
+/** Default event name shown on credentials. */
+export const DEFAULT_CREDENTIAL_EVENT = "Open Duo";
+
+/** Starter set of credentials — empty names print a write-on line. */
+export const DEFAULT_CREDENTIALS: CredentialEntry[] = [
+  { id: "cred-1", name: "", accent: "purple" },
+  { id: "cred-2", name: "", accent: "green" },
+  { id: "cred-3", name: "", accent: "pink" },
+];
 
 /** Default Open-Duo schedule (15hs inicio → 21hs cierre). */
 export const OPEN_DUO_SCHEDULE: ScheduleItem[] = [

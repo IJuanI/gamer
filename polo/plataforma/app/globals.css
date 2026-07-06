@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #1e5a96; /* placeholder — Polo has no confirmed official color */
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}

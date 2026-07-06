@@ -93,6 +93,17 @@ export const FORMATS: Record<string, BannerFormat> = {
     description:
       "A4 vertical 210×297mm @300dpi. Cronograma de evento.",
   },
+  "print-a7-landscape": {
+    id: "print-a7-landscape",
+    name: "A7 horizontal (credencial)",
+    platform: "Print",
+    width: 1240,
+    height: 874,
+    aspectRatio: "105:74",
+    safeZone: { top: 70, bottom: 70, left: 70, right: 70 },
+    description:
+      "A7 horizontal 105×74mm @300dpi. Credencial de staff para colgar — imprimir y plastificar.",
+  },
 } as const;
 
 export const FORMAT_LIST = Object.values(FORMATS);

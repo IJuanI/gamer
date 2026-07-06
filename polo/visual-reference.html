@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polo Tecnológico - Visual Reference Examples</title>
+    <link rel="stylesheet" href="branding-system.css">
+    <style>
+        main {
+            padding: 40px 0;
+        }
+
+        .example-section {
+            margin-bottom: 60px;
+        }
+
+        .example-section h2 {
+            border-bottom: 3px solid #2a7ab5;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .example-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .example-preview {
+            padding: 30px;
+            background: #f9f9f9;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .example-label {
+            padding: 15px;
+            background: white;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .color-block {
+            height: 100px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .typography-example {
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2a7ab5;
+        }
+
+        .gradient-example {
+            background: linear-gradient(135deg, #1e5a96 0%, #2a7ab5 100%);
+            height: 200px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .badge-grid {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .icon-placeholder {
+            width: 48px;
+            height: 48px;
+            background: #2a7ab5;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .card-example {
+            max-width: 350px;
+        }
+
+        .card-example .card {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1e5a96 0%, #2a7ab5 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-footer {
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-example {
+            background: #1e5a96;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .nav-example ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .nav-example li {
+            flex: 1;
+        }
+
+        .nav-example a {
+            display: block;
+            padding: 15px;
+            color: white;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            transition: background-color 0.3s;
+        }
+
+        .nav-example li:last-child a {
+            border-right: none;
+        }
+
+        .nav-example a:hover {
+            background: #144270;
+            text-decoration: none;
+        }
+
+        .form-example {
+            max-width: 400px;
+        }
+
+        .input-field {
+            margin-bottom: 20px;
+        }
+
+        .input-field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e5a96;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #2a7ab5;
+            box-shadow: 0 0 0 3px rgba(42,122,181,0.1);
+        }
+
+        .hero-example {
+            background: linear-gradient(135deg, #1e5a96 0%, #2a7ab5 100%);
+            color: white;
+            padding: 60px 30px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .hero-example h1 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .hero-example p {
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 30px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e8f0f7;
+            border-left-color: #2a7ab5;
+            color: #1e5a96;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left-color: #28a745; /* generic green — Polo's real accent color unknown */
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-left-color: #e74c3c;
+            color: #721c24;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            border-left: 4px solid #2a7ab5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Visual Reference Guide</h1>
+        <p>Polo Tecnológico del Paraná - Component Examples & Visual Patterns</p>
+    </header>
+
+    <main class="container">
+        <!-- Color Palette -->
+        <section class="example-section">
+            <h2>Color Palette</h2>
+            <p style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+                <strong>⚠️ Colores NO verificados.</strong> El logo fue descrito sólo como "azul y blanco". Los hex abajo son estimaciones genéricas. El verde (#84C552) fue un error — pertenece a GamER, no a Polo. Para los colores reales: <a href="https://brandfetch.com/polotecparana.com.ar">brandfetch.com/polotecparana.com.ar</a> o contactar a @polotecpna.
+            </p>
+
+            <div class="color-grid">
+                <div>
+                    <div class="color-block" style="background: #1e5a96;"></div>
+                    <small><strong>~#1e5a96</strong><br>Azul estimado (NO oficial)</small>
+                </div>
+                <div>
+                    <div class="color-block" style="background: #ffffff; border: 1px solid #ddd;"></div>
+                    <small><strong>#ffffff</strong><br>Blanco (confirmado visualmente)</small>
+                </div>
+                <div>
+                    <div class="color-block" style="background: repeating-linear-gradient(45deg, #ccc 0px, #ccc 10px, #eee 10px, #eee 20px);"></div>
+                    <small><em>Colores restantes: desconocidos</em></small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gradients -->
+        <section class="example-section">
+            <h2>Gradients & Effects</h2>
+            <div class="example-grid">
+                <div class="example-item">
+                    <div class="gradient-example">Primary Gradient</div>
+                    <div class="example-label">135deg, #1e5a96 → #2a7ab5</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="example-section">
+            <h2>Typography</h2>
+            <div class="typography-example">
+                <h1 style="margin: 0;">Heading Level 1</h1>
+                <small>Font size: 36px | Weight: 700</small>
+            </div>
+            <div class="typography-example">
+                <h2 style="margin: 0;">Heading Level 2</h2>
+                <small>Font size: 30px | Weight: 700</small>
+            </div>
+            <div class="typography-example">
+                <h3 style="margin: 0;">Heading Level 3</h3>
+                <small>Font size: 24px | Weight: 700</small>
+            </div>
+            <div class="typography-example">
+                <p style="margin: 0;">Body text - Regular paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <small>Font size: 16px | Weight: 400 | Line height: 1.5</small>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="example-section">
+            <h2>Buttons</h2>
+            <div class="button-grid">
+                <button class="btn btn-primary">Primary Button</button>
+                <button class="btn btn-secondary">Secondary Button</button>
+                <button class="btn btn-outline">Outline Button</button>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="example-section">
+            <h2>Badges & Labels</h2>
+            <div class="badge-grid">
+                <span class="badge">Default Badge</span>
+                <span class="badge badge-primary">Primary Badge</span>
+                <span class="badge badge-success">Success Badge</span>
+            </div>
+        </section>
+
+        <!-- Icons Placeholder -->
+        <section class="example-section">
+            <h2>Icon Usage</h2>
+            <p>Icon color should follow primary brand color (#2a7ab5 or #1e5a96):</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div>
+                    <div class="icon-placeholder">⚙️</div>
+                    <small>Settings Icon</small>
+                </div>
+                <div>
+                    <div class="icon-placeholder">📊</div>
+                    <small>Analytics Icon</small>
+                </div>
+                <div>
+                    <div class="icon-placeholder">🚀</div>
+                    <small>Growth Icon</small>
+                </div>
+                <div>
+                    <div class="icon-placeholder">💡</div>
+                    <small>Innovation Icon</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hero Section -->
+        <section class="example-section">
+            <h2>Hero Section</h2>
+            <div class="hero-example">
+                <h1>Impulsamos la economía del conocimiento</h1>
+                <p>Conectando innovación, empresas y comunidad en la región</p>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">Conocer Más</button>
+                    <button class="btn" style="background: white; color: #1e5a96;">Contactar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="example-section">
+            <h2>Cards & Content Containers</h2>
+            <div class="example-grid">
+                <div class="card-example">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="margin: 0; color: white;">Card Title</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>This is example card content demonstrating the typical layout for content organization within the brand system.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="#" style="color: #2a7ab5;">Learn More →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-example">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 style="margin-top: 0;">Simple Card</h3>
+                            <p>A card without header, commonly used for testimonials, quotes, or simple information blocks.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <section class="example-section">
+            <h2>Navigation</h2>
+            <div class="nav-example">
+                <ul>
+                    <li><a href="#home">Inicio</a></li>
+                    <li><a href="#about">Acerca de</a></li>
+                    <li><a href="#services">Servicios</a></li>
+                    <li><a href="#contact">Contacto</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Forms -->
+        <section class="example-section">
+            <h2>Form Elements</h2>
+            <div class="form-example">
+                <form>
+                    <div class="input-field">
+                        <label for="name">Nombre Completo</label>
+                        <input type="text" id="name" placeholder="Ingrese su nombre">
+                    </div>
+                    <div class="input-field">
+                        <label for="email">Correo Electrónico</label>
+                        <input type="email" id="email" placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="input-field">
+                        <label for="message">Mensaje</label>
+                        <textarea id="message" rows="4" placeholder="Su mensaje aquí..." style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 4px; font-family: inherit;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Alerts -->
+        <section class="example-section">
+            <h2>Alert Messages</h2>
+            <div class="alert alert-info">
+                <strong>Información:</strong> Este es un mensaje de información para el usuario.
+            </div>
+            <div class="alert alert-success">
+                <strong>Éxito:</strong> La acción se completó correctamente.
+            </div>
+            <div class="alert alert-warning">
+                <strong>Advertencia:</strong> Tenga cuidado con esta acción.
+            </div>
+            <div class="alert alert-error">
+                <strong>Error:</strong> Algo salió mal. Por favor, intente de nuevo.
+            </div>
+        </section>
+
+        <!-- Code Examples -->
+        <section class="example-section">
+            <h2>CSS Variables Reference</h2>
+            <p>Key CSS variables defined in branding-system.css:</p>
+            <div class="code-block">
+--color-primary: #1e5a96;      /* estimated — not official */
+--color-primary-light: #2a7ab5; /* estimated — not official */
+/* --color-secondary: UNKNOWN  #84C552 was GamER's green — wrong */
+--color-white: #ffffff;
+--color-charcoal: #333333;
+--font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+--shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+--border-radius-lg: 8px;
+            </div>
+        </section>
+
+        <!-- Spacing Scale -->
+        <section class="example-section">
+            <h2>Spacing Scale</h2>
+            <p>Consistent spacing values used throughout the design system:</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div>
+                    <div style="width: 20px; height: 20px; background: #2a7ab5; border-radius: 2px;"></div>
+                    <small>4px (XS)</small>
+                </div>
+                <div>
+                    <div style="width: 40px; height: 20px; background: #2a7ab5; border-radius: 2px;"></div>
+                    <small>8px (SM)</small>
+                </div>
+                <div>
+                    <div style="width: 80px; height: 20px; background: #2a7ab5; border-radius: 2px;"></div>
+                    <small>16px (MD)</small>
+                </div>
+                <div>
+                    <div style="width: 120px; height: 20px; background: #2a7ab5; border-radius: 2px;"></div>
+                    <small>24px (LG)</small>
+                </div>
+                <div>
+                    <div style="width: 160px; height: 20px; background: #2a7ab5; border-radius: 2px;"></div>
+                    <small>32px (XL)</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Border Radius Scale -->
+        <section class="example-section">
+            <h2>Border Radius Scale</h2>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="width: 60px; height: 60px; background: #2a7ab5; border-radius: 4px;"></div>
+                <small>4px</small>
+                <div style="width: 60px; height: 60px; background: #2a7ab5; border-radius: 6px;"></div>
+                <small>6px</small>
+                <div style="width: 60px; height: 60px; background: #2a7ab5; border-radius: 8px;"></div>
+                <small>8px</small>
+                <div style="width: 60px; height: 60px; background: #2a7ab5; border-radius: 12px;"></div>
+                <small>12px</small>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Polo Tecnológico del Paraná</p>
+        <p>Visual Reference Guide - Design System Examples</p>
+    </footer>
+</body>
+</html>

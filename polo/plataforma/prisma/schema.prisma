@@ -1,0 +1,103 @@
+// Polo Tecnológico del Paraná — platform data model
+// Stack: Prisma + SQLite (swap `provider` to "postgresql" for production)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A single account. The same User can simultaneously be a "persona",
+// belong to one or many empresas (via Membership), and be a global admin.
+// These capabilities are NOT mutually exclusive.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  // Persona-facing public profile fields (optional)
+  bio          String?
+  isAdmin      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  memberships  Membership[]
+  ideas        Idea[]        @relation("IdeaAuthor")
+  claims       IdeaClaim[]   @relation("ClaimActor")
+}
+
+// An empresa (company) discoverable by anyone, with one or more members.
+model Empresa {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  tagline     String?
+  description String?
+  sector      String?
+  website     String?
+  location    String?  @default("Paraná, Entre Ríos")
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  memberships Membership[]
+  claims      IdeaClaim[]
+}
+
+// Join table: a User belongs to an Empresa with a role inside that empresa.
+// One user can be in many empresas; one empresa can have many users.
+model Membership {
+  id        String         @id @default(cuid())
+  userId    String
+  empresaId String
+  role      MembershipRole @default(MEMBER)
+  createdAt DateTime       @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, empresaId])
+}
+
+enum MembershipRole {
+  OWNER
+  MEMBER
+}
+
+// An idea request posted by a persona (logged-in user). Empresas pick it up.
+model Idea {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  category    String?
+  budget      String?
+  status      IdeaStatus @default(OPEN)
+  authorId    String
+  createdAt   DateTime   @default(now())
+
+  author User        @relation("IdeaAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  claims IdeaClaim[]
+}
+
+enum IdeaStatus {
+  OPEN
+  CLAIMED
+  CLOSED
+}
+
+// An empresa expressing interest in / picking up an idea.
+model IdeaClaim {
+  id        String   @id @default(cuid())
+  ideaId    String
+  empresaId String
+  actorId   String // the user (acting for the empresa) who claimed it
+  message   String?
+  createdAt DateTime @default(now())
+
+  idea    Idea    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  actor   User    @relation("ClaimActor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@unique([ideaId, empresaId])
+}

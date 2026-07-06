@@ -2,7 +2,13 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { SAMPLE_EVENTS, type EventData, type GameDetail } from "@/lib/event-data";
+import {
+  SAMPLE_EVENTS,
+  cloneEventForEditing,
+  getGameDisplayNames,
+  type EventData,
+  type GameDetail,
+} from "@/lib/event-data";
 import { exportBanner } from "@/lib/export-banner";
 import { exportBannerMp4 } from "@/lib/export-mp4";
 import { generateVariation, DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
@@ -44,24 +50,6 @@ const THEME = {
     frameBorder: "rgba(179,57,196,0.3)",
   },
 };
-
-function getGameDisplayNames(gameDetails?: GameDetail[]) {
-  return (gameDetails ?? [])
-    .map((game) => game.name.trim())
-    .filter(Boolean);
-}
-
-function cloneEventForEditing(event: EventData): EventData {
-  const gameDetails = event.gameDetails?.map((game) => ({ ...game }));
-
-  return {
-    ...event,
-    availableTemplates: [...event.availableTemplates],
-    games: getGameDisplayNames(gameDetails),
-    gameDetails,
-    consoleGames: event.consoleGames ? [...event.consoleGames] : undefined,
-  };
-}
 
 export default function GalleryPage() {
   const bannerRef = useRef<HTMLDivElement | null>(null);
@@ -153,7 +141,7 @@ export default function GalleryPage() {
       className="min-h-screen p-8 flex flex-col items-center transition-colors duration-300"
       style={{ background: t.pageBg }}
     >
-      <header className="mb-8 w-full max-w-3xl flex items-start justify-between">
+      <header className="mb-8 w-full max-w-3xl flex items-start justify-between flex-wrap gap-4">
         <div>
           <h1
             className="font-azonix text-2xl mb-1"
@@ -728,10 +716,14 @@ export default function GalleryPage() {
                               new Promise<string>((resolve) => {
                                 const reader = new FileReader();
                                 reader.onload = (ev) => resolve(ev.target?.result as string);
+                                reader.onerror = () => resolve("");
+                                reader.onabort = () => resolve("");
                                 reader.readAsDataURL(f);
                               }),
                           ),
-                        ).then((urls) => setSponsorLogos((prev) => [...prev, ...urls]));
+                        ).then((urls) =>
+                          setSponsorLogos((prev) => [...prev, ...urls.filter(Boolean)]),
+                        );
                         e.target.value = "";
                       }}
                     />

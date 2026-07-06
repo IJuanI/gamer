@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polo Tecnológico del Paraná - Branding Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e5a96 0%, #2a7ab5 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        section {
+            background: white;
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        section h2 {
+            color: #1e5a96;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #2a7ab5;
+            padding-bottom: 10px;
+        }
+
+        section h3 {
+            color: #2a7ab5;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .color-swatch {
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .color-swatch-display {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .color-swatch-info {
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .color-swatch-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .color-swatch-code {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .logo-showcase {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .logo-item {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .logo-item h4 {
+            color: #1e5a96;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .logo-description {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th {
+            background: #2a7ab5;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .social-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #2a7ab5;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: #e8f0f7;
+            border-left-color: #1e5a96;
+        }
+
+        .social-link-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .social-link-label {
+            font-size: 0.8em;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .social-link-name {
+            color: #1e5a96;
+            font-weight: 600;
+        }
+
+        .tagline {
+            background: #f0f4f8;
+            border-left: 4px solid #aaa; /* color desconocido — #84C552 era de GamER, no de Polo */
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+
+        .research-note {
+            background: #fef3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        footer {
+            background: #1e5a96;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        footer p {
+            font-size: 0.9em;
+        }
+
+        .tagline-small {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Polo Tecnológico del Paraná</h1>
+        <p>Branding & Visual Identity Guide</p>
+    </header>
+
+    <div class="container">
+        <!-- Organization Overview -->
+        <section>
+            <h2>Organización</h2>
+            <h3>Identidad</h3>
+            <p><strong>Nombre:</strong> Polo Tecnológico del Paraná</p>
+            <p><strong>Ubicación:</strong> Paraná, Entre Ríos, Argentina</p>
+            <p><strong>Tipo:</strong> Asociación civil sin fines de lucro</p>
+
+            <h3>Propósito</h3>
+            <div class="tagline">
+                "Impulsamos la economía del conocimiento en la región"
+                <p class="tagline-small">We drive the knowledge economy in the region</p>
+            </div>
+
+            <div class="tagline">
+                "Conectando a la Región con la demanda mundial de negocios"
+                <p class="tagline-small">Connecting the Region with global business demand</p>
+            </div>
+
+            <p style="margin-top: 20px;">
+                El Polo Tecnológico del Paraná conecta empresas, universidades, emprendedores e instituciones para crear comunidad y generar desafíos transformacionales para la economía local y la exportación de conocimiento mundial.
+            </p>
+        </section>
+
+        <!-- Color Palette -->
+        <section>
+            <h2>Paleta de Colores</h2>
+
+            <div class="research-note">
+                <strong>⚠️ No se obtuvieron colores oficiales.</strong><br>
+                El sitio web fue inaccesible (Hostinger devolvió sólo el título), Brandfetch retornó HTTP 403, y el análisis de Instagram sólo describió el logo como <em>"blue and white"</em> sin códigos hex. Los colores mostrados a continuación son <strong>estimaciones genéricas de azul</strong>, no están verificados contra ninguna fuente de Polo Tecnológico. Para los colores reales, contactar a la organización directamente o acceder a <a href="https://brandfetch.com/polotecparana.com.ar">brandfetch.com/polotecparana.com.ar</a>.
+            </div>
+
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-swatch-display" style="background-color: #1e5a96;">
+                        Azul Estimado
+                    </div>
+                    <div class="color-swatch-info">
+                        <div class="color-swatch-name">Azul Principal (estimado)</div>
+                        <div class="color-swatch-code">
+                            ~#1e5a96 — NO VERIFICADO<br>
+                            Solo se sabe que es "azul"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-swatch">
+                    <div class="color-swatch-display" style="background-color: #ffffff; color: #333; border: 1px solid #ddd;">
+                        Blanco
+                    </div>
+                    <div class="color-swatch-info">
+                        <div class="color-swatch-name">Blanco</div>
+                        <div class="color-swatch-code">
+                            #ffffff — Confirmado visualmente<br>
+                            Fondo dominante en logo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="color: #888; font-size: 0.9em; margin-top: 10px;">
+                Colores secundarios y de acento: <strong>desconocidos</strong>. No se observaron en ninguna fuente accesible.
+            </p>
+        </section>
+
+        <!-- Logo & Visual Identity -->
+        <section>
+            <h2>Identidad Visual</h2>
+
+            <h3>Logo</h3>
+            <div class="research-note">
+                <strong>⚠️ Descripción parcial — logo no descargado.</strong><br>
+                El análisis de Instagram (con visión limitada del header) describió dos imágenes: una insignia circular y un logo horizontal, ambos con colores azul y blanco. Esta es la única fuente. No se descargó ningún archivo de logo ni se vió en alta resolución.
+            </div>
+
+            <div class="logo-showcase">
+                <div class="logo-item">
+                    <h4>Insignia Circular (descrita — no confirmada en detalle)</h4>
+                    <div class="logo-description">
+                        <p>Descrita como: "circular badge or emblem with geometric patterns in blue and white tones" — observada en el header del perfil de Instagram. Sin más detalle disponible.</p>
+                    </div>
+                </div>
+
+                <div class="logo-item">
+                    <h4>Logo Horizontal (descrito — no confirmado en detalle)</h4>
+                    <div class="logo-description">
+                        <p>Descrita como: "horizontal rectangular logo with blue coloring and technical/geometric design elements" — observada en el header del perfil de Instagram. Sin más detalle disponible.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Estilo Visual</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>Tema:</strong> Moderno y tecnológico</li>
+                <li><strong>Estética:</strong> Minimalista y profesional</li>
+                <li><strong>Enfoque:</strong> Geometría, formas modernas</li>
+                <li><strong>Tonalidad:</strong> Institucional, orientado a innovación</li>
+                <li><strong>Paleta:</strong> Azul y blanco con acentos</li>
+            </ul>
+        </section>
+
+        <!-- Social Media Presence -->
+        <section>
+            <h2>Presencia Digital</h2>
+
+            <div class="social-links">
+                <a href="https://www.polotecparana.com.ar/" class="social-link">
+                    <div class="social-link-text">
+                        <span class="social-link-label">Website</span>
+                        <span class="social-link-name">polotecparana.com.ar</span>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com/polotecpna/" class="social-link">
+                    <div class="social-link-text">
+                        <span class="social-link-label">Instagram</span>
+                        <span class="social-link-name">@polotecpna</span>
+                    </div>
+                </a>
+
+                <a href="https://www.facebook.com/PoloTecParana/" class="social-link">
+                    <div class="social-link-text">
+                        <span class="social-link-label">Facebook</span>
+                        <span class="social-link-name">POLO Tecnológico del Paraná</span>
+                    </div>
+                </a>
+
+                <a href="https://ar.linkedin.com/company/polo-tecnologico-parana" class="social-link">
+                    <div class="social-link-text">
+                        <span class="social-link-label">LinkedIn</span>
+                        <span class="social-link-name">Polo Tecnológico Paraná</span>
+                    </div>
+                </a>
+
+                <a href="https://x.com/polotecparana" class="social-link">
+                    <div class="social-link-text">
+                        <span class="social-link-label">X/Twitter</span>
+                        <span class="social-link-name">@polotecparana</span>
+                    </div>
+                </a>
+            </div>
+
+            <h3>Estadísticas de Instagram</h3>
+            <table>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>Handle</td>
+                    <td>@polotecpna</td>
+                </tr>
+                <tr>
+                    <td>Seguidores</td>
+                    <td>1,992</td>
+                </tr>
+                <tr>
+                    <td>Siguiendo</td>
+                    <td>172</td>
+                </tr>
+                <tr>
+                    <td>Posts</td>
+                    <td>418+</td>
+                </tr>
+                <tr>
+                    <td>Biotagline</td>
+                    <td>Impulsamos la economía del conocimiento en la región</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Key Statistics -->
+        <section>
+            <h2>Estadísticas Clave</h2>
+            <table>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>Sector Primario</td>
+                    <td>Software y servicios digitales</td>
+                </tr>
+                <tr>
+                    <td>Empleo Directo</td>
+                    <td>700+ personas</td>
+                </tr>
+                <tr>
+                    <td>Impacto Regional</td>
+                    <td>2,000+ personas estimadas</td>
+                </tr>
+                <tr>
+                    <td>Años de Operación</td>
+                    <td>10+ años (aniversario celebrado)</td>
+                </tr>
+                <tr>
+                    <td>Tipo Organizacional</td>
+                    <td>Asociación civil sin fines de lucro</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Recent Development -->
+        <section>
+            <h2>Desarrollo Reciente</h2>
+            <h3>MiradorTec Lab</h3>
+            <p>
+                Un nuevo centro tecnológico lanzado en Paraná diseñado para ser el epicentro del ecosistema empresarial de Entre Ríos. Características:
+            </p>
+            <ul style="margin-left: 20px; line-height: 1.8; margin-top: 10px;">
+                <li>Servicios de mentoría</li>
+                <li>Espacios de coworking</li>
+                <li>Conexiones con inversionistas</li>
+                <li>Programas de capacitación especializada</li>
+                <li>Enlaces directos con el sector académico local</li>
+            </ul>
+        </section>
+
+        <!-- Research Status -->
+        <section>
+            <h2>Estado de la Investigación</h2>
+
+            <h3>Completado</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>✅ Descripción general de la organización</li>
+                <li>✅ Identificación de canales de redes sociales</li>
+                <li>✅ Compilación de cobertura de prensa</li>
+                <li>✅ Observaciones de identidad visual básica</li>
+                <li>✅ Mapeo de presencia digital</li>
+            </ul>
+
+            <h3>Pendiente</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>⏳ Códigos de color oficiales (hex/RGB)</li>
+                <li>⏳ Especificaciones tipográficas</li>
+                <li>⏳ Guía de marca completa</li>
+                <li>⏳ Archivos de logo en alta resolución</li>
+                <li>⏳ Documentación del sistema de diseño</li>
+            </ul>
+
+            <div class="research-note">
+                <strong>Nota Importante:</strong> Se encontró una página de Brandfetch (https://brandfetch.com/polotecparana.com.ar) que contiene activos de marca completos, pero actualmente es inaccesible (HTTP 403). Se recomienda contactar directamente a la organización para obtener documentación oficial de marca.
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section>
+            <h2>Contacto para Documentación Oficial</h2>
+            <p>Para obtener documentación completa de marca y especificaciones de diseño, considere comunicarse a través de:</p>
+
+            <div class="social-links">
+                <div class="social-link" style="cursor: text;">
+                    <div class="social-link-text">
+                        <span class="social-link-label">Instagram DM</span>
+                        <span class="social-link-name">@polotecpna</span>
+                    </div>
+                </div>
+
+                <div class="social-link" style="cursor: text;">
+                    <div class="social-link-text">
+                        <span class="social-link-label">Sitio Web</span>
+                        <span class="social-link-name">Formulario de contacto</span>
+                    </div>
+                </div>
+
+                <div class="social-link" style="cursor: text;">
+                    <div class="social-link-text">
+                        <span class="social-link-label">LinkedIn</span>
+                        <span class="social-link-name">Mensaje directo</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Polo Tecnológico del Paraná - Branding Research</p>
+        <p>Research compiled on June 30, 2026</p>
+    </footer>
+</body>
+</html>

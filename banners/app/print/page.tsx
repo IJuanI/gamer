@@ -12,6 +12,8 @@ import {
   type MenuCategory,
   type MenuAccent,
 } from "@/components/print/menu-gastronomico";
+import { StaffCredential, type CredentialAccent } from "@/components/print/staff-credential";
+import { CredentialSheet } from "@/components/print/credential-sheet";
 import { buildWifiPayload } from "@/components/print/qr-code";
 import { InstagramIcon, DiscordIcon, WifiIcon } from "@/components/print/platform-icons";
 import {
@@ -24,6 +26,9 @@ import {
   DEFAULT_INSTAGRAM_HANDLE,
   DEFAULT_WIFI_SSID,
   DEFAULT_WIFI_PASSWORD,
+  DEFAULT_CREDENTIAL_EVENT,
+  DEFAULT_CREDENTIALS,
+  type CredentialEntry,
 } from "@/lib/print-data";
 
 type Tab =
@@ -33,7 +38,8 @@ type Tab =
   | "sign-banos"
   | "sign-entrada"
   | "cronograma"
-  | "menu";
+  | "menu"
+  | "credencial";
 
 const TAB_LABELS: Record<Tab, string> = {
   "qr-wifi":      "QR Wifi",
@@ -43,6 +49,7 @@ const TAB_LABELS: Record<Tab, string> = {
   "sign-entrada": "Entrada Open-Duo",
   cronograma:     "Cronograma",
   menu:           "Menú",
+  credencial:     "Credenciales",
 };
 
 const TAB_ORDER: Tab[] = [
@@ -53,6 +60,7 @@ const TAB_ORDER: Tab[] = [
   "sign-entrada",
   "cronograma",
   "menu",
+  "credencial",
 ];
 
 export default function PrintPage() {
@@ -88,6 +96,13 @@ export default function PrintPage() {
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>(OPEN_DUO_MENU_LABELS_ONLY);
   const [menuSponsorLogo, setMenuSponsorLogo] = useState<string | undefined>(undefined);
 
+  // Credenciales
+  const [credEvent, setCredEvent] = useState(DEFAULT_CREDENTIAL_EVENT);
+  const [credentials, setCredentials] = useState<CredentialEntry[]>(DEFAULT_CREDENTIALS);
+  const [activeCredId, setActiveCredId] = useState(DEFAULT_CREDENTIALS[0].id);
+  const activeCred = credentials.find((c) => c.id === activeCredId) ?? credentials[0];
+  const [credLayout, setCredLayout] = useState<"single" | "sheet">("single");
+
   // Preview — independent zoom per format so switching A6 ↔ A4 keeps each
   // format at a comfortable size.
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -95,6 +110,7 @@ export default function PrintPage() {
     "print-a6-portrait": 0.5,
     "print-a4-landscape": 0.22,
     "print-a4-portrait": 0.28,
+    "print-a7-landscape": 0.5,
   });
 
   const { format, render, downloadName } = useMemo(() => {
@@ -198,6 +214,35 @@ export default function PrintPage() {
             />
           ),
         };
+      case "credencial": {
+        const slug = activeCred?.name.toLowerCase().replace(/\s+/g, "-") || "en-blanco";
+        if (credLayout === "sheet") {
+          return {
+            format: FORMATS["print-a4-portrait"],
+            downloadName: `credenciales-hoja-${slug}`,
+            render: () =>
+              activeCred ? (
+                <CredentialSheet
+                  name={activeCred.name}
+                  eventTitle={credEvent}
+                  accent={activeCred.accent}
+                />
+              ) : null,
+          };
+        }
+        return {
+          format: FORMATS["print-a7-landscape"],
+          downloadName: `credencial-${slug}`,
+          render: () =>
+            activeCred ? (
+              <StaffCredential
+                name={activeCred.name}
+                eventTitle={credEvent}
+                accent={activeCred.accent}
+              />
+            ) : null,
+        };
+      }
     }
   }, [
     tab,
@@ -208,6 +253,7 @@ export default function PrintPage() {
     entradaTitle, entradaSubtitle,
     cronoTitle, cronoDate, cronoVenue, scheduleItems,
     menuTitle, menuSubtitle, menuCategories, menuSponsorLogo,
+    credEvent, activeCred, credLayout,
   ]);
 
   const scale = zoomByFormat[format.id] ?? 0.22;
@@ -267,9 +313,9 @@ export default function PrintPage() {
       </div>
 
       {/* Body */}
-      <div style={{ display: "grid", gridTemplateColumns: "380px 1fr", gap: 0, height: "calc(100vh - 145px)" }}>
+      <div className="print-layout">
         {/* Editor */}
-        <aside style={{ borderRight: "1px solid #25252e", padding: 24, overflowY: "auto" }}>
+        <aside className="print-aside" style={{ borderRight: "1px solid #25252e", padding: 24, overflowY: "auto" }}>
           {tab === "qr-wifi" && (
             <Editor>
               <FieldText label="SSID (red)" value={wifiSsid} onChange={setWifiSsid} />
@@ -339,6 +385,49 @@ export default function PrintPage() {
                 3 modos por item según los campos: etiqueta + monto = chip lleno · solo etiqueta = chip + recuadro blanco para escribir a mano · sin nada = recuadro completamente en blanco.
               </Hint>
               <MenuEditor categories={menuCategories} onChange={setMenuCategories} />
+            </Editor>
+          )}
+          {tab === "credencial" && (
+            <Editor>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <span style={{ fontSize: 12, color: "#9a9aa6", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Salida
+                </span>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {([
+                    { id: "single", label: "Credencial A7" },
+                    { id: "sheet", label: "Hoja A4 (×8)" },
+                  ] as const).map((o) => (
+                    <button
+                      key={o.id}
+                      onClick={() => setCredLayout(o.id)}
+                      style={{
+                        flex: 1,
+                        padding: "8px 12px",
+                        background: credLayout === o.id ? "#B339C4" : "transparent",
+                        border: `1px solid ${credLayout === o.id ? "#B339C4" : "#3a3a44"}`,
+                        borderRadius: 6,
+                        color: credLayout === o.id ? "#fff" : "#c8c8d2",
+                        fontSize: 12,
+                        cursor: "pointer",
+                        fontWeight: credLayout === o.id ? 600 : 400,
+                      }}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <FieldText label="Evento" value={credEvent} onChange={setCredEvent} />
+              <CredentialEditor
+                credentials={credentials}
+                activeId={activeCredId}
+                onSelect={setActiveCredId}
+                onChange={setCredentials}
+              />
+              <Hint>
+                A7 horizontal (105×74mm). Dejá el nombre vacío para imprimir una línea y escribirlo a mano. El recuadro punteado superior es la guía de troquelado para el cordón. La opción «Hoja A4 (×8)» repite la credencial seleccionada 8 veces con márgenes y líneas punteadas de corte.
+              </Hint>
             </Editor>
           )}
         </aside>
@@ -606,6 +695,103 @@ function ScheduleEditor({ items, onChange }: { items: ScheduleItem[]; onChange: 
 }
 
 // ─── menu editor ────────────────────────────────────────────────────────
+
+// ─── credential editor ──────────────────────────────────────────────────
+
+function CredentialEditor({
+  credentials,
+  activeId,
+  onSelect,
+  onChange,
+}: {
+  credentials: CredentialEntry[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  onChange: (v: CredentialEntry[]) => void;
+}) {
+  const update = (id: string, patch: Partial<CredentialEntry>) =>
+    onChange(credentials.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+  const remove = (id: string) => {
+    if (credentials.length === 1) return;
+    const next = credentials.filter((c) => c.id !== id);
+    onChange(next);
+    if (id === activeId) onSelect(next[0].id);
+  };
+  const add = () => {
+    const id = `cred-${Math.random().toString(36).slice(2, 8)}`;
+    onChange([
+      ...credentials,
+      { id, name: "", accent: "purple" },
+    ]);
+    onSelect(id);
+  };
+
+  const accents: CredentialAccent[] = ["purple", "green", "orange", "pink"];
+  const accentColor: Record<CredentialAccent, string> = {
+    purple: "#B339C4", green: "#84C552", orange: "#FF8200", pink: "#E94B8B",
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
+      <div style={{ fontSize: 12, color: "#9a9aa6", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        Credenciales ({credentials.length}) — seleccioná una para previsualizar
+      </div>
+      {credentials.map((c) => {
+        const isActive = c.id === activeId;
+        return (
+          <div
+            key={c.id}
+            onClick={() => onSelect(c.id)}
+            style={{
+              background: isActive ? "rgba(179,57,196,0.12)" : "#1e1e26",
+              border: `1px solid ${isActive ? "#B339C4" : "#2e2e38"}`,
+              borderRadius: 6,
+              padding: 10,
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ display: "flex", gap: 6 }}>
+              <input
+                value={c.name}
+                onChange={(e) => update(c.id, { name: e.target.value })}
+                placeholder="Nombre (vacío = línea para escribir a mano)"
+                onClick={(e) => e.stopPropagation()}
+                style={{ flex: 1, padding: "6px 8px", background: "#15151c", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12 }}
+              />
+              <button
+                onClick={(e) => { e.stopPropagation(); remove(c.id); }}
+                disabled={credentials.length === 1}
+                style={{ padding: "6px 10px", background: "transparent", border: "1px solid #5a3030", borderRadius: 3, color: "#d06868", fontSize: 12, cursor: credentials.length === 1 ? "not-allowed" : "pointer", opacity: credentials.length === 1 ? 0.4 : 1 }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              {accents.map((acc) => (
+                <button
+                  key={acc}
+                  onClick={(e) => { e.stopPropagation(); update(c.id, { accent: acc }); }}
+                  title={acc}
+                  style={{
+                    width: 22, height: 22, borderRadius: "50%",
+                    background: accentColor[acc],
+                    border: c.accent === acc ? "2px solid #fff" : "2px solid transparent",
+                    boxShadow: c.accent === acc ? "0 0 0 1px #2e2e38" : "none",
+                    cursor: "pointer",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+      <SmallBtn onClick={add}>+ Agregar credencial</SmallBtn>
+    </div>
+  );
+}
 
 function MenuEditor({ categories, onChange }: { categories: MenuCategory[]; onChange: (v: MenuCategory[]) => void }) {
   const updateCat = (ci: number, patch: Partial<MenuCategory>) =>

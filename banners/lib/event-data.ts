@@ -88,6 +88,25 @@ export interface EventData {
   gameDetails?: GameDetail[];
 }
 
+// ===== EDIT HELPERS =====
+
+/** Display names derived from gameDetails (trimmed, empties dropped). */
+export function getGameDisplayNames(gameDetails?: GameDetail[]): string[] {
+  return (gameDetails ?? []).map((game) => game.name.trim()).filter(Boolean);
+}
+
+/** Deep-ish clone of an event so it can be edited without mutating samples. */
+export function cloneEventForEditing(event: EventData): EventData {
+  const gameDetails = event.gameDetails?.map((game) => ({ ...game }));
+  return {
+    ...event,
+    availableTemplates: [...event.availableTemplates],
+    games: getGameDisplayNames(gameDetails),
+    gameDetails,
+    consoleGames: event.consoleGames ? [...event.consoleGames] : undefined,
+  };
+}
+
 // ===== OPEN DUO EVENT =====
 
 export const OPEN_DUO_EVENT: EventData = {
@@ -130,50 +149,91 @@ export const OPEN_DUO_EVENT: EventData = {
   ],
 };
 
-// ===== SAMPLE EVENTS =====
-// LLM agents: use these as templates, modify for real events
+// ===== WINTER KNOCKOUT EVENT =====
 
-export const COPA_ER_EVENT: EventData = {
-  title: "COPA ER",
-  subtitle: "Torneo Presencial Multi-Juego en Paraná",
+export const WINTER_KNOCKOUT_EVENT: EventData = {
+  title: "WINTER KNOCKOUT",
+  subtitle: "Torneo de Lucha y Smash en MiradorTec",
   type: "torneo-presencial",
-  games: ["Valorant", "Rocket League"],
-  date: "Sábado 17 de Mayo",
-  time: "14:00 a 22:00 HS",
+  games: ["Mortal Kombat", "Super Smash Bros Ultimate"],
+  date: "Viernes 18 de Julio",
+  time: "16:00 a 22:00 HS",
   venue: "MiradorTec",
   venueLogo: "/mirador-tec.png",
   city: "Paraná, Entre Ríos",
-  entryFee: "$6.000 por persona",
-  prizes: ["1° - $80.000", "2° - $40.000", "3° - $20.000"],
-  platforms: ["PC"],
-  maxPlayers: 40,
-  extraInfo: "Fase de grupos + eliminación directa · Stream en vivo por Twitch",
-  availableTemplates: ["anuncio", "countdown", "spotlight"],
+  entryFee: "$10.000 por persona",
+  publicEntryFee: "$5.000 por persona",
+  consoleGames: [],
+  prizes: ["1° - $45.000", "2° - $20.000"],
+  platforms: ["Nintendo Switch", "Arcade"],
+  extraInfo: "Torneos 1v1 por juego · Transmisión en vivo por Twitch",
+  availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {
-      name: "VALORANT",
-      shortName: "VAL",
-      format: "5V5",
-      teams: "8 equipos (fase de grupos)",
-      schedule: "14:00 a 18:00 HS",
-      caster: "Sofía",
-      accent: "blue",
+      name: "MORTAL KOMBAT",
+      shortName: "MK",
+      format: "1V1",
+      teams: "16 jugadores",
+      schedule: "16:00 a 18:30 HS",
+      accent: "orange",
     },
     {
-      name: "ROCKET LEAGUE",
-      shortName: "RL",
-      format: "3V3",
-      teams: "8 equipos (llave simple)",
-      schedule: "18:30 a 22:00 HS",
-      caster: "Martín",
-      accent: "orange",
+      name: "SUPER SMASH BROS ULTIMATE",
+      shortName: "SSBU",
+      format: "1V1",
+      teams: "16 jugadores",
+      schedule: "19:00 a 22:00 HS",
+      accent: "purple",
     },
   ],
 };
 
+// ===== WINTER SHOOT N' KICK EVENT =====
+
+export const WINTER_SHOOT_KICK_EVENT: EventData = {
+  title: "WINTER SHOOT N' KICK",
+  subtitle: "Torneo de Fútbol y Táctico en MiradorTec",
+  type: "torneo-presencial",
+  games: ["Fifa", "Valorant"],
+  date: "Viernes 1 de Agosto",
+  time: "15:00 a 21:00 HS",
+  venue: "MiradorTec",
+  venueLogo: "/mirador-tec.png",
+  city: "Paraná, Entre Ríos",
+  entryFee: "$8.000 por persona",
+  publicEntryFee: "$3.000 por persona",
+  consoleGames: [],
+  prizes: ["1° - $65.000", "2° - $35.000"],
+  platforms: ["PS5", "PC"],
+  extraInfo: "Formato 2v2 · Transmisión en vivo por Twitch",
+  availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
+  gameDetails: [
+    {
+      name: "FIFA",
+      shortName: "FIFA",
+      format: "2V2",
+      teams: "8 equipos",
+      schedule: "15:00 a 17:30 HS",
+      accent: "green",
+    },
+    {
+      name: "VALORANT",
+      shortName: "VAL",
+      format: "2V2",
+      teams: "8 equipos",
+      schedule: "18:00 a 21:00 HS",
+      accent: "blue",
+    },
+  ],
+};
+
+// ===== SAMPLE EVENTS =====
+// LLM agents: use these as templates, modify for real events
+
 export const SAMPLE_EVENTS: EventData[] = [
   OPEN_DUO_EVENT,
-  COPA_ER_EVENT,
+  WINTER_KNOCKOUT_EVENT,
+  WINTER_SHOOT_KICK_EVENT,
 ];
 
 /** Helper: get a sample event by index */

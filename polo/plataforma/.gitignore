@@ -1,0 +1,10 @@
+node_modules
+.next
+*.db
+*.db-journal
+.DS_Store
+next-env.d.ts
+logs
+test-results
+playwright-report
+.last-run.json

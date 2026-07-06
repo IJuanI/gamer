@@ -927,3 +927,38 @@ body {
 .banner-anim-pulse .banner-frame-seek::after {
   animation-delay: calc(var(--banner-t, 0) * -1s - 2.5s) !important;
 }
+
+/* ── Responsive layout helpers ──────────────────────────────────────────
+ * The editor and print pages use two-column grids that must collapse to a
+ * single column on narrow viewports (phones / small tablets). */
+.editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: start;
+}
+.print-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  height: calc(100vh - 145px);
+}
+@media (max-width: 1024px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+  /* Preview should not stick on mobile — let it flow under the controls. */
+  .editor-preview {
+    position: static !important;
+  }
+  .print-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .print-aside {
+    border-right: none !important;
+    border-bottom: 1px solid #25252e;
+    max-height: 50vh;
+  }
+}

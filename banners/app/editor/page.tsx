@@ -2,7 +2,13 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { SAMPLE_EVENTS } from "@/lib/event-data";
+import {
+  SAMPLE_EVENTS,
+  cloneEventForEditing,
+  getGameDisplayNames,
+  type EventData,
+  type GameDetail,
+} from "@/lib/event-data";
 import { generateVariation, DEFAULT_VARIATION, type BannerVariation } from "@/lib/variation";
 import {
   resolveBanner,
@@ -75,6 +81,8 @@ const T = {
 
 export default function EditorPage() {
   const [eventIdx, setEventIdx] = useState(0);
+  const [isEditableEvent, setIsEditableEvent] = useState(false);
+  const [editableEvent, setEditableEvent] = useState<EventData>(() => cloneEventForEditing(SAMPLE_EVENTS[0]));
   const [format, setFormat] = useState<Format>("story");
   const [clips, setClips] = useState<Clip[]>(() => [makeClip("anuncio", false, "clip-0")]);
   const [loop, setLoop] = useState(false);
@@ -103,7 +111,28 @@ export default function EditorPage() {
   const loopRef = useRef(loop);
   loopRef.current = loop;
 
-  const event = SAMPLE_EVENTS[eventIdx];
+  const event = isEditableEvent ? editableEvent : SAMPLE_EVENTS[eventIdx];
+
+  const updateEvent = (patch: Partial<EventData>) =>
+    setEditableEvent((prev) => ({ ...prev, ...patch }));
+  const updateGame = (idx: number, patch: Partial<GameDetail>) =>
+    setEditableEvent((prev) => {
+      const gameDetails = prev.gameDetails?.map((g, i) => (i === idx ? { ...g, ...patch } : g));
+      return { ...prev, gameDetails, games: getGameDisplayNames(gameDetails) };
+    });
+  const addGame = () =>
+    setEditableEvent((prev) => {
+      const gameDetails = [
+        ...(prev.gameDetails ?? []),
+        { name: "", shortName: "", format: "", teams: "", schedule: "", accent: "green" as const },
+      ];
+      return { ...prev, gameDetails, games: getGameDisplayNames(gameDetails) };
+    });
+  const removeGame = (idx: number) =>
+    setEditableEvent((prev) => {
+      const gameDetails = prev.gameDetails?.filter((_, i) => i !== idx);
+      return { ...prev, gameDetails, games: getGameDisplayNames(gameDetails) };
+    });
 
   const sequenceNatural = clips.reduce((s, c) => s + c.durationSec, 0);
   const sequenceTotal = loop ? Math.max(totalSec, 0.1) : sequenceNatural;
@@ -300,16 +329,7 @@ export default function EditorPage() {
         </Link>
       </header>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 480px",
-          gap: 24,
-          maxWidth: 1400,
-          margin: "0 auto",
-          alignItems: "start",
-        }}
-      >
+      <div className="editor-layout">
         {/* LEFT: controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* event + format */}
@@ -318,10 +338,26 @@ export default function EditorPage() {
               <Field label="Evento">
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {SAMPLE_EVENTS.map((ev, i) => (
-                    <Btn key={i} sel={eventIdx === i} onClick={() => setEventIdx(i)}>
+                    <Btn
+                      key={i}
+                      sel={!isEditableEvent && eventIdx === i}
+                      onClick={() => {
+                        setEventIdx(i);
+                        setIsEditableEvent(false);
+                      }}
+                    >
                       {ev.title}
                     </Btn>
                   ))}
+                  <Btn
+                    sel={isEditableEvent}
+                    onClick={() => {
+                      if (!isEditableEvent) setEditableEvent(cloneEventForEditing(SAMPLE_EVENTS[eventIdx]));
+                      setIsEditableEvent((v) => !v);
+                    }}
+                  >
+                    ✎ Editable
+                  </Btn>
                 </div>
               </Field>
               <Field label="Formato">
@@ -334,6 +370,102 @@ export default function EditorPage() {
                 </div>
               </Field>
             </Row>
+
+            {isEditableEvent && (
+              <div
+                style={{
+                  marginTop: 16,
+                  paddingTop: 16,
+                  borderTop: `1px solid ${T.panelBorder}`,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <Field label="Título">
+                    <input value={event.title} onChange={(e) => updateEvent({ title: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Subtítulo">
+                    <input value={event.subtitle} onChange={(e) => updateEvent({ subtitle: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Fecha">
+                    <input value={event.date} onChange={(e) => updateEvent({ date: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Horario">
+                    <input value={event.time} onChange={(e) => updateEvent({ time: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Lugar">
+                    <input value={event.venue ?? ""} onChange={(e) => updateEvent({ venue: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Ciudad">
+                    <input value={event.city} onChange={(e) => updateEvent({ city: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Inscripción">
+                    <input value={event.entryFee ?? ""} onChange={(e) => updateEvent({ entryFee: e.target.value })} style={inputStyle()} />
+                  </Field>
+                  <Field label="Inscrip. público">
+                    <input value={event.publicEntryFee ?? ""} onChange={(e) => updateEvent({ publicEntryFee: e.target.value })} style={inputStyle()} />
+                  </Field>
+                </div>
+
+                <Field label="Plantillas disponibles">
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {(["anuncio", "countdown", "spotlight", "publico"] as const).map((tmpl) => {
+                      const on = event.availableTemplates.includes(tmpl);
+                      return (
+                        <Btn
+                          key={tmpl}
+                          sel={on}
+                          onClick={() => {
+                            const next = on
+                              ? event.availableTemplates.filter((x) => x !== tmpl)
+                              : [...event.availableTemplates, tmpl];
+                            if (next.length === 0) return;
+                            updateEvent({ availableTemplates: next });
+                          }}
+                        >
+                          {TEMPLATE_LABELS[tmpl]}
+                        </Btn>
+                      );
+                    })}
+                  </div>
+                </Field>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={labelStyle()}>JUEGOS</span>
+                    <button
+                      onClick={addGame}
+                      style={{ padding: "3px 10px", fontSize: "0.7rem", background: T.greenBg, border: `1px solid ${T.greenBorder}`, borderRadius: 4, color: T.green, cursor: "pointer" }}
+                    >
+                      + Agregar juego
+                    </button>
+                  </div>
+                  {(event.gameDetails ?? []).map((g, gi) => (
+                    <div key={gi} style={{ padding: 8, background: "rgba(0,0,0,0.15)", border: `1px solid ${T.btnBorder}`, borderRadius: 6, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "2fr 0.8fr 1fr auto", gap: 6, alignItems: "end" }}>
+                        <GameField label="Nombre" value={g.name} onChange={(v) => updateGame(gi, { name: v })} />
+                        <GameField label="ID" value={g.shortName} onChange={(v) => updateGame(gi, { shortName: v })} />
+                        <GameField label="Formato" value={g.format} onChange={(v) => updateGame(gi, { format: v })} />
+                        <button
+                          onClick={() => removeGame(gi)}
+                          title="Eliminar juego"
+                          style={{ padding: "5px 9px", background: T.dangerBg, border: `1px solid ${T.dangerBorder}`, borderRadius: 4, color: T.danger, fontSize: 13, cursor: "pointer", lineHeight: 1 }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+                        <GameField label="Equipos" value={g.teams} onChange={(v) => updateGame(gi, { teams: v })} />
+                        <GameField label="Horario" value={g.schedule} onChange={(v) => updateGame(gi, { schedule: v })} />
+                        <GameField label="Caster" value={g.caster ?? ""} onChange={(v) => updateGame(gi, { caster: v })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
 
           {/* clip list */}
@@ -501,7 +633,7 @@ export default function EditorPage() {
         </div>
 
         {/* RIGHT: preview */}
-        <div style={{ position: "sticky", top: 24, display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="editor-preview" style={{ position: "sticky", top: 24, display: "flex", flexDirection: "column", gap: 12 }}>
           <section style={sectionStyle()}>
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div
@@ -816,6 +948,20 @@ function ClipRow({
         )}
       </div>
     </div>
+  );
+}
+
+function GameField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+      <span style={{ fontSize: 9, color: T.muted, letterSpacing: "0.06em" }}>{label.toUpperCase()}</span>
+      <input
+        value={value}
+        placeholder={label}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ ...inputStyle(), width: "100%", boxSizing: "border-box", fontSize: 11, padding: "4px 6px" }}
+      />
+    </label>
   );
 }
 

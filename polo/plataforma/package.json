@@ -1,0 +1,50 @@
+{
+  "name": "polo-plataforma",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:log": "mkdir -p logs && next dev 2>&1 | tee logs/dev.log",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "setup": "prisma db push && tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run",
+    "test:server": "mkdir -p logs && next start -H 127.0.0.1 -p 3100 2>&1 | tee logs/e2e-server.log",
+    "test:e2e:build": "next build",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "test:e2e:report": "playwright show-report",
+    "test:all": "vitest run && playwright test"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.9.6",
+    "next": "^15.1.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vitest": "^2.1.8",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "prisma": "^6.2.1",
+    "tailwindcss": "^3.4.17",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
