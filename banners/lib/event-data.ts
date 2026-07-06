@@ -74,6 +74,8 @@ export interface EventData {
   extraInfo?: string;
   /** Cantidad máxima de participantes */
   maxPlayers?: number;
+  /** Formato del torneo para banners públicos, e.g. "2v2", "1v1" */
+  tournamentFormat?: string;
   /**
    * Which banner templates are available for this event.
    * - "anuncio"   — announcement banners
@@ -126,6 +128,7 @@ export const OPEN_DUO_EVENT: EventData = {
   platforms: ["PC"],
   maxPlayers: 16,
   extraInfo: "Formato 2v2 · Llave de 8 equipos · Transmisión en vivo por Twitch",
+  tournamentFormat: "2v2",
   availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {
@@ -167,6 +170,7 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
   prizes: ["1° - $45.000", "2° - $20.000"],
   platforms: ["Nintendo Switch", "Arcade"],
   extraInfo: "Torneos 1v1 por juego · Transmisión en vivo por Twitch",
+  tournamentFormat: "1v1",
   availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {
@@ -206,6 +210,7 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
   prizes: ["1° - $65.000", "2° - $35.000"],
   platforms: ["PS5", "PC"],
   extraInfo: "Formato 2v2 · Transmisión en vivo por Twitch",
+  tournamentFormat: "2v2",
   availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {

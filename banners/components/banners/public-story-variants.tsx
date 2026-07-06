@@ -304,7 +304,7 @@ export function PublicStoryD({ event, variation = DEFAULT_VARIATION }: Props) {
             {event.title}
           </span>
           <span style={{ fontSize: 26, color: "#888899" }}>
-            Torneo 2v2 · {event.venue} · {event.date}
+            {event.tournamentFormat && `Torneo ${event.tournamentFormat} · `}{event.venue} · {event.date}
           </span>
         </div>
 
