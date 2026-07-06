@@ -12,6 +12,7 @@ import {
   type MenuCategory,
   type MenuAccent,
 } from "@/components/print/menu-gastronomico";
+import { CenteredText, type CenteredTextProps } from "@/components/print/centered-text";
 import { StaffCredential, type CredentialAccent } from "@/components/print/staff-credential";
 import { CredentialSheet } from "@/components/print/credential-sheet";
 import { buildWifiPayload } from "@/components/print/qr-code";
@@ -39,7 +40,8 @@ type Tab =
   | "sign-entrada"
   | "cronograma"
   | "menu"
-  | "credencial";
+  | "credencial"
+  | "centered-text";
 
 const TAB_LABELS: Record<Tab, string> = {
   "qr-wifi":      "QR Wifi",
@@ -50,6 +52,7 @@ const TAB_LABELS: Record<Tab, string> = {
   cronograma:     "Cronograma",
   menu:           "Menú",
   credencial:     "Credenciales",
+  "centered-text": "Texto centrado",
 };
 
 const TAB_ORDER: Tab[] = [
@@ -60,6 +63,7 @@ const TAB_ORDER: Tab[] = [
   "sign-entrada",
   "cronograma",
   "menu",
+  "centered-text",
   "credencial",
 ];
 
@@ -95,6 +99,12 @@ export default function PrintPage() {
   const [menuSubtitle, setMenuSubtitle] = useState("OPEN DUO — EDICIÓN ESPECIAL");
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>(OPEN_DUO_MENU_LABELS_ONLY);
   const [menuSponsorLogo, setMenuSponsorLogo] = useState<string | undefined>(undefined);
+
+  // Texto centrado
+  const [centeredTitle, setCenteredTitle] = useState("TÍTULO");
+  const [centeredSubtitle, setCenteredSubtitle] = useState("Subtítulo");
+  const [centeredLines, setCenteredLines] = useState<string[]>(["Primera línea", "Segunda línea"]);
+  const [centeredAccent, setCenteredAccent] = useState<"purple" | "green">("purple");
 
   // Credenciales
   const [credEvent, setCredEvent] = useState(DEFAULT_CREDENTIAL_EVENT);
@@ -214,6 +224,20 @@ export default function PrintPage() {
             />
           ),
         };
+      case "centered-text":
+        return {
+          format: FORMATS["print-a4-landscape"],
+          downloadName: "texto-centrado",
+          render: () => (
+            <CenteredText
+              title={centeredTitle}
+              subtitle={centeredSubtitle}
+              lines={centeredLines}
+              showLogo
+              accent={centeredAccent}
+            />
+          ),
+        };
       case "credencial": {
         const slug = activeCred?.name.toLowerCase().replace(/\s+/g, "-") || "en-blanco";
         if (credLayout === "sheet") {
@@ -253,6 +277,7 @@ export default function PrintPage() {
     entradaTitle, entradaSubtitle,
     cronoTitle, cronoDate, cronoVenue, scheduleItems,
     menuTitle, menuSubtitle, menuCategories, menuSponsorLogo,
+    centeredTitle, centeredSubtitle, centeredLines, centeredAccent,
     credEvent, activeCred, credLayout,
   ]);
 
@@ -385,6 +410,22 @@ export default function PrintPage() {
                 3 modos por item según los campos: etiqueta + monto = chip lleno · solo etiqueta = chip + recuadro blanco para escribir a mano · sin nada = recuadro completamente en blanco.
               </Hint>
               <MenuEditor categories={menuCategories} onChange={setMenuCategories} />
+            </Editor>
+          )}
+          {tab === "centered-text" && (
+            <Editor>
+              <FieldText label="Título" value={centeredTitle} onChange={setCenteredTitle} />
+              <FieldText label="Subtítulo" value={centeredSubtitle} onChange={setCenteredSubtitle} />
+              <FieldSelect
+                label="Color de acento"
+                value={centeredAccent}
+                onChange={(v) => setCenteredAccent(v as "purple" | "green")}
+                options={[
+                  { value: "purple", label: "Púrpura" },
+                  { value: "green", label: "Verde" },
+                ]}
+              />
+              <CenteredTextLinesEditor lines={centeredLines} onChange={setCenteredLines} />
             </Editor>
           )}
           {tab === "credencial" && (
@@ -802,6 +843,18 @@ function MenuEditor({ categories, onChange }: { categories: MenuCategory[]; onCh
         i === ci ? { ...c, items: c.items.map((it, j) => (j === ii ? { ...it, ...patch } : it)) } : c,
       ),
     );
+  const removeCat = (ci: number) => onChange(categories.filter((_, i) => i !== ci));
+  const addItem = (ci: number) =>
+    updateCat(ci, {
+      items: [
+        ...categories[ci].items,
+        { name: "", capsTitle: "", bgAccent: "purple" },
+      ],
+    });
+  const removeItem = (ci: number, ii: number) =>
+    updateCat(ci, { items: categories[ci].items.filter((_, j) => j !== ii) });
+  const addCat = () =>
+    onChange([...categories, { title: "Nueva categoría", items: [] }]);
 
   const handleImage = (ci: number, ii: number, file: File | null) => {
     if (!file) {
@@ -817,11 +870,20 @@ function MenuEditor({ categories, onChange }: { categories: MenuCategory[]; onCh
     <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 12 }}>
       {categories.map((cat, ci) => (
         <div key={ci} style={{ background: "#1e1e26", border: "1px solid #2e2e38", borderRadius: 6, padding: 12 }}>
-          <input
-            value={cat.title}
-            onChange={(e) => updateCat(ci, { title: e.target.value })}
-            style={{ width: "100%", padding: "6px 8px", background: "#15151c", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12, fontWeight: 600, marginBottom: 6 }}
-          />
+          <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+            <input
+              value={cat.title}
+              onChange={(e) => updateCat(ci, { title: e.target.value })}
+              style={{ flex: 1, padding: "6px 8px", background: "#15151c", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12, fontWeight: 600 }}
+            />
+            <button
+              onClick={() => removeCat(ci)}
+              disabled={categories.length === 1}
+              style={{ padding: "6px 10px", background: "transparent", border: "1px solid #5a3030", borderRadius: 3, color: "#d06868", fontSize: 11, cursor: categories.length === 1 ? "not-allowed" : "pointer", opacity: categories.length === 1 ? 0.4 : 1 }}
+            >
+              × eliminar
+            </button>
+          </div>
           <input
             value={cat.subtitle ?? ""}
             placeholder="(subtítulo)"
@@ -830,24 +892,38 @@ function MenuEditor({ categories, onChange }: { categories: MenuCategory[]; onCh
           />
           {cat.items.map((it, ii) => (
             <div key={ii} style={{ background: "#15151c", border: "1px solid #2e2e38", borderRadius: 4, padding: 8, marginBottom: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  value={it.name}
+                  onChange={(e) => updateItem(ci, ii, { name: e.target.value })}
+                  placeholder="Nombre"
+                  style={{ flex: 1, padding: "5px 8px", background: "#0a0a12", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12 }}
+                />
+                <button
+                  onClick={() => removeItem(ci, ii)}
+                  style={{ padding: "5px 8px", background: "transparent", border: "1px solid #5a3030", borderRadius: 3, color: "#d06868", fontSize: 11, cursor: "pointer" }}
+                >
+                  ×
+                </button>
+              </div>
               <input
-                value={it.name}
-                onChange={(e) => updateItem(ci, ii, { name: e.target.value })}
-                placeholder="Nombre"
-                style={{ padding: "5px 8px", background: "#0a0a12", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12 }}
+                value={it.capsTitle}
+                onChange={(e) => updateItem(ci, ii, { capsTitle: e.target.value })}
+                placeholder="TÍTULO EN MAYÚSCULAS (mostrado en el banner)"
+                style={{ width: "100%", padding: "5px 8px", background: "#0a0a12", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12, marginBottom: 0 }}
               />
               <textarea
-                value={it.description}
-                onChange={(e) => updateItem(ci, ii, { description: e.target.value })}
-                placeholder="Descripción"
+                value={it.description ?? ""}
+                onChange={(e) => updateItem(ci, ii, { description: e.target.value || undefined })}
+                placeholder="Descripción (si no hay variantes)"
                 rows={2}
-                style={{ padding: "5px 8px", background: "#0a0a12", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12, fontFamily: "inherit", resize: "vertical" }}
+                style={{ width: "100%", padding: "5px 8px", background: "#0a0a12", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12, fontFamily: "inherit", resize: "vertical" }}
               />
               <div style={{ display: "flex", gap: 6 }}>
                 <input
                   value={it.priceLabel ?? ""}
                   onChange={(e) => updateItem(ci, ii, { priceLabel: e.target.value || undefined })}
-                  placeholder="Etiqueta (PRECIO POR UNIDAD)"
+                  placeholder="Etiqueta de precio (PRECIO POR UNIDAD)"
                   style={{ flex: 2, padding: "5px 8px", background: "#0a0a12", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12 }}
                 />
                 <input
@@ -894,8 +970,47 @@ function MenuEditor({ categories, onChange }: { categories: MenuCategory[]; onCh
               </div>
             </div>
           ))}
+          <SmallBtn onClick={() => addItem(ci)}>+ Agregar item</SmallBtn>
         </div>
       ))}
+      <SmallBtn onClick={addCat}>+ Agregar categoría/columna</SmallBtn>
+    </div>
+  );
+}
+
+function CenteredTextLinesEditor({
+  lines,
+  onChange,
+}: {
+  lines: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const update = (i: number, value: string) =>
+    onChange(lines.map((l, idx) => (idx === i ? value : l)));
+  const remove = (i: number) => onChange(lines.filter((_, idx) => idx !== i));
+  const add = () => onChange([...lines, "Nueva línea"]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <span style={{ fontSize: 12, color: "#9a9aa6", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        Líneas de texto
+      </span>
+      {lines.map((line, i) => (
+        <div key={i} style={{ display: "flex", gap: 6 }}>
+          <input
+            value={line}
+            onChange={(e) => update(i, e.target.value)}
+            style={{ flex: 1, padding: "6px 8px", background: "#15151c", border: "1px solid #2e2e38", borderRadius: 3, color: "#e8e8ee", fontSize: 12 }}
+          />
+          <button
+            onClick={() => remove(i)}
+            style={{ padding: "6px 10px", background: "transparent", border: "1px solid #5a3030", borderRadius: 3, color: "#d06868", fontSize: 12, cursor: "pointer" }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <SmallBtn onClick={add}>+ Agregar línea</SmallBtn>
     </div>
   );
 }
