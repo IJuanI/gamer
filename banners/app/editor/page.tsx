@@ -461,6 +461,9 @@ export default function EditorPage() {
                         <GameField label="Horario" value={g.schedule} onChange={(v) => updateGame(gi, { schedule: v })} />
                         <GameField label="Caster" value={g.caster ?? ""} onChange={(v) => updateGame(gi, { caster: v })} />
                       </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 6 }}>
+                        <GameField label="Formato de partida (ej: 2 VS 2)" value={g.matchFormat ?? ""} onChange={(v) => updateGame(gi, { matchFormat: v })} />
+                      </div>
                     </div>
                   ))}
                 </div>

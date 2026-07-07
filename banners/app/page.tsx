@@ -501,6 +501,11 @@ export default function GalleryPage() {
                         {mkLabel("Horario", "schedule")}
                         {mkLabel("Caster", "caster")}
                       </div>
+
+                      {/* Row C: Formato de partida (2 VS 2 / 1 VS 1) */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 6 }}>
+                        {mkLabel("Formato de partida (ej: 2 VS 2)", "matchFormat")}
+                      </div>
                     </div>
                   );
                 })}
