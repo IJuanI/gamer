@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Global platform settings (single row)
+model Settings {
+  id             String  @id @default("singleton")
+  simulationMode Boolean @default(false)
+}
+
 // A single account. The same User can simultaneously be a "persona",
 // belong to one or many empresas (via Membership), and be a global admin.
 // These capabilities are NOT mutually exclusive.

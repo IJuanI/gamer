@@ -48,9 +48,11 @@ npm run dev      # http://localhost:3000
 
 | Email | Contraseña | Roles |
 |---|---|---|
-| `ana@polo.test`  | `password123` | persona + empresa (2) + admin |
-| `beto@polo.test` | `password123` | persona + empresa (1) |
-| `caro@polo.test` | `password123` | persona |
+| `admin@polo.test`  | `password123` | persona + empresa (2) + **admin** |
+| `company@polo.test` | `password123` | persona + empresa (1) |
+| `contributor@polo.test` | `password123` | persona |
+
+**Admin**: Acceder a `/admin` para togglear **Modo Simulación**. Cuando está activado, la plataforma muestra datos de simulación junto con datos reales. Útil para demos y presentaciones.
 
 ## Estructura
 

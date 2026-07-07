@@ -1,114 +1,46 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { toggleSimulationMode } from "@/lib/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  if (!user.isAdmin) redirect("/panel");
+  if (!user?.isAdmin) redirect("/");
 
-  const [users, empresas, ideas] = await Promise.all([
-    db.user.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { _count: { select: { memberships: true, ideas: true } } },
-    }),
-    db.empresa.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { memberships: true } } },
-    }),
-    db.idea.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { author: true, _count: { select: { claims: true } } },
-    }),
-  ]);
+  const settings = await db.settings.findUnique({ where: { id: "singleton" } });
+  const simulationMode = settings?.simulationMode ?? false;
 
   return (
-    <div className="space-y-10">
-      <h1 className="text-2xl font-bold">Panel de administración</h1>
+    <div className="mx-auto max-w-2xl space-y-6 py-8">
+      <h1 className="text-3xl font-bold text-brand-700">Panel de Administración</h1>
 
-      <AdminTable title={`Usuarios (${users.length})`}>
-        <thead>
-          <tr className="text-left text-slate-400">
-            <th className="py-2">Nombre</th>
-            <th>Email</th>
-            <th>Empresas</th>
-            <th>Ideas</th>
-            <th>Admin</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id} className="border-t border-slate-100">
-              <td className="py-2">{u.name}</td>
-              <td className="text-slate-500">{u.email}</td>
-              <td>{u._count.memberships}</td>
-              <td>{u._count.ideas}</td>
-              <td>{u.isAdmin ? "Sí" : "—"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </AdminTable>
+      <section className="rounded-lg border border-slate-200 bg-white p-6">
+        <h2 className="mb-4 text-lg font-semibold">Modo Simulación</h2>
+        <p className="mb-4 text-sm text-slate-600">
+          {simulationMode
+            ? "✓ Habilitado — La plataforma muestra datos de simulación junto con datos reales."
+            : "✗ Deshabilitado — Solo se muestran datos reales."}
+        </p>
+        <form action={toggleSimulationMode} method="POST">
+          <button
+            type="submit"
+            className={`rounded-lg px-4 py-2 text-white ${
+              simulationMode
+                ? "bg-slate-500 hover:bg-slate-600"
+                : "bg-brand-500 hover:bg-brand-600"
+            }`}
+          >
+            {simulationMode ? "Desactivar" : "Activar"} simulación
+          </button>
+        </form>
+      </section>
 
-      <AdminTable title={`Empresas (${empresas.length})`}>
-        <thead>
-          <tr className="text-left text-slate-400">
-            <th className="py-2">Nombre</th>
-            <th>Sector</th>
-            <th>Integrantes</th>
-            <th>Publicada</th>
-          </tr>
-        </thead>
-        <tbody>
-          {empresas.map((e) => (
-            <tr key={e.id} className="border-t border-slate-100">
-              <td className="py-2">{e.name}</td>
-              <td className="text-slate-500">{e.sector ?? "—"}</td>
-              <td>{e._count.memberships}</td>
-              <td>{e.published ? "Sí" : "No"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </AdminTable>
-
-      <AdminTable title={`Ideas (${ideas.length})`}>
-        <thead>
-          <tr className="text-left text-slate-400">
-            <th className="py-2">Título</th>
-            <th>Autor</th>
-            <th>Estado</th>
-            <th>Interesadas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ideas.map((i) => (
-            <tr key={i.id} className="border-t border-slate-100">
-              <td className="py-2">{i.title}</td>
-              <td className="text-slate-500">{i.author.name}</td>
-              <td>{i.status}</td>
-              <td>{i._count.claims}</td>
-            </tr>
-          ))}
-        </tbody>
-      </AdminTable>
+      <section className="rounded-lg border border-slate-200 bg-slate-50 p-6">
+        <h3 className="mb-2 text-sm font-medium text-slate-600">Admin: {user.name}</h3>
+        <p className="text-xs text-slate-500">{user.email}</p>
+      </section>
     </div>
-  );
-}
-
-function AdminTable({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section>
-      <h2 className="mb-3 text-lg font-semibold">{title}</h2>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">{children}</table>
-      </div>
-    </section>
   );
 }

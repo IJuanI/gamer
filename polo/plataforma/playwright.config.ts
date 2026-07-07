@@ -10,7 +10,8 @@ export default defineConfig({
   testDir: "./tests/e2e",
   // Snapshots (visual regression) live next to specs.
   snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
-  fullyParallel: true,
+  // Run test files serially so parallel-writing tests don't pollute visual snapshots.
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
@@ -26,14 +27,9 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
   ],
-  // Serve on a dedicated test port. Direct invocation (no tee) so Playwright's
-  // URL poller can detect readiness without buffering interference.
-  webServer: {
-    command: `npx next start -H 127.0.0.1 -p ${PORT}`,
-    url: baseURL,
-    timeout: 120_000,
-    reuseExistingServer: !process.env.CI,
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  // Webserver is pre-started manually (CI or dev); Playwright reuses it.
+  // If server is not running: npm run test:server, then run playwright tests.
+  // webServer managed mode times out even though server is reachable;
+  // direct URL + reuseExistingServer avoids that hang.
+  globalSetup: require.resolve("./tests/e2e/global-setup.ts"),
 });

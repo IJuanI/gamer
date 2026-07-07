@@ -37,28 +37,28 @@ export default async function Home() {
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <Stat n={empresas} label="Empresas publicadas" />
         <Stat n={ideas} label="Ideas abiertas" />
-        <Stat n={3} label="Tipos de usuario" />
+        <Stat n="100%" label="Acceso gratuito" />
       </section>
 
       <section className="grid gap-6 md:grid-cols-3">
         <Feature
-          title="Personas"
-          body="Descubrí empresas libremente. Registrate para publicar ideas y seguir su estado."
+          title="Descubrí empresas"
+          body="Explorá el ecosistema tech de Paraná sin registrarte. Conocé quiénes somos y qué hacemos."
         />
         <Feature
-          title="Empresas"
-          body="Mostrá tu empresa en el directorio y tomá ideas publicadas por la comunidad."
+          title="Publicá ideas"
+          body="Registrate para publicar ideas o necesidades. Las empresas interesadas te contactarán."
         />
         <Feature
-          title="Admin"
-          body="Moderá empresas, ideas y usuarios desde un panel central."
+          title="Conectá"
+          body="Crea lazos entre personas y empresas. Encontrá colaboradores y transformá ideas en realidad."
         />
       </section>
     </div>
   );
 }
 
-function Stat({ n, label }: { n: number; label: string }) {
+function Stat({ n, label }: { n: number | string; label: string }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="text-3xl font-bold text-brand-600">{n}</div>

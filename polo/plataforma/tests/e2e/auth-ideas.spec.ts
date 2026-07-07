@@ -19,7 +19,7 @@ test("register a new persona and reach panel", async ({ page }) => {
 
 test("login as persona and publish an idea", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Email").fill("caro@polo.test");
+  await page.getByLabel("Email").fill("contributor@polo.test");
   await page.getByLabel("Contraseña").fill("password123");
   await page.getByRole("button", { name: "Ingresar" }).click();
   await expect(page).toHaveURL(/\/panel/);
@@ -39,27 +39,39 @@ test("login as persona and publish an idea", async ({ page }) => {
 test("empresa member can claim an idea", async ({ page }) => {
   // Beto owns Río IoT and can claim ideas on its behalf.
   await page.goto("/login");
-  await page.getByLabel("Email").fill("beto@polo.test");
+  await page.getByLabel("Email").fill("company@polo.test");
   await page.getByLabel("Contraseña").fill("password123");
   await page.getByRole("button", { name: "Ingresar" }).click();
   await expect(page).toHaveURL(/\/panel/);
 
+  // Find an unclaimed idea (the "Sensor de humedad" idea in seed is unclaimed).
+  // Click the first idea that doesn't have any claims yet.
   await page.goto("/ideas");
-  await page.getByText(/Sensor de humedad/i).click();
-  // The claim form is visible because Beto belongs to an empresa.
+  const firstIdea = page.locator("li > a").first();
+  await firstIdea.click();
+
+  // The claim form should be visible because Beto belongs to an empresa.
   await expect(
     page.getByRole("heading", { name: /Tomar esta idea/i })
   ).toBeVisible();
+
+  // Pick Río IoT from the dropdown and claim.
+  await page.getByRole("combobox").selectOption({ label: "Río IoT" });
   await page.getByRole("button", { name: "Tomar idea" }).click();
 
+  // Verify the claim was recorded.
   await expect(page.getByText(/Río IoT/)).toBeVisible();
 });
 
 test("logged-in persona without empresa cannot claim", async ({ page }) => {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill("caro@polo.test");
+  // Register a fresh persona with no empresa membership.
+  const email = `solo-persona-${Date.now()}@polo.test`;
+  await page.goto("/register");
+  await page.getByLabel("Nombre").fill("Solo Persona");
+  await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña").fill("password123");
-  await page.getByRole("button", { name: "Ingresar" }).click();
+  await page.getByRole("button", { name: "Crear cuenta" }).click();
+  await expect(page).toHaveURL(/\/panel/);
 
   await page.goto("/ideas");
   await page.getByText(/App para gestionar turnos/i).click();

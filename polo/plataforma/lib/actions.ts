@@ -11,6 +11,7 @@ import {
   verifyPassword,
 } from "./auth";
 import { registerSchema, loginSchema, ideaSchema } from "./validation";
+import { setSimulationMode } from "./simulation";
 
 type ActionState = { error?: string } | undefined;
 
@@ -100,4 +101,17 @@ export async function claimIdea(formData: FormData) {
 
   revalidatePath(`/ideas/${ideaId}`);
   revalidatePath("/ideas");
+}
+
+// ---------- Admin ----------
+
+export async function toggleSimulationMode() {
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) throw new Error("No autorizado");
+
+  const settings = await db.settings.findUnique({ where: { id: "singleton" } });
+  const newMode = !(settings?.simulationMode ?? false);
+  await setSimulationMode(newMode);
+
+  revalidatePath("/admin");
 }

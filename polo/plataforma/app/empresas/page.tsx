@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { getSimulatedEmpresas } from "@/lib/simulation-data";
 
 export const dynamic = "force-dynamic";
+
+const normalizeString = (str: string) => {
+  return str.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+};
 
 export default async function EmpresasPage({
   searchParams,
@@ -9,16 +14,33 @@ export default async function EmpresasPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const empresas = await db.empresa.findMany({
-    where: {
-      published: true,
-      ...(q
-        ? { OR: [{ name: { contains: q } }, { sector: { contains: q } }] }
-        : {}),
-    },
-    orderBy: { name: "asc" },
-    include: { _count: { select: { memberships: true } } },
-  });
+  // Fetch all published empresas (filtering by search query is done client-side for accent-insensitive matching)
+  const [empresas, simulated] = await Promise.all([
+    db.empresa.findMany({
+      where: { published: true },
+      orderBy: { name: "asc" },
+      include: { _count: { select: { memberships: true } } },
+    }),
+    getSimulatedEmpresas(),
+  ]);
+
+  // Filter empresas by normalized search query (accent-insensitive)
+  const empresasFiltered = q
+    ? empresas.filter(
+        (e) =>
+          normalizeString(e.name).includes(normalizeString(q)) ||
+          (e.sector && normalizeString(e.sector).includes(normalizeString(q)))
+      )
+    : empresas;
+
+  const filtered = simulated.filter(
+    (e) =>
+      !q ||
+      normalizeString(e.name).includes(normalizeString(q)) ||
+      normalizeString(e.sector).includes(normalizeString(q))
+  );
+
+  const allEmpresas = [...empresasFiltered.map((e) => ({ ...e, isSimulated: false as const })), ...filtered];
 
   return (
     <div className="space-y-6">
@@ -41,18 +63,29 @@ export default async function EmpresasPage({
         </button>
       </form>
 
-      {empresas.length === 0 ? (
+      {allEmpresas.length === 0 ? (
         <p className="text-slate-500">No se encontraron empresas.</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {empresas.map((e) => (
+          {allEmpresas.map((e) => (
             <Link
               key={e.id}
               href={`/empresas/${e.slug}`}
-              className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-brand-400 hover:shadow-sm"
+              className={`rounded-xl border p-5 transition ${
+                e.isSimulated
+                  ? "border-brand-200 bg-brand-50/30"
+                  : "border-slate-200 bg-white hover:border-brand-400 hover:shadow-sm"
+              }`}
             >
+              {e.isSimulated && (
+                <div className="mb-2 inline-block rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
+                  Demo
+                </div>
+              )}
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-brand-700">{e.name}</h2>
+                <h2 className={`font-semibold ${e.isSimulated ? "text-brand-600" : "text-brand-700"}`}>
+                  {e.name}
+                </h2>
                 {e.sector && (
                   <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
                     {e.sector}
@@ -61,7 +94,13 @@ export default async function EmpresasPage({
               </div>
               {e.tagline && <p className="mt-1 text-sm text-slate-600">{e.tagline}</p>}
               <p className="mt-3 text-xs text-slate-400">
-                {e._count.memberships} integrante(s) · {e.location}
+                {e.isSimulated ? (
+                  "Empresa de ejemplo"
+                ) : (
+                  <>
+                    {e._count?.memberships || 0} integrante(s) · {e.location}
+                  </>
+                )}
               </p>
             </Link>
           ))}

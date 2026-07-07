@@ -13,15 +13,15 @@ async function main() {
 
   const pw = await bcrypt.hash("password123", 10);
 
-  // Users — note "ana" is persona + empresa member + admin all at once.
-  const ana = await db.user.create({
-    data: { name: "Ana Gómez", email: "ana@polo.test", passwordHash: pw, isAdmin: true },
+  // Users — admin001 is persona + empresa member + admin all at once.
+  const admin = await db.user.create({
+    data: { name: "Admin User", email: "admin@polo.test", passwordHash: pw, isAdmin: true },
   });
-  const beto = await db.user.create({
-    data: { name: "Beto Ruiz", email: "beto@polo.test", passwordHash: pw },
+  const company = await db.user.create({
+    data: { name: "Company Lead", email: "company@polo.test", passwordHash: pw },
   });
-  const caro = await db.user.create({
-    data: { name: "Caro Díaz", email: "caro@polo.test", passwordHash: pw },
+  const contributor = await db.user.create({
+    data: { name: "Contributor", email: "contributor@polo.test", passwordHash: pw },
   });
 
   const dev = await db.empresa.create({
@@ -57,9 +57,9 @@ async function main() {
   // Memberships — Ana belongs to TWO empresas; Beto owns one.
   await db.membership.createMany({
     data: [
-      { userId: ana.id, empresaId: dev.id, role: "OWNER" },
-      { userId: ana.id, empresaId: data.id, role: "MEMBER" },
-      { userId: beto.id, empresaId: iot.id, role: "OWNER" },
+      { userId: admin.id, empresaId: dev.id, role: "OWNER" },
+      { userId: admin.id, empresaId: data.id, role: "MEMBER" },
+      { userId: company.id, empresaId: iot.id, role: "OWNER" },
     ],
   });
 
@@ -71,7 +71,7 @@ async function main() {
         "Necesitamos una app simple para reservar canchas y pagar online en nuestro club.",
       category: "App móvil",
       budget: "A convenir",
-      authorId: caro.id,
+      authorId: contributor.id,
     },
   });
   await db.idea.create({
@@ -80,25 +80,32 @@ async function main() {
       description:
         "Busco quien desarrolle un sensor económico y un panel para monitorear humedad del suelo.",
       category: "IoT",
-      authorId: caro.id,
+      authorId: contributor.id,
     },
   });
 
-  // A claim — DevRía (via Ana) picks up idea1
+  // A claim — DevRía (via admin) picks up idea1
   await db.ideaClaim.create({
     data: {
       ideaId: idea1.id,
       empresaId: dev.id,
-      actorId: ana.id,
+      actorId: admin.id,
       message: "Nos interesa, tenemos experiencia en apps de reservas.",
     },
   });
   await db.idea.update({ where: { id: idea1.id }, data: { status: "CLAIMED" } });
 
   console.log("Seed listo. Login de prueba:");
-  console.log("  admin/empresa/persona → ana@polo.test  / password123");
-  console.log("  empresa                → beto@polo.test / password123");
-  console.log("  persona                → caro@polo.test / password123");
+  console.log("  admin/empresa/persona → admin@polo.test / password123");
+  console.log("  empresa                → company@polo.test / password123");
+  console.log("  persona                → contributor@polo.test / password123");
+
+  // Initialize global settings (simulation mode off by default)
+  await db.settings.upsert({
+    where: { id: "singleton" },
+    update: { simulationMode: false },
+    create: { id: "singleton", simulationMode: false },
+  });
 }
 
 main()
