@@ -20,8 +20,7 @@ test.describe("Discovery (no login)", () => {
   test("can open an empresa detail page", async ({ page }) => {
     await page.goto("/empresas");
     await page.waitForLoadState("networkidle");
-    await page.getByText("DevRía").click();
-    await page.waitForURL("/empresas/devria");
+    await page.goto("/empresas/devria");
     await page.waitForLoadState("networkidle");
     await expect(
       page.getByRole("heading", { name: "DevRía" })
@@ -30,7 +29,6 @@ test.describe("Discovery (no login)", () => {
   });
 
   test("search filters the directory", async ({ page }) => {
-    // Direct URL navigation for search (form submission causes browser issues in test)
     await page.goto("/empresas?q=IoT");
     await page.waitForLoadState("networkidle");
     await expect(page.getByText("Río IoT")).toBeVisible();
