@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { getSimulatedEmpresas } from "@/lib/simulation-data";
+import { SearchForm } from "@/components/SearchForm";
 
 export const dynamic = "force-dynamic";
 
@@ -51,17 +52,7 @@ export default async function EmpresasPage({
         </p>
       </div>
 
-      <form className="flex gap-2">
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="Buscar por nombre o sector…"
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-        <button className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600">
-          Buscar
-        </button>
-      </form>
+      <SearchForm initialValue={q} />
 
       {allEmpresas.length === 0 ? (
         <p className="text-slate-500">No se encontraron empresas.</p>

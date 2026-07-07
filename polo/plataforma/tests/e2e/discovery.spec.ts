@@ -18,8 +18,6 @@ test.describe("Discovery (no login)", () => {
   });
 
   test("can open an empresa detail page", async ({ page }) => {
-    await page.goto("/empresas");
-    await page.waitForLoadState("networkidle");
     await page.goto("/empresas/devria");
     await page.waitForLoadState("networkidle");
     await expect(
