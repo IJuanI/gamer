@@ -450,7 +450,7 @@ export default function EditorPage() {
                       <div style={{ display: "grid", gridTemplateColumns: "2fr 0.8fr 1fr auto", gap: 6, alignItems: "end" }}>
                         <GameField label="Nombre" value={g.name} onChange={(v) => updateGame(gi, { name: v })} />
                         <GameField label="ID" value={g.shortName} onChange={(v) => updateGame(gi, { shortName: v })} />
-                        <GameField label="Formato" value={g.format} onChange={(v) => updateGame(gi, { format: v })} />
+                        <GameField label="Formato" value={g.format ?? ""} onChange={(v) => updateGame(gi, { format: v })} />
                         <button
                           onClick={() => removeGame(gi)}
                           title="Eliminar juego"
