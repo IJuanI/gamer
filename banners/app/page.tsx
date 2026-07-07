@@ -317,11 +317,12 @@ export default function GalleryPage() {
               </div>
 
               {/* Row 2 */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
                 {[
                   { label: "Lugar", field: "venue" as const },
                   { label: "Ciudad", field: "city" as const },
                   { label: "Inscripción", field: "entryFee" as const },
+                  { label: "Highlight (ej: 2 VS 2)", field: "matchFormat" as const },
                 ].map(({ label, field }) => (
                   <label key={field} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     <span style={{ fontSize: 10, color: t.categoryLabel, letterSpacing: "0.08em", fontFamily: "azonix, sans-serif" }}>{label.toUpperCase()}</span>
@@ -502,10 +503,6 @@ export default function GalleryPage() {
                         {mkLabel("Caster", "caster")}
                       </div>
 
-                      {/* Row C: Formato de partida (2 VS 2 / 1 VS 1) */}
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 6 }}>
-                        {mkLabel("Formato de partida (ej: 2 VS 2)", "matchFormat")}
-                      </div>
                     </div>
                   );
                 })}

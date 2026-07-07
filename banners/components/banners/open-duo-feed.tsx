@@ -229,7 +229,7 @@ export function OpenDuoFeed({
           style={{ gap: 26 }}
         >
           {/* Match format */}
-          {event.gameDetails?.[0]?.matchFormat && (
+          {event.matchFormat && (
             <div className="flex items-center gap-4">
               <div
                 style={{
@@ -247,7 +247,7 @@ export function OpenDuoFeed({
                   letterSpacing: "0.25em",
                 }}
               >
-                {event.gameDetails[0].matchFormat}
+                {event.matchFormat}
               </span>
               <div
                 style={{

@@ -272,7 +272,7 @@ export function OpenDuoStory({ event, variation = DEFAULT_VARIATION, sponsorLogo
           style={{ gap: 30 }}
         >
           {/* Match format */}
-          {event.gameDetails?.[0]?.matchFormat && (
+          {event.matchFormat && (
             <div className="flex items-center gap-4">
               <div
                 style={{
@@ -290,7 +290,7 @@ export function OpenDuoStory({ event, variation = DEFAULT_VARIATION, sponsorLogo
                   letterSpacing: "0.3em",
                 }}
               >
-                {event.gameDetails[0].matchFormat}
+                {event.matchFormat}
               </span>
               <div
                 style={{

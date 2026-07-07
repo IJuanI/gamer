@@ -407,6 +407,9 @@ export default function EditorPage() {
                   <Field label="Inscrip. público">
                     <input value={event.publicEntryFee ?? ""} onChange={(e) => updateEvent({ publicEntryFee: e.target.value })} style={inputStyle()} />
                   </Field>
+                  <Field label="Highlight (ej: 2 VS 2)">
+                    <input value={event.matchFormat ?? ""} onChange={(e) => updateEvent({ matchFormat: e.target.value })} style={inputStyle()} />
+                  </Field>
                 </div>
 
                 <Field label="Plantillas disponibles">
@@ -460,9 +463,6 @@ export default function EditorPage() {
                         <GameField label="Equipos" value={g.teams} onChange={(v) => updateGame(gi, { teams: v })} />
                         <GameField label="Horario" value={g.schedule} onChange={(v) => updateGame(gi, { schedule: v })} />
                         <GameField label="Caster" value={g.caster ?? ""} onChange={(v) => updateGame(gi, { caster: v })} />
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 6 }}>
-                        <GameField label="Formato de partida (ej: 2 VS 2)" value={g.matchFormat ?? ""} onChange={(v) => updateGame(gi, { matchFormat: v })} />
                       </div>
                     </div>
                   ))}

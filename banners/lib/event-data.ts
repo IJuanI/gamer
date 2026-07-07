@@ -32,8 +32,6 @@ export interface GameDetail {
   shortName: string;
   /** Format label shown on spotlight, e.g. "ARAM 2V2" (optional) */
   format?: string;
-  /** Match format for large banners, e.g. "2 VS 2", "1 VS 1" */
-  matchFormat?: string;
   /** Team count / bracket description */
   teams: string;
   /** Schedule string */
@@ -78,6 +76,8 @@ export interface EventData {
   maxPlayers?: number;
   /** Formato del torneo para banners públicos, e.g. "2v2", "1v1" */
   tournamentFormat?: string;
+  /** Highlight grande arriba del título en banners de anuncio, e.g. "2 VS 2", "1 VS 1" */
+  matchFormat?: string;
   /**
    * Which banner templates are available for this event.
    * - "anuncio"   — announcement banners
@@ -131,12 +131,12 @@ export const OPEN_DUO_EVENT: EventData = {
   maxPlayers: 16,
   extraInfo: "Formato 2v2 · Llave de 8 equipos · Transmisión en vivo por Twitch",
   tournamentFormat: "2v2",
+  matchFormat: "2 VS 2",
   availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {
       name: "LEAGUE OF LEGENDS",
       shortName: "LOL",
-      matchFormat: "2 VS 2",
       teams: "8 equipos (llave simple)",
       schedule: "16:00 a 18:25 HS",
       caster: 'Martin "TroyanoLoco" Garcia',
@@ -145,7 +145,6 @@ export const OPEN_DUO_EVENT: EventData = {
     {
       name: "COUNTER-STRIKE 2",
       shortName: "CS2",
-      matchFormat: "2 VS 2",
       teams: "8 equipos (llave simple)",
       schedule: "18:45 a 21:00 HS",
       caster: "Limoncete",
@@ -173,12 +172,12 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
   platforms: ["Nintendo Switch", "Arcade"],
   extraInfo: "Torneos 1v1 por juego · Transmisión en vivo por Twitch",
   tournamentFormat: "1v1",
+  matchFormat: "1 VS 1",
   availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {
       name: "MORTAL KOMBAT",
       shortName: "MK",
-      matchFormat: "1 VS 1",
       teams: "16 jugadores",
       schedule: "16:00 a 18:30 HS",
       accent: "orange",
@@ -186,7 +185,6 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
     {
       name: "SUPER SMASH BROS ULTIMATE",
       shortName: "SSBU",
-      matchFormat: "1 VS 1",
       teams: "16 jugadores",
       schedule: "19:00 a 22:00 HS",
       accent: "purple",
@@ -213,12 +211,12 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
   platforms: ["PS5", "PC"],
   extraInfo: "Formato 2v2 · Transmisión en vivo por Twitch",
   tournamentFormat: "2v2",
+  matchFormat: "2 VS 2",
   availableTemplates: ["anuncio", "countdown", "spotlight", "publico"],
   gameDetails: [
     {
       name: "FIFA",
       shortName: "FIFA",
-      matchFormat: "2 VS 2",
       teams: "8 equipos",
       schedule: "15:00 a 17:30 HS",
       accent: "green",
@@ -226,7 +224,6 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
     {
       name: "VALORANT",
       shortName: "VAL",
-      matchFormat: "2 VS 2",
       teams: "8 equipos",
       schedule: "18:00 a 21:00 HS",
       accent: "blue",
