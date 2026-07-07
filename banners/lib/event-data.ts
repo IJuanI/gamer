@@ -136,7 +136,6 @@ export const OPEN_DUO_EVENT: EventData = {
     {
       name: "LEAGUE OF LEGENDS",
       shortName: "LOL",
-      format: "ARAM 2V2",
       matchFormat: "2 VS 2",
       teams: "8 equipos (llave simple)",
       schedule: "16:00 a 18:25 HS",
@@ -146,7 +145,6 @@ export const OPEN_DUO_EVENT: EventData = {
     {
       name: "COUNTER-STRIKE 2",
       shortName: "CS2",
-      format: "WINGMAN 2V2",
       matchFormat: "2 VS 2",
       teams: "8 equipos (llave simple)",
       schedule: "18:45 a 21:00 HS",
@@ -220,7 +218,6 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
     {
       name: "FIFA",
       shortName: "FIFA",
-      format: "2V2",
       matchFormat: "2 VS 2",
       teams: "8 equipos",
       schedule: "15:00 a 17:30 HS",
@@ -229,7 +226,6 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
     {
       name: "VALORANT",
       shortName: "VAL",
-      format: "2V2",
       matchFormat: "2 VS 2",
       teams: "8 equipos",
       schedule: "18:00 a 21:00 HS",
