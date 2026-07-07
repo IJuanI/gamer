@@ -23,7 +23,7 @@ interface GameSpotlightProps {
   game: {
     name: string;
     shortName: string;
-    format: string;
+    format?: string;
     teams: string;
     schedule: string;
     caster?: string;
