@@ -228,35 +228,37 @@ export function OpenDuoFeed({
           className="flex-1 flex flex-col justify-center"
           style={{ gap: 26 }}
         >
-          {/* 2v2 label */}
-          <div className="flex items-center gap-4">
-            <div
-              style={{
-                width: 60,
-                height: 3,
-                background:
-                  "linear-gradient(90deg, transparent, rgba(132,197,82,0.5))",
-              }}
-            />
-            <span
-              className="font-azonix"
-              style={{
-                fontSize: 34,
-                color: "#96D068",
-                letterSpacing: "0.25em",
-              }}
-            >
-              2 VS 2
-            </span>
-            <div
-              style={{
-                width: 60,
-                height: 3,
-                background:
-                  "linear-gradient(90deg, rgba(132,197,82,0.5), transparent)",
-              }}
-            />
-          </div>
+          {/* Match format */}
+          {event.gameDetails?.[0]?.matchFormat && (
+            <div className="flex items-center gap-4">
+              <div
+                style={{
+                  width: 60,
+                  height: 3,
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(132,197,82,0.5))",
+                }}
+              />
+              <span
+                className="font-azonix"
+                style={{
+                  fontSize: 34,
+                  color: "#96D068",
+                  letterSpacing: "0.25em",
+                }}
+              >
+                {event.gameDetails[0].matchFormat}
+              </span>
+              <div
+                style={{
+                  width: 60,
+                  height: 3,
+                  background:
+                    "linear-gradient(90deg, rgba(132,197,82,0.5), transparent)",
+                }}
+              />
+            </div>
+          )}
 
           {/* Title */}
           <h1
@@ -301,7 +303,7 @@ export function OpenDuoFeed({
                     color: "#96D068",
                   }}
                 >
-                  {g.shortName} {g.format}
+                  {g.shortName}{g.format ? ` ${g.format}` : ""}
                 </div>
               ))}
             </div>

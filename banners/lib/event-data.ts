@@ -30,8 +30,10 @@ export interface GameDetail {
   name: string;
   /** Short badge name, e.g. "LOL" */
   shortName: string;
-  /** Format label shown on spotlight, e.g. "ARAM 2V2" */
-  format: string;
+  /** Format label shown on spotlight, e.g. "ARAM 2V2" (optional) */
+  format?: string;
+  /** Match format for large banners, e.g. "2 VS 2", "1 VS 1" */
+  matchFormat?: string;
   /** Team count / bracket description */
   teams: string;
   /** Schedule string */
@@ -135,6 +137,7 @@ export const OPEN_DUO_EVENT: EventData = {
       name: "LEAGUE OF LEGENDS",
       shortName: "LOL",
       format: "ARAM 2V2",
+      matchFormat: "2 VS 2",
       teams: "8 equipos (llave simple)",
       schedule: "16:00 a 18:25 HS",
       caster: 'Martin "TroyanoLoco" Garcia',
@@ -144,6 +147,7 @@ export const OPEN_DUO_EVENT: EventData = {
       name: "COUNTER-STRIKE 2",
       shortName: "CS2",
       format: "WINGMAN 2V2",
+      matchFormat: "2 VS 2",
       teams: "8 equipos (llave simple)",
       schedule: "18:45 a 21:00 HS",
       caster: "Limoncete",
@@ -176,7 +180,7 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
     {
       name: "MORTAL KOMBAT",
       shortName: "MK",
-      format: "1V1",
+      matchFormat: "1 VS 1",
       teams: "16 jugadores",
       schedule: "16:00 a 18:30 HS",
       accent: "orange",
@@ -184,7 +188,7 @@ export const WINTER_KNOCKOUT_EVENT: EventData = {
     {
       name: "SUPER SMASH BROS ULTIMATE",
       shortName: "SSBU",
-      format: "1V1",
+      matchFormat: "1 VS 1",
       teams: "16 jugadores",
       schedule: "19:00 a 22:00 HS",
       accent: "purple",
@@ -217,6 +221,7 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
       name: "FIFA",
       shortName: "FIFA",
       format: "2V2",
+      matchFormat: "2 VS 2",
       teams: "8 equipos",
       schedule: "15:00 a 17:30 HS",
       accent: "green",
@@ -225,6 +230,7 @@ export const WINTER_SHOOT_KICK_EVENT: EventData = {
       name: "VALORANT",
       shortName: "VAL",
       format: "2V2",
+      matchFormat: "2 VS 2",
       teams: "8 equipos",
       schedule: "18:00 a 21:00 HS",
       accent: "blue",
