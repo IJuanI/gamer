@@ -75,9 +75,10 @@ export default function GameDevsLanding() {
           <div className="animate-fade-up delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/register"
-              className="group flex items-center gap-2 rounded-lg text-white px-7 py-3.5 font-semibold transition-transform hover:scale-105"
+              className="group flex items-center gap-2 rounded-lg px-7 py-3.5 font-semibold transition-transform hover:scale-105"
               style={{
                 backgroundColor: GAMEDEVS_COLORS.primary,
+                color: "#fff",
                 boxShadow: `0 0 20px ${GAMEDEVS_COLORS.primary}40`,
               }}
             >

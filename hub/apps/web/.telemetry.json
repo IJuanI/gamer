@@ -10465,5 +10465,643 @@
     "url": "http://localhost:3000/telemetry",
     "sessionId": "1789928409582-5hnk0564o",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "vumvxdmnb",
+    "timestamp": "2026-09-20T19:55:33.602Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to dark",
+    "data": {
+      "theme": "dark",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "dark"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "n6dsyxkb7",
+    "timestamp": "2026-09-20T19:55:33.608Z",
+    "type": "navigation",
+    "severity": "warning",
+    "message": "Page loaded",
+    "data": {
+      "url": "http://192.168.68.106:3000/",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+      "documentReady": "complete",
+      "hasButton": true,
+      "buttonCount": 1,
+      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "jmexqsqhu",
+    "timestamp": "2026-09-20T19:55:33.609Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Component render: SiteNav",
+    "data": {
+      "renderCount": 1,
+      "timestamp": "2026-09-20T19:55:33.609Z",
+      "pathname": "/"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "82ifax1z6",
+    "timestamp": "2026-09-20T19:55:33.611Z",
+    "type": "event",
+    "severity": "info",
+    "message": "ThemeToggle component mounted",
+    "data": {
+      "theme": "dark"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "ell1qy307",
+    "timestamp": "2026-09-20T19:55:33.613Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "wqh9xvbfw",
+    "timestamp": "2026-09-20T19:55:33.614Z",
+    "type": "event",
+    "severity": "info",
+    "message": "SiteNav mounted",
+    "data": {
+      "pathname": "/",
+      "isGameDevsRoute": false
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "xpxjcia0x",
+    "timestamp": "2026-09-20T19:55:34.109Z",
+    "type": "navigation",
+    "severity": "info",
+    "message": "Post-load check",
+    "data": {
+      "buttonFound": true,
+      "buttonClasses": "rounded-lg p-2 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-50",
+      "buttonParent": "flex items-center gap-3 text-sm"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "eq4c5tmv1",
+    "timestamp": "2026-09-20T19:55:35.479Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Button clicked (native)",
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "v10iczjqj",
+    "timestamp": "2026-09-20T19:55:35.481Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "toggleTheme function invoked",
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "v8gbw67x9",
+    "timestamp": "2026-09-20T19:55:35.483Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Theme state update: dark -> light",
+    "data": {
+      "previousTheme": "dark",
+      "newTheme": "light"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "2j0rvw0rb",
+    "timestamp": "2026-09-20T19:55:35.485Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to light",
+    "data": {
+      "theme": "light",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "light"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "u6633yx1y",
+    "timestamp": "2026-09-20T19:55:35.489Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Theme state update: dark -> light",
+    "data": {
+      "previousTheme": "dark",
+      "newTheme": "light"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "3dcatdzup",
+    "timestamp": "2026-09-20T19:55:35.491Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to light",
+    "data": {
+      "theme": "light",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "light"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "dialn40q7",
+    "timestamp": "2026-09-20T19:55:35.495Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934133546-dchskoo6p",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "sg8zmyv9w",
+    "timestamp": "2026-09-20T19:55:43.260Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to light",
+    "data": {
+      "theme": "light",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "light"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "c0s922pfu",
+    "timestamp": "2026-09-20T19:55:43.262Z",
+    "type": "navigation",
+    "severity": "warning",
+    "message": "Page loaded",
+    "data": {
+      "url": "http://192.168.68.106:3000/",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+      "documentReady": "complete",
+      "hasButton": true,
+      "buttonCount": 1,
+      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "ukh8e4a0t",
+    "timestamp": "2026-09-20T19:55:43.264Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Component render: SiteNav",
+    "data": {
+      "renderCount": 1,
+      "timestamp": "2026-09-20T19:55:43.264Z",
+      "pathname": "/"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "qfs2arp91",
+    "timestamp": "2026-09-20T19:55:43.265Z",
+    "type": "event",
+    "severity": "info",
+    "message": "ThemeToggle component mounted",
+    "data": {
+      "theme": "dark"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "xg4u1arbd",
+    "timestamp": "2026-09-20T19:55:43.266Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "1bzienimz",
+    "timestamp": "2026-09-20T19:55:43.268Z",
+    "type": "event",
+    "severity": "info",
+    "message": "SiteNav mounted",
+    "data": {
+      "pathname": "/",
+      "isGameDevsRoute": false
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "gdh8vbn3f",
+    "timestamp": "2026-09-20T19:55:43.274Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "2e7iolfji",
+    "timestamp": "2026-09-20T19:55:43.765Z",
+    "type": "navigation",
+    "severity": "info",
+    "message": "Post-load check",
+    "data": {
+      "buttonFound": true,
+      "buttonClasses": "rounded-lg p-2 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-50",
+      "buttonParent": "flex items-center gap-3 text-sm"
+    },
+    "url": "http://192.168.68.106:3000/",
+    "sessionId": "1789934143242-zgo693n6m",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "eqz4otdao",
+    "timestamp": "2026-09-20T19:55:50.852Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to light",
+    "data": {
+      "theme": "light",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "light"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "uln0rqat8",
+    "timestamp": "2026-09-20T19:55:50.859Z",
+    "type": "navigation",
+    "severity": "warning",
+    "message": "Page loaded",
+    "data": {
+      "url": "http://192.168.68.106:3000/devs",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36",
+      "documentReady": "complete",
+      "hasButton": true,
+      "buttonCount": 1,
+      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "7euj6zkts",
+    "timestamp": "2026-09-20T19:55:50.861Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Component render: SiteNav",
+    "data": {
+      "renderCount": 1,
+      "timestamp": "2026-09-20T19:55:50.861Z",
+      "pathname": "/devs"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "8gjm3uuqv",
+    "timestamp": "2026-09-20T19:55:50.864Z",
+    "type": "event",
+    "severity": "info",
+    "message": "ThemeToggle component mounted",
+    "data": {
+      "theme": "dark"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "p6p4l9txg",
+    "timestamp": "2026-09-20T19:55:50.883Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "qxx9a6yiz",
+    "timestamp": "2026-09-20T19:55:50.870Z",
+    "type": "event",
+    "severity": "info",
+    "message": "SiteNav mounted",
+    "data": {
+      "pathname": "/devs",
+      "isGameDevsRoute": true
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "q4gmrjt2h",
+    "timestamp": "2026-09-20T19:55:50.866Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "vam6sg1k0",
+    "timestamp": "2026-09-20T19:55:51.362Z",
+    "type": "navigation",
+    "severity": "info",
+    "message": "Post-load check",
+    "data": {
+      "buttonFound": true,
+      "buttonClasses": "rounded-lg p-2 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-50",
+      "buttonParent": "flex items-center gap-3 text-sm"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "xdj5jttmt",
+    "timestamp": "2026-09-20T19:55:53.591Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Theme state update: light -> dark",
+    "data": {
+      "previousTheme": "light",
+      "newTheme": "dark"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "j25ak43wn",
+    "timestamp": "2026-09-20T19:55:53.594Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to dark",
+    "data": {
+      "theme": "dark",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "dark"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "e865o111l",
+    "timestamp": "2026-09-20T19:55:53.586Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Button clicked (native)",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "dt0iaxsmn",
+    "timestamp": "2026-09-20T19:55:53.589Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "toggleTheme function invoked",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "sh84ymtl7",
+    "timestamp": "2026-09-20T19:55:53.601Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Theme state update: light -> dark",
+    "data": {
+      "previousTheme": "light",
+      "newTheme": "dark"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "9700p3c7c",
+    "timestamp": "2026-09-20T19:55:53.604Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to dark",
+    "data": {
+      "theme": "dark",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "dark"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "65lkff7xg",
+    "timestamp": "2026-09-20T19:55:53.608Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "m1gxuo7ae",
+    "timestamp": "2026-09-20T19:55:54.654Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Button clicked (native)",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "zjhwshp7w",
+    "timestamp": "2026-09-20T19:55:54.656Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "toggleTheme function invoked",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "6mi1md0kt",
+    "timestamp": "2026-09-20T19:55:54.660Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Theme state update: dark -> light",
+    "data": {
+      "previousTheme": "dark",
+      "newTheme": "light"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "0iyjlruhs",
+    "timestamp": "2026-09-20T19:55:54.662Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to light",
+    "data": {
+      "theme": "light",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "light"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "tddjlsqk1",
+    "timestamp": "2026-09-20T19:55:54.665Z",
+    "type": "event",
+    "severity": "warning",
+    "message": "Theme state update: dark -> light",
+    "data": {
+      "previousTheme": "dark",
+      "newTheme": "light"
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "843d70opv",
+    "timestamp": "2026-09-20T19:55:54.667Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to light",
+    "data": {
+      "theme": "light",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "light"
+      ]
+    },
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    "id": "p1tfa5r2b",
+    "timestamp": "2026-09-20T19:55:54.671Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://192.168.68.106:3000/devs",
+    "sessionId": "1789934150389-w17wnj3rd",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
   }
 ]
