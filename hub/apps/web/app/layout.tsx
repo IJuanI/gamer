@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
+import { ThemeProvider } from "@/lib/theme-context";
+import { TelemetryInit } from "@/components/telemetry-init";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
@@ -19,9 +21,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es-AR" className={`${inter.variable} h-full antialiased`}>
+    <html lang="es-AR" className={`${inter.variable} h-full antialiased dark`}>
       <body className="min-h-full bg-background text-foreground">
-        <AuthProvider>{children}</AuthProvider>
+        <TelemetryInit />
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Gamepad2, Trophy, Users, CalendarDays, Zap, ShieldCheck } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";

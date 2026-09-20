@@ -1,7 +1,8 @@
 @import url('https://fonts.cdnfonts.com/css/azonix');
 @import "tailwindcss";
 
-:root {
+:root,
+html.dark {
   /* ── GamER brand colors ── */
   --gamer-purple: #B339C4;
   --gamer-purple-light: #9E46AE;
@@ -21,6 +22,28 @@
   --background-elevated: #1A1A2E;
   --foreground: #E8E8F0;
   --muted: #888899;
+}
+
+html.light {
+  /* ── Light mode colors ── */
+  --gamer-purple: #8B2DAE;
+  --gamer-purple-light: #9E46AE;
+  --gamer-purple-dark: #6B1F8F;
+  --gamer-green: #4A7C1C;
+  --gamer-black: #000000;
+  --gamer-white: #FFFFFF;
+
+  /* Light mode text — improved contrast */
+  --gamer-purple-text: #6B1F8F;
+  --gamer-green-text: #3D6614;
+  --text-primary: #0F0F0F;
+  --text-secondary: #5A5A5A;
+
+  /* Light mode backgrounds */
+  --background: #F8F8FA;
+  --background-elevated: #FFFFFF;
+  --foreground: #0F0F0F;
+  --muted: #6F6F6F;
 }
 
 @theme inline {
@@ -54,6 +77,11 @@ body {
   mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 75%);
 }
+html.light .bg-grid-neon-fade {
+  background-image:
+    linear-gradient(rgba(179, 57, 196, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(179, 57, 196, 0.08) 1px, transparent 1px);
+}
 
 .pixel-scatter::before {
   content: '';
@@ -67,23 +95,41 @@ body {
   opacity: 0.10;
   pointer-events: none;
 }
+html.light .pixel-scatter::before {
+  opacity: 0.05;
+}
 
 .radial-glow-purple {
   background: radial-gradient(ellipse 60% 45% at 50% 30%, rgba(179, 57, 196, 0.18), transparent);
 }
+html.light .radial-glow-purple {
+  background: radial-gradient(ellipse 60% 45% at 50% 30%, rgba(179, 57, 196, 0.08), transparent);
+}
 .radial-glow-green {
   background: radial-gradient(ellipse 50% 35% at 70% 70%, rgba(132, 197, 82, 0.10), transparent);
+}
+html.light .radial-glow-green {
+  background: radial-gradient(ellipse 50% 35% at 70% 70%, rgba(132, 197, 82, 0.06), transparent);
 }
 
 /* ── Glow + neon ── */
 .glow-purple {
   text-shadow: 0 0 10px rgba(179, 57, 196, 0.5), 0 0 30px rgba(179, 57, 196, 0.2);
 }
+html.light .glow-purple {
+  text-shadow: 0 0 10px rgba(179, 57, 196, 0.3), 0 0 30px rgba(179, 57, 196, 0.1);
+}
 .glow-green {
   text-shadow: 0 0 10px rgba(132, 197, 82, 0.5), 0 0 30px rgba(132, 197, 82, 0.2);
 }
+html.light .glow-green {
+  text-shadow: 0 0 10px rgba(132, 197, 82, 0.3), 0 0 30px rgba(132, 197, 82, 0.1);
+}
 .box-glow-purple {
   box-shadow: 0 0 15px rgba(179, 57, 196, 0.3), 0 0 40px rgba(179, 57, 196, 0.1);
+}
+html.light .box-glow-purple {
+  box-shadow: 0 0 15px rgba(179, 57, 196, 0.15), 0 0 40px rgba(179, 57, 196, 0.05);
 }
 .neon-border-purple {
   border: 1px solid rgba(179, 57, 196, 0.6);
@@ -91,11 +137,23 @@ body {
     0 0 8px rgba(179, 57, 196, 0.25),
     inset 0 0 8px rgba(179, 57, 196, 0.05);
 }
+html.light .neon-border-purple {
+  border: 1px solid rgba(179, 57, 196, 0.4);
+  box-shadow:
+    0 0 8px rgba(179, 57, 196, 0.15),
+    inset 0 0 8px rgba(179, 57, 196, 0.02);
+}
 .neon-border-green {
   border: 1px solid rgba(132, 197, 82, 0.6);
   box-shadow:
     0 0 8px rgba(132, 197, 82, 0.25),
     inset 0 0 8px rgba(132, 197, 82, 0.05);
+}
+html.light .neon-border-green {
+  border: 1px solid rgba(132, 197, 82, 0.4);
+  box-shadow:
+    0 0 8px rgba(132, 197, 82, 0.15),
+    inset 0 0 8px rgba(132, 197, 82, 0.02);
 }
 .neon-line-h {
   height: 2px;
@@ -103,6 +161,12 @@ body {
     transparent, rgba(179, 57, 196, 0.3) 15%, #B339C4 50%,
     rgba(179, 57, 196, 0.3) 85%, transparent);
   box-shadow: 0 0 8px rgba(179, 57, 196, 0.4);
+}
+html.light .neon-line-h {
+  background: linear-gradient(90deg,
+    transparent, rgba(179, 57, 196, 0.15) 15%, #B339C4 50%,
+    rgba(179, 57, 196, 0.15) 85%, transparent);
+  box-shadow: 0 0 8px rgba(179, 57, 196, 0.2);
 }
 
 /* ── HUD corner brackets ── */
@@ -125,6 +189,9 @@ body {
 .gradient-block-purple {
   background: linear-gradient(135deg, rgba(179, 57, 196, 0.14), rgba(131, 61, 144, 0.04));
 }
+html.light .gradient-block-purple {
+  background: linear-gradient(135deg, rgba(179, 57, 196, 0.08), rgba(131, 61, 144, 0.03));
+}
 
 /* ── Animations ── */
 @keyframes pulse-glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
@@ -143,3 +210,15 @@ body {
 /* Brand wordmark coloring */
 .wordmark-gam { color: var(--gamer-purple); }
 .wordmark-er { color: var(--gamer-green); }
+
+/* Light mode border adjustments */
+html.light {
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-default: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+}
+html.dark {
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+}
