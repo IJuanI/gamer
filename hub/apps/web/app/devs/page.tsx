@@ -88,8 +88,9 @@ export default function GameDevsLanding() {
             </Link>
             <Link
               href="/#features"
-              className="rounded-lg px-7 py-3.5 font-semibold text-white transition-transform hover:scale-105"
+              className="rounded-lg px-7 py-3.5 font-semibold transition-transform hover:scale-105"
               style={{
+                color: "var(--foreground)",
                 border: `2px solid ${GAMEDEVS_COLORS.primary}`,
                 backgroundColor: `${GAMEDEVS_COLORS.primary}10`,
               }}
