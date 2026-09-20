@@ -275,61 +275,97 @@ export default function JamPage() {
         </div>
       </section>
 
-      {/* About Section */}
+      {/* Features Section - From GamER hub style */}
       <section id="colaboradores" className="relative py-24 px-6 jam-section">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               <span style={{ color: "#3cff9e", textShadow: "0 0 20px rgba(60, 255, 158, 0.5)" }}>
-                ¿Qué es
+                Qué vas a encontrar
               </span>{" "}
-              <span className="text-white">Global Game Jam?</span>
+              <span style={{ color: "#8b6cff", textShadow: "0 0 20px rgba(139, 108, 255, 0.5)" }}>
+                acá
+              </span>
             </h2>
             <p style={{ color: "#b6c2ff" }} className="text-lg max-w-2xl mx-auto">
-              La competencia de desarrollo de videojuegos más grande del mundo. En 48 horas, equipos de creativos se
-              reúnen en una ubicación física para crear juegos basados en un tema común.
+              Todo lo que necesitás para desarrollar, aprender y conectar con otros creadores.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               {
+                icon: Gamepad2,
+                title: "Torneos",
+                description: "Competencias presenciales, online e híbridas. Inscribite, jugá y subí en el ranking.",
+              },
+              {
                 icon: Trophy,
-                title: "Competencia",
-                description: "Compite con equipos de todo el mundo y deja tu marca en la escena gamer.",
+                title: "Eventos",
+                description: "Cyber cafés, LAN partys y encuentros en toda la región. Siempre hay algo pasando.",
               },
               {
                 icon: Users,
                 title: "Comunidad",
-                description: "Conecta con desarrolladores, artistas y diseñadores apasionados por los videojuegos.",
+                description: "Conectá con gamers y creativos. Equipos, scrims y gente con la misma pasión que vos.",
               },
               {
                 icon: Zap,
-                title: "Creatividad",
-                description: "Expresa tu creatividad con el tema único que se revela el primer día.",
+                title: "Tu perfil",
+                description: "Panel propio con tu rol, tus eventos y tu actividad en un solo lugar.",
               },
-              {
-                icon: Gamepad2,
-                title: "Experiencia",
-                description: "Participa sin importar tu nivel de experiencia. Hay un lugar para todos.",
-              },
-            ].map((item) => {
+            ].map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={item.title}
-                  className="p-6 rounded-lg border transition-all hover:shadow-lg"
+                  className="p-8 rounded-lg border transition-all hover:scale-105"
                   style={{
-                    backgroundColor: "rgba(18, 24, 45, 0.6)",
-                    borderColor: "rgba(60, 255, 158, 0.3)",
+                    backgroundColor: "rgba(18, 24, 45, 0.7)",
+                    borderColor: idx % 2 === 0 ? "rgba(60, 255, 158, 0.3)" : "rgba(139, 108, 255, 0.3)",
                   }}
                 >
-                  <Icon className="h-8 w-8 mb-4" style={{ color: "#3cff9e" }} />
-                  <h3 className="text-xl font-bold mb-2 text-white">{item.title}</h3>
+                  <Icon className="h-8 w-8 mb-4" style={{ color: idx % 2 === 0 ? "#3cff9e" : "#8b6cff" }} />
+                  <h3 className="text-xl font-bold mb-3 text-white">{item.title}</h3>
                   <p style={{ color: "#b6c2ff" }}>{item.description}</p>
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="relative py-24 px-6 jam-section">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { value: "+50", label: "Eventos al año" },
+              { value: "+12", label: "Ciudades" },
+              { value: "100%", label: "Entrerriano" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="text-center p-8 rounded-lg border"
+                style={{
+                  backgroundColor: "rgba(18, 24, 45, 0.6)",
+                  borderColor: "rgba(60, 255, 158, 0.2)",
+                }}
+              >
+                <div
+                  className="text-5xl md:text-6xl font-extrabold font-mono mb-3"
+                  style={{
+                    color: "#3cff9e",
+                    textShadow: "0 0 20px rgba(60, 255, 158, 0.6), 0 0 40px rgba(60, 255, 158, 0.3)",
+                  }}
+                >
+                  {stat.value}
+                </div>
+                <div className="text-sm font-bold tracking-widest" style={{ color: "#b6c2ff" }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -383,17 +419,36 @@ export default function JamPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Community CTA Section */}
       <section
-        className="relative py-24 px-6 jam-section border-t"
+        className="relative overflow-hidden border-t py-24 px-6 jam-section"
         style={{ borderColor: "rgba(60, 255, 158, 0.1)" }}
       >
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Sumate a la Experiencia</h2>
+        <div className="absolute inset-0 pointer-events-none opacity-20">
+          <div
+            className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full"
+            style={{ backgroundColor: "#3cff9e", filter: "blur(80px)" }}
+          />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full"
+            style={{ backgroundColor: "#8b6cff", filter: "blur(60px)" }}
+          />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <Zap className="mx-auto h-10 w-10 mb-6 animate-bounce" style={{ color: "#3cff9e" }} />
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Sumate a la comunidad
+          </h2>
           <p style={{ color: "#b6c2ff" }} className="text-lg max-w-2xl mx-auto mb-10">
-            Inscribite ahora y prepárate para 48 horas de puro desarrollo de videojuegos. ¡Nos vemos el 30 de enero!
+            Creá tu cuenta gratis y formá parte de la red gamer más grande de Entre Ríos.
+            Compartí proyectos, colaborá con otros y crecé como creativo.
           </p>
-
+          <div
+            className="h-px w-full mb-10"
+            style={{
+              background: "linear-gradient(90deg, transparent, #3cff9e, transparent)",
+            }}
+          />
           <Link
             href="/registro"
             className="inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold font-bold transition-transform hover:scale-105"
@@ -404,7 +459,7 @@ export default function JamPage() {
             }}
           >
             <Gamepad2 className="h-5 w-5" />
-            REGISTRARSE AHORA
+            CREAR MI CUENTA
           </Link>
         </div>
       </section>

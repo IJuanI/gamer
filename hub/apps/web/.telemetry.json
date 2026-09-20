@@ -1,61 +1,5 @@
 [
   {
-    "id": "m6mivkeck",
-    "timestamp": "2026-09-20T12:01:09.478Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Theme changed to dark",
-    "data": {
-      "theme": "dark",
-      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased light",
-      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "classList": [
-        "inter_fe8b9d92-module__LINzvG__variable",
-        "h-full",
-        "antialiased",
-        "dark"
-      ]
-    },
-    "url": "http://192.168.68.106:3000/devs",
-    "sessionId": "1789905657638-wwvfiunfd",
-    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
-  },
-  {
-    "id": "k7ykuyadl",
-    "timestamp": "2026-09-20T12:01:09.481Z",
-    "type": "event",
-    "severity": "warning",
-    "message": "Theme state update: light -> dark",
-    "data": {
-      "previousTheme": "light",
-      "newTheme": "dark"
-    },
-    "url": "http://192.168.68.106:3000/devs",
-    "sessionId": "1789905657638-wwvfiunfd",
-    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
-  },
-  {
-    "id": "fj0yxba72",
-    "timestamp": "2026-09-20T12:01:09.482Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Theme changed to dark",
-    "data": {
-      "theme": "dark",
-      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "classList": [
-        "inter_fe8b9d92-module__LINzvG__variable",
-        "h-full",
-        "antialiased",
-        "dark"
-      ]
-    },
-    "url": "http://192.168.68.106:3000/devs",
-    "sessionId": "1789905657638-wwvfiunfd",
-    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36"
-  },
-  {
     "id": "81ukljdee",
     "timestamp": "2026-09-20T12:01:09.486Z",
     "type": "event",
@@ -14529,6 +14473,58 @@
     },
     "url": "http://localhost:3000/devs",
     "sessionId": "1789945206728-qzmcsvhhp",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
+  },
+  {
+    "id": "qlvnax7fu",
+    "timestamp": "2026-09-20T23:19:48.708Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to dark",
+    "data": {
+      "theme": "dark",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "dark"
+      ]
+    },
+    "url": "http://localhost:3000/jam",
+    "sessionId": "1789946388667-yq4ey5lo9",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
+  },
+  {
+    "id": "r6geqseh6",
+    "timestamp": "2026-09-20T23:19:48.715Z",
+    "type": "navigation",
+    "severity": "warning",
+    "message": "Page loaded",
+    "data": {
+      "url": "http://localhost:3000/jam",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
+      "documentReady": "complete",
+      "hasButton": false,
+      "buttonCount": 0,
+      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark"
+    },
+    "url": "http://localhost:3000/jam",
+    "sessionId": "1789946388667-yq4ey5lo9",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
+  },
+  {
+    "id": "aoa478mdm",
+    "timestamp": "2026-09-20T23:19:49.219Z",
+    "type": "navigation",
+    "severity": "info",
+    "message": "Post-load check",
+    "data": {
+      "buttonFound": false
+    },
+    "url": "http://localhost:3000/jam",
+    "sessionId": "1789946388667-yq4ey5lo9",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
   }
 ]
