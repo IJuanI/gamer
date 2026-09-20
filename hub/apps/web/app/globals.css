@@ -22,6 +22,17 @@ html.dark {
   --background-elevated: #1A1A2E;
   --foreground: #E8E8F0;
   --muted: #888899;
+
+  /* ── Game Jam (Paraná) brand colors ── */
+  --jam-primary: #3cff9e;
+  --jam-secondary: #8b6cff;
+  --jam-accent: #7d51fb;
+  --jam-dark-purple: #5a34d6;
+  --jam-green-secondary: #1ecf7a;
+  --jam-background: #0b1020;
+  --jam-card: #12182d;
+  --jam-muted: #b6c2ff;
+  --jam-border: #2a3660;
 }
 
 html.light {
@@ -221,4 +232,27 @@ html.dark {
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-default: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Game Jam (Paraná) Styles ── */
+.jam-hero {
+  background: linear-gradient(135deg, #0b1020 0%, #12182d 50%, #0b1020 100%);
+  background-image:
+    linear-gradient(rgba(60, 255, 158, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(60, 255, 158, 0.03) 1px, transparent 1px),
+    linear-gradient(135deg, #0b1020 0%, #12182d 50%, #0b1020 100%);
+  background-size: 50px 50px, 50px 50px, 100% 100%;
+}
+
+.jam-background {
+  background: linear-gradient(135deg, rgba(60, 255, 158, 0.05) 0%, rgba(139, 108, 255, 0.03) 100%);
+}
+
+.jam-section {
+  background: linear-gradient(135deg, rgba(11, 16, 32, 0.8) 0%, rgba(18, 24, 45, 0.8) 100%);
+  background-image:
+    linear-gradient(rgba(60, 255, 158, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(60, 255, 158, 0.02) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(11, 16, 32, 0.8) 0%, rgba(18, 24, 45, 0.8) 100%);
+  background-size: 50px 50px, 50px 50px, 100% 100%;
 }

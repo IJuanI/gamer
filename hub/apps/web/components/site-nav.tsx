@@ -26,6 +26,9 @@ export function SiteNav() {
         <Logo brand={isGameDevsRoute ? "gamedevs" : "gamer"} />
         <div className="flex items-center gap-3 text-sm">
           <ThemeToggle />
+          <Link href="/jam" className="transition-colors hidden sm:block" style={{ color: "var(--text-secondary)" }}>
+            Game Jam
+          </Link>
           <Link href="/#comunidad" className="transition-colors hidden sm:block" style={{ color: "var(--text-secondary)" }}>
             Comunidad
           </Link>
