@@ -79,8 +79,8 @@ body {
 }
 html.light .bg-grid-neon-fade {
   background-image:
-    linear-gradient(rgba(179, 57, 196, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(179, 57, 196, 0.08) 1px, transparent 1px);
+    linear-gradient(rgba(107, 35, 128, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 35, 128, 0.12) 1px, transparent 1px);
 }
 
 .pixel-scatter::before {
@@ -103,13 +103,13 @@ html.light .pixel-scatter::before {
   background: radial-gradient(ellipse 60% 45% at 50% 30%, rgba(179, 57, 196, 0.18), transparent);
 }
 html.light .radial-glow-purple {
-  background: radial-gradient(ellipse 60% 45% at 50% 30%, rgba(179, 57, 196, 0.08), transparent);
+  background: radial-gradient(ellipse 60% 45% at 50% 30%, rgba(107, 35, 128, 0.12), transparent);
 }
 .radial-glow-green {
-  background: radial-gradient(ellipse 50% 35% at 70% 70%, rgba(132, 197, 82, 0.10), transparent);
+  background: radial-gradient(ellipse 50% 35% at 70% 70%, rgba(45, 90, 15, 0.12), transparent);
 }
 html.light .radial-glow-green {
-  background: radial-gradient(ellipse 50% 35% at 70% 70%, rgba(132, 197, 82, 0.06), transparent);
+  background: radial-gradient(ellipse 50% 35% at 70% 70%, rgba(45, 90, 15, 0.12), transparent);
 }
 
 /* ── Glow + neon ── */
@@ -138,10 +138,10 @@ html.light .box-glow-purple {
     inset 0 0 8px rgba(179, 57, 196, 0.05);
 }
 html.light .neon-border-purple {
-  border: 1px solid rgba(179, 57, 196, 0.4);
+  border: 2px solid rgba(107, 35, 128, 0.6);
   box-shadow:
-    0 0 8px rgba(179, 57, 196, 0.15),
-    inset 0 0 8px rgba(179, 57, 196, 0.02);
+    0 0 12px rgba(107, 35, 128, 0.3),
+    inset 0 0 8px rgba(107, 35, 128, 0.1);
 }
 .neon-border-green {
   border: 1px solid rgba(132, 197, 82, 0.6);

@@ -78,7 +78,8 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/#features"
-              className="rounded-lg neon-border-purple px-7 py-3.5 font-semibold text-white transition-transform hover:scale-105"
+              className="rounded-lg neon-border-purple px-7 py-3.5 font-semibold transition-transform hover:scale-105"
+              style={{ color: "var(--foreground)" }}
             >
               Conocer más
             </Link>
