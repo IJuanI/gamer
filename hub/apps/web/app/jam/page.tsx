@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Gamepad2, Trophy, Users, CalendarDays, Zap, Gamepad } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
-import { useState, useEffect } from "react";
 
 const features = [
   {
@@ -38,53 +37,83 @@ const stats = [
   { value: "1", label: "Tema" },
 ];
 
-function CountdownTimer() {
-  const [time, setTime] = useState({ days: "00", hours: "00", minutes: "00", seconds: "00" });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const target = new Date("2026-01-30T16:00:00").getTime();
-      const diff = Math.max(0, target - now.getTime());
-
-      const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, "0");
-      const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, "0");
-      const minutes = String(Math.floor((diff / 1000 / 60) % 60)).padStart(2, "0");
-      const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
-
-      setTime({ days, hours, minutes, seconds });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div
-      className="inline-block rounded-lg p-6 border font-mono text-lg font-bold tracking-wider"
-      style={{
-        borderColor: "#3cff9e",
-        backgroundColor: "rgba(60, 255, 158, 0.05)",
-        color: "#3cff9e",
-        textShadow: "0 0 10px rgba(60, 255, 158, 0.6)",
-      }}
-    >
-      {time.days}:{time.hours}:{time.minutes}:{time.seconds}
-    </div>
-  );
-}
-
 export default function JamPage() {
   return (
     <>
       <SiteNav />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden jam-hero">
+      <section className="relative overflow-hidden" style={{ backgroundColor: "#0b1020", minHeight: "100vh" }}>
+        {/* HUD Grid background */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              "radial-gradient(ellipse 60% 45% at 50% 30%, rgba(60, 255, 158, 0.12) 0%, rgba(139, 108, 255, 0.08) 100%)",
+            backgroundImage:
+              "linear-gradient(rgba(60, 255, 158, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 255, 158, 0.03) 1px, transparent 1px)",
+            backgroundSize: "50px 50px",
+          }}
+        />
+
+        {/* Hexagon pattern */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%238b6cff' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+
+        {/* Radial glow background */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse 60% 45% at 50% 30%, rgba(60, 255, 158, 0.12) 0%, rgba(139, 108, 255, 0.08) 100%)",
+          }}
+        />
+
+        {/* Floating decorative elements */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {/* Top-left square */}
+          <div
+            className="absolute top-20 left-10 w-32 h-32 border-2 opacity-20"
+            style={{
+              borderColor: "#8b6cff",
+              transform: "rotate(45deg)",
+            }}
+          />
+          {/* Bottom-right square */}
+          <div
+            className="absolute bottom-20 right-10 w-48 h-48 border-2 opacity-20"
+            style={{
+              borderColor: "#3cff9e",
+              transform: "rotate(12deg)",
+            }}
+          />
+          {/* Floating particles */}
+          <div
+            className="absolute top-1/3 right-1/4 w-3 h-3 rounded-full animate-pulse"
+            style={{
+              backgroundColor: "#3cff9e",
+              boxShadow: "0 0 20px rgba(60, 255, 158, 0.8)",
+            }}
+          />
+          <div
+            className="absolute bottom-1/3 left-1/4 w-3 h-3 rounded-full animate-pulse"
+            style={{
+              backgroundColor: "#8b6cff",
+              boxShadow: "0 0 20px rgba(139, 108, 255, 0.8)",
+            }}
+          />
+        </div>
+
+        {/* Scan line animation */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: "linear-gradient(90deg, transparent, rgba(60, 255, 158, 0.5), transparent)",
+            backgroundSize: "100% 2px",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "0 -2px",
+            animation: "scanline 8s linear infinite",
           }}
         />
 
@@ -119,14 +148,6 @@ export default function JamPage() {
               }}
             >
               Game Jam
-            </span>
-            <span
-              className="block mt-3 text-2xl sm:text-3xl font-medium"
-              style={{
-                color: "#b6c2ff",
-              }}
-            >
-              30 de Enero — 1 de Febrero
             </span>
           </h1>
 
@@ -186,11 +207,6 @@ export default function JamPage() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Countdown */}
-          <div className="animate-fade-up delay-700 mt-10">
-            <CountdownTimer />
           </div>
         </div>
       </section>
