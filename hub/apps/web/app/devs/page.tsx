@@ -62,12 +62,12 @@ export default function GameDevsLanding() {
 
           <h1 className="animate-fade-up delay-100 mt-8 font-azonix text-5xl leading-tight sm:text-7xl">
             <span style={{ color: GAMEDEVS_COLORS.primary }}>GameDevs</span>
-            <span className="block mt-3 text-2xl text-white sm:text-3xl font-normal">
+            <span className="block mt-3 text-2xl sm:text-3xl font-normal" style={{ color: "var(--foreground)" }}>
               La comunidad dev de Entre Ríos
             </span>
           </h1>
 
-          <p className="animate-fade-up delay-200 mx-auto mt-7 max-w-2xl text-lg text-white/80">
+          <p className="animate-fade-up delay-200 mx-auto mt-7 max-w-2xl text-lg" style={{ color: "var(--text-secondary)" }}>
             Conectá con desarrolladores, diseñadores y creativos. Compartí código, ideas y proyectos.
             Crecé como dev en la comunidad más activa de la región.
           </p>
@@ -113,7 +113,7 @@ export default function GameDevsLanding() {
                 >
                   {s.value}
                 </div>
-                <div className="mt-2 text-xs uppercase tracking-wider text-white/70">
+                <div className="mt-2 text-xs uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>
                   {s.label}
                 </div>
               </div>
@@ -129,7 +129,7 @@ export default function GameDevsLanding() {
             Qué encontrás en{" "}
             <span style={{ color: GAMEDEVS_COLORS.primary }}>GameDevs</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-white/70">
+          <p className="mx-auto mt-4 max-w-xl" style={{ color: "var(--text-secondary)" }}>
             Todo lo que necesitás para desarrollar, aprender y conectar con otros creadores.
           </p>
         </div>
@@ -158,10 +158,10 @@ export default function GameDevsLanding() {
                     style={{ color: GAMEDEVS_COLORS.primary }}
                   />
                 </div>
-                <h3 className="mt-5 font-azonix text-lg text-white">
+                <h3 className="mt-5 font-azonix text-lg" style={{ color: "var(--foreground)" }}>
                   {f.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/70">
+                <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {f.body}
                 </p>
               </div>
@@ -178,10 +178,10 @@ export default function GameDevsLanding() {
         />
         <div className="relative mx-auto max-w-4xl px-6 py-24 text-center">
           <Star className="mx-auto h-10 w-10 animate-float" style={{ color: GAMEDEVS_COLORS.primary }} />
-          <h2 className="mt-6 font-azonix text-3xl sm:text-4xl text-white">
+          <h2 className="mt-6 font-azonix text-3xl sm:text-4xl" style={{ color: "var(--foreground)" }}>
             Sumate a la comunidad dev
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-white/70">
+          <p className="mx-auto mt-4 max-w-xl" style={{ color: "var(--text-secondary)" }}>
             Creá tu cuenta gratis y formá parte de la red de desarrolladores más grande de Entre Ríos.
             Compartí proyectos, colaborá con otros y crecé como dev.
           </p>
@@ -205,8 +205,8 @@ export default function GameDevsLanding() {
         </div>
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-white/50">
-        <span className="font-azonix text-white">GameDevs</span>
+      <footer className="border-t py-8 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
+        <span className="font-azonix" style={{ color: GAMEDEVS_COLORS.primary }}>GameDevs</span>
         {" · Developer Community — Entre Ríos, Argentina"}
       </footer>
     </>
