@@ -32,7 +32,7 @@ export function SiteNav() {
           <Link href="/#features" className="transition-colors hidden sm:block" style={{ color: "var(--text-secondary)" }}>
             Qué hacemos
           </Link>
-          {loading ? null : user ? (
+          {user ? (
             <Link
               href="/dashboard"
               className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
