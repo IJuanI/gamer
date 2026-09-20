@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { SiteNav } from "@/components/site-nav";
 import { Gamepad2, Trophy, Users, Zap } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const timeline = [
   { day: "Día 1", title: "Inicio", time: "16:00 hs", description: "Presentación y asignación de temas" },
@@ -11,90 +11,281 @@ const timeline = [
   { day: "Día 3", title: "Premiación", time: "17:30 hs", description: "Presentación y votación de juegos" },
 ];
 
+function CountdownTimer() {
+  const [time, setTime] = useState({ days: "00", hours: "00", minutes: "00", seconds: "00" });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const target = new Date("2026-01-30T16:00:00").getTime();
+      const diff = Math.max(0, target - now.getTime());
+
+      const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, "0");
+      const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, "0");
+      const minutes = String(Math.floor((diff / 1000 / 60) % 60)).padStart(2, "0");
+      const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
+
+      setTime({ days, hours, minutes, seconds });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      className="inline-block rounded-lg p-6 border"
+      style={{
+        backgroundColor: "rgba(18, 24, 45, 0.8)",
+        borderColor: "rgba(60, 255, 158, 0.3)",
+      }}
+    >
+      <div className="text-xs font-bold tracking-widest mb-4" style={{ color: "#8b6cff" }}>
+        CUENTA REGRESIVA
+      </div>
+      <div className="flex gap-6 md:gap-12">
+        {[
+          { value: time.days, label: "DÍAS" },
+          { value: time.hours, label: "HORAS" },
+          { value: time.minutes, label: "MIN" },
+          { value: time.seconds, label: "SEG" },
+        ].map((item) => (
+          <div key={item.label} className="text-center">
+            <div
+              className="text-4xl md:text-6xl font-extrabold font-mono"
+              style={{
+                color: "#3cff9e",
+                textShadow: "0 0 20px rgba(60, 255, 158, 0.6), 0 0 40px rgba(60, 255, 158, 0.3)",
+                letterSpacing: "0.1em",
+              }}
+            >
+              {item.value}
+            </div>
+            <div className="text-xs md:text-sm font-bold tracking-widest mt-2" style={{ color: "#b6c2ff" }}>
+              {item.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function JamPage() {
   return (
-    <>
-      <SiteNav />
+    <div className="min-h-screen" style={{ backgroundColor: "#0b1020", color: "#ffffff" }}>
+      {/* Jam-specific Navigation */}
+      <nav
+        className="sticky top-0 z-50 border-b px-6 py-4"
+        style={{
+          backgroundColor: "rgba(11, 16, 32, 0.95)",
+          borderColor: "rgba(60, 255, 158, 0.1)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link href="/jam" className="font-extrabold text-xl md:text-2xl">
+            <span style={{ color: "#3cff9e", textShadow: "0 0 10px rgba(60, 255, 158, 0.5)" }}>
+              Paraná
+            </span>
+            <span style={{ color: "#8b6cff", textShadow: "0 0 10px rgba(139, 108, 255, 0.5)" }}>
+              {" "}Game
+            </span>
+            <span className="text-white"> Jam</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-8 text-sm font-semibold">
+            <a href="#inicio" style={{ color: "#b6c2ff" }}>
+              INICIO
+            </a>
+            <a href="#cronograma" style={{ color: "#b6c2ff" }}>
+              CRONOGRAMA
+            </a>
+            <a href="#colaboradores" style={{ color: "#b6c2ff" }}>
+              COLABORADORES
+            </a>
+            <a href="#contacto" style={{ color: "#b6c2ff" }}>
+              CONTACTO
+            </a>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://discord.gg/Kh6JDj44cE"
+              className="hidden sm:inline-block rounded px-4 py-2 font-semibold"
+              style={{
+                backgroundColor: "#8b6cff",
+                color: "#ffffff",
+              }}
+            >
+              SER SPONSOR
+            </a>
+            <Link
+              href="/registro"
+              className="rounded px-4 py-2 font-semibold"
+              style={{
+                backgroundColor: "#3cff9e",
+                color: "#0b1020",
+                boxShadow: "0 0 15px rgba(60, 255, 158, 0.4)",
+              }}
+            >
+              REGISTRARSE
+            </Link>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden jam-hero">
+      <section id="inicio" className="relative min-h-screen flex items-center justify-center pt-12 overflow-hidden jam-hero">
         <div className="absolute inset-0 pointer-events-none jam-background">
           <div className="absolute top-20 left-10 w-32 h-32 border border-jam-secondary/20 rotate-45 opacity-30" />
           <div className="absolute bottom-20 right-10 w-48 h-48 border border-jam-primary/20 rotate-12 opacity-30" />
-          <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-jam-primary rounded-full animate-pulse" />
-          <div className="absolute bottom-1/3 left-1/4 w-3 h-3 bg-jam-secondary rounded-full animate-pulse" />
+          <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-jam-primary rounded-full animate-pulse" style={{ boxShadow: "0 0 20px rgba(60, 255, 158, 0.8)" }} />
+          <div className="absolute bottom-1/3 left-1/4 w-3 h-3 bg-jam-secondary rounded-full animate-pulse" style={{ boxShadow: "0 0 20px rgba(139, 108, 255, 0.8)" }} />
+          <Gamepad2 className="absolute top-1/4 right-20 w-12 h-12 opacity-30" style={{ color: "#8b6cff" }} />
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 text-center">
-          <div className="inline-flex items-center gap-2 bg-jam-card/50 backdrop-blur-sm border border-jam-secondary/30 rounded-full px-4 py-2 mb-6">
-            <div className="w-2 h-2 rounded-full bg-jam-primary animate-pulse" />
-            <span className="text-sm text-jam-muted font-medium">Global Game Jam 2026 - Paraná</span>
+          <div
+            className="inline-flex items-center gap-2 backdrop-blur-sm border rounded-full px-4 py-2 mb-8"
+            style={{
+              backgroundColor: "rgba(18, 24, 45, 0.5)",
+              borderColor: "rgba(60, 255, 158, 0.4)",
+            }}
+          >
+            <div
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ backgroundColor: "#3cff9e", boxShadow: "0 0 10px rgba(60, 255, 158, 0.8)" }}
+            />
+            <span className="text-sm font-medium" style={{ color: "#b6c2ff" }}>
+              Global Game Jam 2026 - Sede Paraná
+            </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-4 tracking-tight">
-            <span className="text-jam-primary" style={{ textShadow: "0 0 20px rgba(60, 255, 158, 0.4)" }}>
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-extrabold mb-6 tracking-tight">
+            <span
+              style={{
+                color: "#3cff9e",
+                textShadow: "0 0 30px rgba(60, 255, 158, 0.8), 0 0 60px rgba(60, 255, 158, 0.4)",
+                display: "block",
+              }}
+            >
               Paraná
-            </span>{" "}
-            <span className="text-jam-secondary" style={{ textShadow: "0 0 20px rgba(139, 108, 255, 0.4)" }}>
+            </span>
+            <span
+              style={{
+                color: "#8b6cff",
+                textShadow: "0 0 30px rgba(139, 108, 255, 0.8), 0 0 60px rgba(139, 108, 255, 0.4)",
+                display: "block",
+              }}
+            >
               Game
-            </span>{" "}
+            </span>
             <span className="text-white">Jam</span>
           </h1>
 
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="h-px flex-1 max-w-20 bg-gradient-to-r from-transparent to-jam-secondary/50" />
-            <p className="text-xl md:text-2xl font-bold text-white">
-              <span className="text-jam-primary">30 DE ENERO</span>
-              <span className="text-jam-muted"> AL </span>
-              <span className="text-jam-secondary">1 DE FEBRERO</span>
+          <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
+            <div
+              className="h-px flex-1 max-w-32"
+              style={{
+                background: "linear-gradient(to right, transparent, rgba(60, 255, 158, 0.5))",
+              }}
+            />
+            <p className="text-2xl md:text-3xl font-bold" style={{ color: "#ffffff", whiteSpace: "nowrap" }}>
+              <span style={{ color: "#3cff9e" }}>30 DE ENERO</span>
+              <span style={{ color: "#b6c2ff" }}> AL </span>
+              <span style={{ color: "#8b6cff" }}>1 DE FEBRERO</span>
             </p>
-            <div className="h-px flex-1 max-w-20 bg-gradient-to-l from-transparent to-jam-secondary/50" />
+            <div
+              className="h-px flex-1 max-w-32"
+              style={{
+                background: "linear-gradient(to left, transparent, rgba(60, 255, 158, 0.5))",
+              }}
+            />
           </div>
 
-          <p className="text-jam-muted text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+            <div
+              className="border rounded px-4 py-2 font-semibold text-sm"
+              style={{
+                borderColor: "#8b6cff",
+                backgroundColor: "rgba(139, 108, 255, 0.15)",
+                color: "#8b6cff",
+              }}
+            >
+              INICIO 16 HS • CIERRE 19 HS
+            </div>
+            <a
+              href="#"
+              className="border rounded px-4 py-2 font-semibold text-sm flex items-center gap-2"
+              style={{
+                borderColor: "#3cff9e",
+                backgroundColor: "rgba(60, 255, 158, 0.1)",
+                color: "#b6c2ff",
+              }}
+            >
+              <span style={{ color: "#ffffff" }}>LUGAR:</span> Mirador TEC
+            </a>
+          </div>
+
+          <div
+            className="inline-block border rounded-lg px-4 py-2 mb-8 text-sm"
+            style={{
+              borderColor: "#3cff9e",
+              backgroundColor: "rgba(60, 255, 158, 0.1)",
+              color: "#3cff9e",
+            }}
+          >
+            Menores de edad: deben asistir acompañados por un adulto
+          </div>
+
+          <p className="text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed" style={{ color: "#b6c2ff" }}>
             Únete a 48 horas de puro desarrollo de videojuegos. Crea, colabora e innova con creativos de todo el mundo.
             Sin importar tu experiencia, hay un lugar para vos.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <Link
               href="/registro"
-              className="inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold text-white transition-transform hover:scale-105"
+              className="inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold font-bold text-sm transition-transform hover:scale-105"
               style={{
                 backgroundColor: "#3cff9e",
-                boxShadow: "0 0 20px rgba(60, 255, 158, 0.4)",
+                color: "#0b1020",
+                boxShadow: "0 0 30px rgba(60, 255, 158, 0.6), 0 0 60px rgba(60, 255, 158, 0.3)",
               }}
             >
-              <Gamepad2 className="h-5 w-5" style={{ color: "#0b1020" }} />
-              Registrarse Ahora
+              <Gamepad2 className="h-5 w-5" />
+              REGISTRARSE AHORA
             </Link>
             <a
               href="https://discord.gg/Kh6JDj44cE"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg px-8 py-4 font-semibold transition-transform hover:scale-105"
+              className="rounded-lg px-8 py-4 font-semibold font-bold text-sm transition-transform hover:scale-105"
               style={{
                 borderColor: "#8b6cff",
                 borderWidth: "2px",
-                backgroundColor: "rgba(139, 108, 255, 0.1)",
+                backgroundColor: "transparent",
                 color: "#8b6cff",
               }}
             >
-              Unirse al Discord
+              UNIRSE AL DISCORD
             </a>
           </div>
+
+          {/* Countdown */}
+          <CountdownTimer />
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative py-24 px-6 jam-section">
+      <section id="colaboradores" className="relative py-24 px-6 jam-section">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="text-jam-primary">¿Qué es</span>{" "}
+              <span style={{ color: "#3cff9e", textShadow: "0 0 20px rgba(60, 255, 158, 0.5)" }}>
+                ¿Qué es
+              </span>{" "}
               <span className="text-white">Global Game Jam?</span>
             </h2>
-            <p className="text-jam-muted text-lg max-w-2xl mx-auto">
+            <p style={{ color: "#b6c2ff" }} className="text-lg max-w-2xl mx-auto">
               La competencia de desarrollo de videojuegos más grande del mundo. En 48 horas, equipos de creativos se
               reúnen en una ubicación física para crear juegos basados en un tema común.
             </p>
@@ -130,12 +321,12 @@ export default function JamPage() {
                   className="p-6 rounded-lg border transition-all hover:shadow-lg"
                   style={{
                     backgroundColor: "rgba(18, 24, 45, 0.6)",
-                    borderColor: "rgba(60, 255, 158, 0.2)",
+                    borderColor: "rgba(60, 255, 158, 0.3)",
                   }}
                 >
-                  <Icon className="h-8 w-8 mb-4 text-jam-primary" />
+                  <Icon className="h-8 w-8 mb-4" style={{ color: "#3cff9e" }} />
                   <h3 className="text-xl font-bold mb-2 text-white">{item.title}</h3>
-                  <p className="text-jam-muted">{item.description}</p>
+                  <p style={{ color: "#b6c2ff" }}>{item.description}</p>
                 </div>
               );
             })}
@@ -148,9 +339,14 @@ export default function JamPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="text-jam-primary">Cronograma</span> <span className="text-white">del Evento</span>
+              <span style={{ color: "#3cff9e", textShadow: "0 0 20px rgba(60, 255, 158, 0.5)" }}>
+                Cronograma
+              </span>{" "}
+              <span className="text-white">del Evento</span>
             </h2>
-            <p className="text-jam-muted text-lg">48 horas de desarrollo intenso</p>
+            <p style={{ color: "#b6c2ff" }} className="text-lg">
+              48 horas de desarrollo intenso
+            </p>
           </div>
 
           <div className="space-y-6">
@@ -160,21 +356,26 @@ export default function JamPage() {
                 className="flex gap-6 items-start p-6 rounded-lg border transition-all hover:shadow-lg"
                 style={{
                   backgroundColor: "rgba(18, 24, 45, 0.6)",
-                  borderColor: idx % 2 === 0 ? "rgba(60, 255, 158, 0.2)" : "rgba(139, 108, 255, 0.2)",
+                  borderColor: idx % 2 === 0 ? "rgba(60, 255, 158, 0.3)" : "rgba(139, 108, 255, 0.3)",
                 }}
               >
                 <div className="flex-shrink-0 w-24">
-                  <div className="text-sm font-bold text-jam-muted">{item.day}</div>
+                  <div className="text-sm font-bold" style={{ color: "#b6c2ff" }}>
+                    {item.day}
+                  </div>
                   <div
-                    className="text-2xl font-bold mt-1"
-                    style={{ color: idx % 2 === 0 ? "#3cff9e" : "#8b6cff" }}
+                    className="text-2xl font-bold mt-1 font-mono"
+                    style={{
+                      color: idx % 2 === 0 ? "#3cff9e" : "#8b6cff",
+                      textShadow: idx % 2 === 0 ? "0 0 10px rgba(60, 255, 158, 0.5)" : "0 0 10px rgba(139, 108, 255, 0.5)",
+                    }}
                   >
                     {item.time}
                   </div>
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-white mb-1">{item.title}</h4>
-                  <p className="text-jam-muted">{item.description}</p>
+                  <p style={{ color: "#b6c2ff" }}>{item.description}</p>
                 </div>
               </div>
             ))}
@@ -183,34 +384,44 @@ export default function JamPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-24 px-6 jam-section border-t" style={{ borderColor: "rgba(60, 255, 158, 0.1)" }}>
+      <section
+        className="relative py-24 px-6 jam-section border-t"
+        style={{ borderColor: "rgba(60, 255, 158, 0.1)" }}
+      >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Sumate a la Experiencia</h2>
-          <p className="text-jam-muted text-lg max-w-2xl mx-auto mb-10">
+          <p style={{ color: "#b6c2ff" }} className="text-lg max-w-2xl mx-auto mb-10">
             Inscribite ahora y prepárate para 48 horas de puro desarrollo de videojuegos. ¡Nos vemos el 30 de enero!
           </p>
 
           <Link
             href="/registro"
-            className="inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold text-white transition-transform hover:scale-105"
+            className="inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold font-bold transition-transform hover:scale-105"
             style={{
               backgroundColor: "#3cff9e",
-              boxShadow: "0 0 20px rgba(60, 255, 158, 0.4)",
+              color: "#0b1020",
+              boxShadow: "0 0 30px rgba(60, 255, 158, 0.6), 0 0 60px rgba(60, 255, 158, 0.3)",
             }}
           >
-            <Gamepad2 className="h-5 w-5" style={{ color: "#0b1020" }} />
-            Registrarse Ahora
+            <Gamepad2 className="h-5 w-5" />
+            REGISTRARSE AHORA
           </Link>
         </div>
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-jam-muted" style={{ borderColor: "rgba(139, 108, 255, 0.1)" }}>
+      <footer
+        className="border-t py-8 text-center text-sm"
+        style={{ borderColor: "rgba(139, 108, 255, 0.1)", color: "#b6c2ff" }}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <p>
-            <span className="font-bold text-jam-primary">Paraná Game Jam</span> · Global Game Jam 2026 · Entre Ríos, Argentina
+            <span className="font-bold" style={{ color: "#3cff9e" }}>
+              Paraná Game Jam
+            </span>{" "}
+            · Global Game Jam 2026 · Entre Ríos, Argentina
           </p>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
