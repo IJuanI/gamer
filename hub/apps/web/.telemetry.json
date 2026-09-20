@@ -1,216 +1,5 @@
 [
   {
-    "id": "ypdlryg1x",
-    "timestamp": "2026-09-20T11:42:45.385Z",
-    "type": "event",
-    "severity": "info",
-    "message": "SiteNav mounted",
-    "data": {
-      "pathname": "/",
-      "isGameDevsRoute": false
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565318-ls1aqlxwi",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "fxp2g7su0",
-    "timestamp": "2026-09-20T11:42:45.491Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Theme changed to dark",
-    "data": {
-      "theme": "dark",
-      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "classList": [
-        "inter_fe8b9d92-module__LINzvG__variable",
-        "h-full",
-        "antialiased",
-        "dark"
-      ]
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904564959-h9uwclijh",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "9tf5xbnqb",
-    "timestamp": "2026-09-20T11:42:45.497Z",
-    "type": "navigation",
-    "severity": "warning",
-    "message": "Page loaded",
-    "data": {
-      "url": "http://localhost:3000/",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
-      "documentReady": "complete",
-      "hasButton": true,
-      "buttonCount": 1,
-      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904564959-h9uwclijh",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "0vtuimdqg",
-    "timestamp": "2026-09-20T11:42:45.498Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Component render: SiteNav",
-    "data": {
-      "renderCount": 1,
-      "timestamp": "2026-09-20T11:42:45.498Z",
-      "pathname": "/"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904564959-h9uwclijh",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "639du9jxo",
-    "timestamp": "2026-09-20T11:42:45.501Z",
-    "type": "event",
-    "severity": "info",
-    "message": "ThemeToggle component mounted",
-    "data": {
-      "theme": "dark"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904564959-h9uwclijh",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "46jz1cdgu",
-    "timestamp": "2026-09-20T11:42:45.502Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Native click listener attached",
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904564959-h9uwclijh",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "r7smfpt4t",
-    "timestamp": "2026-09-20T11:42:45.503Z",
-    "type": "event",
-    "severity": "info",
-    "message": "SiteNav mounted",
-    "data": {
-      "pathname": "/",
-      "isGameDevsRoute": false
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904564959-h9uwclijh",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "mfowtw3rj",
-    "timestamp": "2026-09-20T11:42:45.754Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Theme changed to dark",
-    "data": {
-      "theme": "dark",
-      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
-      "classList": [
-        "inter_fe8b9d92-module__LINzvG__variable",
-        "h-full",
-        "antialiased",
-        "dark"
-      ]
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565198-u8snu8h4h",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "fvbp3vjf2",
-    "timestamp": "2026-09-20T11:42:45.757Z",
-    "type": "navigation",
-    "severity": "warning",
-    "message": "Page loaded",
-    "data": {
-      "url": "http://localhost:3000/",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
-      "documentReady": "complete",
-      "hasButton": true,
-      "buttonCount": 1,
-      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565198-u8snu8h4h",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "tydlxuo2m",
-    "timestamp": "2026-09-20T11:42:45.759Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Component render: SiteNav",
-    "data": {
-      "renderCount": 1,
-      "timestamp": "2026-09-20T11:42:45.759Z",
-      "pathname": "/"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565198-u8snu8h4h",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "2muxmw3a8",
-    "timestamp": "2026-09-20T11:42:45.760Z",
-    "type": "event",
-    "severity": "info",
-    "message": "ThemeToggle component mounted",
-    "data": {
-      "theme": "dark"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565198-u8snu8h4h",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "yyygwczci",
-    "timestamp": "2026-09-20T11:42:45.761Z",
-    "type": "event",
-    "severity": "info",
-    "message": "Native click listener attached",
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565198-u8snu8h4h",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "2850vnbsk",
-    "timestamp": "2026-09-20T11:42:45.762Z",
-    "type": "event",
-    "severity": "info",
-    "message": "SiteNav mounted",
-    "data": {
-      "pathname": "/",
-      "isGameDevsRoute": false
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565198-u8snu8h4h",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
-    "id": "aql5n5lyw",
-    "timestamp": "2026-09-20T11:42:45.882Z",
-    "type": "navigation",
-    "severity": "info",
-    "message": "Post-load check",
-    "data": {
-      "buttonFound": true,
-      "buttonClasses": "rounded-lg p-2 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-50",
-      "buttonParent": "flex items-center gap-3 text-sm"
-    },
-    "url": "http://localhost:3000/",
-    "sessionId": "1789904565318-ls1aqlxwi",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
-  },
-  {
     "id": "q34apfq1g",
     "timestamp": "2026-09-20T11:42:45.937Z",
     "type": "navigation",
@@ -14471,6 +14260,218 @@
     },
     "url": "http://localhost:3000/devs",
     "sessionId": "1789943680349-f4hks21cg",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "i463pa7mb",
+    "timestamp": "2026-09-20T22:42:18.062Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to dark",
+    "data": {
+      "theme": "dark",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "dark"
+      ]
+    },
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "mv39qvbsu",
+    "timestamp": "2026-09-20T22:42:18.083Z",
+    "type": "navigation",
+    "severity": "warning",
+    "message": "Page loaded",
+    "data": {
+      "url": "http://localhost:3000/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+      "documentReady": "complete",
+      "hasButton": true,
+      "buttonCount": 1,
+      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark"
+    },
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "3ff11o9s5",
+    "timestamp": "2026-09-20T22:42:18.086Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Component render: SiteNav",
+    "data": {
+      "renderCount": 1,
+      "timestamp": "2026-09-20T22:42:18.086Z",
+      "pathname": "/"
+    },
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "nj16dgrd8",
+    "timestamp": "2026-09-20T22:42:18.092Z",
+    "type": "event",
+    "severity": "info",
+    "message": "ThemeToggle component mounted",
+    "data": {
+      "theme": "dark"
+    },
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "9yar375iw",
+    "timestamp": "2026-09-20T22:42:18.096Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "u92zn7f09",
+    "timestamp": "2026-09-20T22:42:18.100Z",
+    "type": "event",
+    "severity": "info",
+    "message": "SiteNav mounted",
+    "data": {
+      "pathname": "/",
+      "isGameDevsRoute": false
+    },
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "zp1cvqfun",
+    "timestamp": "2026-09-20T22:42:18.592Z",
+    "type": "navigation",
+    "severity": "info",
+    "message": "Post-load check",
+    "data": {
+      "buttonFound": true,
+      "buttonClasses": "rounded-lg p-2 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-50",
+      "buttonParent": "flex items-center gap-3 text-sm"
+    },
+    "url": "http://localhost:3000/",
+    "sessionId": "1789944137909-7r9gxsmxk",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "c0jlkq694",
+    "timestamp": "2026-09-20T22:42:39.475Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Theme changed to dark",
+    "data": {
+      "theme": "dark",
+      "before": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "after": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark",
+      "classList": [
+        "inter_fe8b9d92-module__LINzvG__variable",
+        "h-full",
+        "antialiased",
+        "dark"
+      ]
+    },
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "2zt3ullex",
+    "timestamp": "2026-09-20T22:42:39.483Z",
+    "type": "navigation",
+    "severity": "warning",
+    "message": "Page loaded",
+    "data": {
+      "url": "http://localhost:3000/devs",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+      "documentReady": "complete",
+      "hasButton": true,
+      "buttonCount": 1,
+      "htmlClass": "inter_fe8b9d92-module__LINzvG__variable h-full antialiased dark"
+    },
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "6l6rgtfbk",
+    "timestamp": "2026-09-20T22:42:39.487Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Component render: SiteNav",
+    "data": {
+      "renderCount": 1,
+      "timestamp": "2026-09-20T22:42:39.487Z",
+      "pathname": "/devs"
+    },
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "ezy2iolh7",
+    "timestamp": "2026-09-20T22:42:39.492Z",
+    "type": "event",
+    "severity": "info",
+    "message": "ThemeToggle component mounted",
+    "data": {
+      "theme": "dark"
+    },
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "eyxiegr7q",
+    "timestamp": "2026-09-20T22:42:39.496Z",
+    "type": "event",
+    "severity": "info",
+    "message": "Native click listener attached",
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "ozrre4iks",
+    "timestamp": "2026-09-20T22:42:39.500Z",
+    "type": "event",
+    "severity": "info",
+    "message": "SiteNav mounted",
+    "data": {
+      "pathname": "/devs",
+      "isGameDevsRoute": true
+    },
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "8wjg39pa5",
+    "timestamp": "2026-09-20T22:42:39.999Z",
+    "type": "navigation",
+    "severity": "info",
+    "message": "Post-load check",
+    "data": {
+      "buttonFound": true,
+      "buttonClasses": "rounded-lg p-2 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-50",
+      "buttonParent": "flex items-center gap-3 text-sm"
+    },
+    "url": "http://localhost:3000/devs",
+    "sessionId": "1789944159435-v8n0u9x1u",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
   }
 ]
