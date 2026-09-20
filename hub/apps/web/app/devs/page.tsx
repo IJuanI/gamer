@@ -80,6 +80,7 @@ export default function GameDevsLanding() {
                 backgroundColor: GAMEDEVS_COLORS.primary,
                 color: "#fff",
                 boxShadow: `0 0 20px ${GAMEDEVS_COLORS.primary}40`,
+                // Force white text on colored background for readability
               }}
             >
               <Code2 className="h-5 w-5" />
