@@ -177,24 +177,28 @@ export default function JamPage() {
           }}
         />
 
-        {/* Static background elements (anchoring layer) — only boxes stay still */}
+        {/* Static background elements (anchoring layer) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {distribution?.map((el, i) => {
-            const isStatic = el.kind === "box" && el.parallax === false;
+            const isStatic = el.parallax === false;
             if (isStatic) {
+              if (el.kind === "icon") {
+                const Icon = el.Icon;
+                return <Icon key={`static-icon-${i}`} className={el.className} style={el.style} />;
+              }
               return <div key={`static-${i}`} className={el.className} style={el.style} />;
             }
             return null;
           })}
         </div>
 
-        {/* Parallax background elements (lags behind scroll with lerp smoothing) — icons and dots move */}
+        {/* Parallax background elements (lags behind scroll with lerp smoothing) */}
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden"
           style={{ transform: `translateY(${lerpedScrollY * -0.15}px)` }}
         >
           {distribution?.map((el, i) => {
-            const isParallax = el.kind === "icon" || el.kind === "dot" || el.parallax !== false;
+            const isParallax = el.parallax !== false;
             if (isParallax) {
               if (el.kind === "icon") {
                 const Icon = el.Icon;
@@ -432,24 +436,28 @@ export default function JamPage() {
           }}
         />
 
-        {/* Static background elements — only boxes stay still */}
+        {/* Static background elements */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {distribution?.map((el, i) => {
-            const isStatic = el.kind === "box" && el.parallax === false;
+            const isStatic = el.parallax === false;
             if (isStatic) {
+              if (el.kind === "icon") {
+                const Icon = el.Icon;
+                return <Icon key={`community-static-icon-${i}`} className={el.className} style={el.style} />;
+              }
               return <div key={`community-static-${i}`} className={el.className} style={el.style} />;
             }
             return null;
           })}
         </div>
 
-        {/* Parallax background elements — icons and dots move */}
+        {/* Parallax background elements */}
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden"
           style={{ transform: `translateY(${lerpedScrollY * -0.15}px)` }}
         >
           {distribution?.map((el, i) => {
-            const isParallax = el.kind === "icon" || el.kind === "dot" || el.parallax !== false;
+            const isParallax = el.parallax !== false;
             if (isParallax) {
               if (el.kind === "icon") {
                 const Icon = el.Icon;

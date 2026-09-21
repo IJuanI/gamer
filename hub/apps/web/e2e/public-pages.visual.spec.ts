@@ -6,6 +6,7 @@ const pages = [
   { name: "landing", path: "/" },
   { name: "login", path: "/login" },
   { name: "register", path: "/register" },
+  { name: "jam", path: "/jam" },
 ];
 
 for (const { name, path } of pages) {
