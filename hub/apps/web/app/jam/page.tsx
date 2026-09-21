@@ -190,7 +190,7 @@ export default function JamPage() {
         />
 
         {/* Static background elements (anchoring layer) */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {distribution?.map((el, i) => {
             const isStatic = el.parallax === false;
             if (isStatic) {
@@ -450,7 +450,7 @@ export default function JamPage() {
         />
 
         {/* Static background elements */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {distribution?.map((el, i) => {
             const isStatic = el.parallax === false;
             if (isStatic) {
