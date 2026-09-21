@@ -121,10 +121,15 @@ const stats = [
 ];
 
 export default function JamPage() {
-  const [distribution] = useState(() => BG_DISTRIBUTIONS[Math.floor(Math.random() * BG_DISTRIBUTIONS.length)]);
+  const [distribution, setDistribution] = useState<BgElement[] | null>(null);
   const [lerpedScrollY, setLerpedScrollY] = useState(0);
   const scrollYRef = useRef(0);
   const lerpRef = useRef(0);
+
+  // Select random distribution only on client to avoid hydration mismatch
+  useEffect(() => {
+    setDistribution(BG_DISTRIBUTIONS[Math.floor(Math.random() * BG_DISTRIBUTIONS.length)]);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -174,7 +179,7 @@ export default function JamPage() {
 
         {/* Static background elements (anchoring layer) — only boxes stay still */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {distribution.map((el, i) => {
+          {distribution?.map((el, i) => {
             const isStatic = el.kind === "box" && el.parallax === false;
             if (isStatic) {
               return <div key={`static-${i}`} className={el.className} style={el.style} />;
@@ -188,7 +193,7 @@ export default function JamPage() {
           className="pointer-events-none absolute inset-0 overflow-hidden"
           style={{ transform: `translateY(${lerpedScrollY * -0.15}px)` }}
         >
-          {distribution.map((el, i) => {
+          {distribution?.map((el, i) => {
             const isParallax = el.kind === "icon" || el.kind === "dot" || el.parallax !== false;
             if (isParallax) {
               if (el.kind === "icon") {
@@ -429,7 +434,7 @@ export default function JamPage() {
 
         {/* Static background elements — only boxes stay still */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {distribution.map((el, i) => {
+          {distribution?.map((el, i) => {
             const isStatic = el.kind === "box" && el.parallax === false;
             if (isStatic) {
               return <div key={`community-static-${i}`} className={el.className} style={el.style} />;
@@ -443,7 +448,7 @@ export default function JamPage() {
           className="pointer-events-none absolute inset-0 overflow-hidden"
           style={{ transform: `translateY(${lerpedScrollY * -0.15}px)` }}
         >
-          {distribution.map((el, i) => {
+          {distribution?.map((el, i) => {
             const isParallax = el.kind === "icon" || el.kind === "dot" || el.parallax !== false;
             if (isParallax) {
               if (el.kind === "icon") {

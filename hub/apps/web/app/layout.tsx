@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es-AR" className={`${inter.variable} h-full antialiased dark`}>
+    <html lang="es-AR" className={`${inter.variable} h-full antialiased dark`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
