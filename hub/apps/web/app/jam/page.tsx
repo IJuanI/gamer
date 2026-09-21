@@ -122,35 +122,47 @@ const stats = [
 
 export default function JamPage() {
   const [distribution, setDistribution] = useState<BgElement[] | null>(null);
-  const [lerpedScrollY, setLerpedScrollY] = useState(0);
-  const scrollYRef = useRef(0);
-  const lerpRef = useRef(0);
+  const parallaxRefHero = useRef<HTMLDivElement>(null);
+  const parallaxRefCommunity = useRef<HTMLDivElement>(null);
 
   // Select random distribution only on client to avoid hydration mismatch
   useEffect(() => {
     setDistribution(BG_DISTRIBUTIONS[Math.floor(Math.random() * BG_DISTRIBUTIONS.length)]);
   }, []);
 
-  useEffect(() => {
-    const onScroll = () => {
-      scrollYRef.current = window.scrollY;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
+  // Update parallax transform via refs on every frame and on scroll
   useEffect(() => {
     let frameId: number;
-    const lerp = () => {
-      const target = scrollYRef.current;
-      const current = lerpRef.current;
-      const nextVal = current + (target - current) * 0.1; // 10% interpolation per frame
-      lerpRef.current = nextVal;
-      setLerpedScrollY(nextVal);
-      frameId = requestAnimationFrame(lerp);
+    const updateParallax = () => {
+      const scrollY = window.scrollY;
+      const offset = scrollY * -0.15;
+      if (parallaxRefHero.current) {
+        parallaxRefHero.current.style.transform = `translateY(${offset}px)`;
+      }
+      if (parallaxRefCommunity.current) {
+        parallaxRefCommunity.current.style.transform = `translateY(${offset}px)`;
+      }
+      frameId = requestAnimationFrame(updateParallax);
     };
-    frameId = requestAnimationFrame(lerp);
-    return () => cancelAnimationFrame(frameId);
+
+    // Also update immediately on scroll to ensure responsiveness
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      const offset = scrollY * -0.15;
+      if (parallaxRefHero.current) {
+        parallaxRefHero.current.style.transform = `translateY(${offset}px)`;
+      }
+      if (parallaxRefCommunity.current) {
+        parallaxRefCommunity.current.style.transform = `translateY(${offset}px)`;
+      }
+    };
+
+    frameId = requestAnimationFrame(updateParallax);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (
@@ -178,7 +190,7 @@ export default function JamPage() {
         />
 
         {/* Static background elements (anchoring layer) */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
           {distribution?.map((el, i) => {
             const isStatic = el.parallax === false;
             if (isStatic) {
@@ -192,10 +204,11 @@ export default function JamPage() {
           })}
         </div>
 
-        {/* Parallax background elements (lags behind scroll with lerp smoothing) */}
+        {/* Parallax background elements */}
         <div
+          ref={parallaxRefHero}
           className="pointer-events-none absolute inset-0 overflow-hidden"
-          style={{ transform: `translateY(${lerpedScrollY * -0.15}px)` }}
+          style={{ willChange: "transform" }}
         >
           {distribution?.map((el, i) => {
             const isParallax = el.parallax !== false;
@@ -437,7 +450,7 @@ export default function JamPage() {
         />
 
         {/* Static background elements */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
           {distribution?.map((el, i) => {
             const isStatic = el.parallax === false;
             if (isStatic) {
@@ -453,8 +466,9 @@ export default function JamPage() {
 
         {/* Parallax background elements */}
         <div
+          ref={parallaxRefCommunity}
           className="pointer-events-none absolute inset-0 overflow-hidden"
-          style={{ transform: `translateY(${lerpedScrollY * -0.15}px)` }}
+          style={{ willChange: "transform" }}
         >
           {distribution?.map((el, i) => {
             const isParallax = el.parallax !== false;
