@@ -1,24 +1,32 @@
-import { redirect } from "next/navigation";
+"use client";
 
-async function getLogs() {
-  try {
-    const res = await fetch("http://localhost:3000/api/logs", {
-      cache: "no-store",
-    });
-    return await res.json();
-  } catch {
-    return { logs: [] };
-  }
-}
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function DebugPage() {
-  const data = await getLogs();
+export default function DebugPage() {
+  const router = useRouter();
+  const [data, setData] = useState({ logs: [] as string[] });
+
+  useEffect(() => {
+    const getLogs = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/logs", {
+          cache: "no-store",
+        });
+        const json = await res.json();
+        setData(json);
+      } catch {
+        setData({ logs: [] });
+      }
+    };
+    getLogs();
+  }, []);
 
   return (
     <div style={{ padding: "20px", fontFamily: "monospace", backgroundColor: "#1a1a1a", color: "#fff", minHeight: "100vh" }}>
       <h1>🔍 Theme Toggle Debug Logs</h1>
       <button
-        onClick={() => redirect("/debug")}
+        onClick={() => router.refresh()}
         style={{ padding: "10px 20px", marginBottom: "20px", cursor: "pointer" }}
       >
         🔄 Refresh Logs
