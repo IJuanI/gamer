@@ -13,33 +13,46 @@ export function SiteNav() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const isGameDevsRoute = pathname.startsWith("/devs");
+  const isJamRoute = pathname.startsWith("/jam");
 
   useEffect(() => {
     captureEvent("event", "SiteNav mounted", "info", { pathname, isGameDevsRoute });
   }, [pathname, isGameDevsRoute]);
 
+  const brand = isJamRoute ? "jam" : isGameDevsRoute ? "gamedevs" : "gamer";
+  const navStyle = isJamRoute
+    ? { borderColor: "rgba(60, 255, 158, 0.15)", backgroundColor: "#0b1020" }
+    : { borderColor: "var(--border-default)", backgroundColor: "var(--background-elevated)" };
+  const linkColor = isJamRoute ? "#b6c2ff" : "var(--text-secondary)";
+
   return (
     <>
       <RenderTelemetry component="SiteNav" />
-      <header className="sticky top-0 z-50 border-b transition-colors" style={{ borderColor: "var(--border-default)", backgroundColor: "var(--background-elevated)" }}>
+      <header className="sticky top-0 z-50 border-b transition-colors" style={navStyle}>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Logo brand={isGameDevsRoute ? "gamedevs" : "gamer"} />
+        <Logo brand={brand} />
         <div className="flex items-center gap-3 text-sm">
-          <ThemeToggle />
-          <Link href="/jam" className="transition-colors hidden sm:block" style={{ color: "var(--text-secondary)" }}>
-            Game Jam
+          {!isJamRoute && <ThemeToggle />}
+          {!isJamRoute && (
+            <Link href="/jam" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+              Game Jam
+            </Link>
+          )}
+          <Link href={isJamRoute ? "/jam#cronograma" : "/#comunidad"} className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+            {isJamRoute ? "Cronograma" : "Comunidad"}
           </Link>
-          <Link href="/#comunidad" className="transition-colors hidden sm:block" style={{ color: "var(--text-secondary)" }}>
-            Comunidad
-          </Link>
-          <Link href="/#features" className="transition-colors hidden sm:block" style={{ color: "var(--text-secondary)" }}>
-            Qué hacemos
+          <Link href={isJamRoute ? "/jam#features" : "/#features"} className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+            {isJamRoute ? "Colaboradores" : "Qué hacemos"}
           </Link>
           {user ? (
             <Link
               href="/dashboard"
               className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
-              style={isGameDevsRoute ? {
+              style={isJamRoute ? {
+                color: "#3cff9e",
+                borderColor: "#3cff9e",
+                borderWidth: "2px"
+              } : isGameDevsRoute ? {
                 color: "#fff",
                 borderColor: "#72b341",
                 borderWidth: "2px"
@@ -53,13 +66,17 @@ export function SiteNav() {
             </Link>
           ) : (
             <>
-              <Link href="/login" className="px-3 py-2 transition-colors" style={{ color: "var(--text-secondary)" }}>
+              <Link href="/login" className="px-3 py-2 transition-colors" style={{ color: linkColor }}>
                 Ingresar
               </Link>
               <Link
                 href="/register"
                 className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
-                style={isGameDevsRoute ? {
+                style={isJamRoute ? {
+                  backgroundColor: "transparent",
+                  color: "#3cff9e",
+                  border: "2px solid #3cff9e",
+                } : isGameDevsRoute ? {
                   backgroundColor: "#72b341",
                   color: "#fff",
                   boxShadow: "0 0 20px rgba(114, 179, 65, 0.4)"
@@ -69,7 +86,7 @@ export function SiteNav() {
                   boxShadow: "var(--box-glow-purple)"
                 }}
               >
-                Unirme
+                {isJamRoute ? "Registrarse" : "Unirme"}
               </Link>
             </>
           )}

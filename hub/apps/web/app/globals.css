@@ -1,4 +1,5 @@
 @import url('https://fonts.cdnfonts.com/css/azonix');
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root,
@@ -77,6 +78,10 @@ body {
 .font-azonix {
   font-family: 'Azonix', sans-serif;
   letter-spacing: 0.02em;
+}
+
+.font-oxanium {
+  font-family: 'Oxanium', sans-serif;
 }
 
 /* ── Gaming background patterns ── */
@@ -208,13 +213,20 @@ html.light .gradient-block-purple {
 @keyframes pulse-glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes fade-in-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes scanline { 0% { backgroundPosition: 0 -2px; } 100% { backgroundPosition: 0 calc(100vh - 2px); } }
+@keyframes scanline { 0% { transform: translateY(0); } 100% { transform: translateY(100vh); } }
 
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-float { animation: float 3.5s ease-in-out infinite; }
+
+@keyframes jam-float-rotate {
+  0%, 100% { transform: translateY(0) rotate(10deg); }
+  50% { transform: translateY(-10px) rotate(-5deg); }
+}
+.animate-float-rotate { animation: jam-float-rotate 3s ease-in-out infinite; }
 .animate-fade-up { animation: fade-in-up 0.6s ease-out forwards; opacity: 0; }
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
+.delay-250 { animation-delay: 0.25s; }
 .delay-300 { animation-delay: 0.3s; }
 .delay-500 { animation-delay: 0.5s; }
 .delay-700 { animation-delay: 0.7s; }
