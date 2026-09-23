@@ -1,11 +1,17 @@
 node_modules/
 .next/
+.open-next/
 dist/
 logs/
 test-results/
+test-output.log
+test-results.txt
 playwright-report/
 coverage/
 .env
 .env.local
 *.tsbuildinfo
 .DS_Store
+.telemetry.json
+apps/api/prisma/dev.db
+.wrangler/
