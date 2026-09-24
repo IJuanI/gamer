@@ -278,7 +278,7 @@ export default function JamPage() {
 
         {/* ── Hero ── */}
         <section className="relative" style={{ minHeight: "100vh" }}>
-        <div className="font-oxanium relative mx-auto max-w-6xl px-6 pt-24 pb-28 text-center">
+        <div className="font-oxanium relative mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-20 md:pt-24 md:pb-28 text-center">
           {/* Official Paraná Game Jam mark */}
           <div className="mb-6 flex justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -314,7 +314,7 @@ export default function JamPage() {
           </div>
 
           {/* Event time & location — secondary filled, primary outlined (matching source) */}
-          <div className="animate-fade-up delay-250 mb-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="animate-fade-up delay-250 mb-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <div
               className="rounded border px-4 py-2"
               style={{ backgroundColor: "rgba(139, 108, 255, 0.2)", borderColor: "rgba(139, 108, 255, 0.3)" }}
@@ -349,12 +349,12 @@ export default function JamPage() {
             Sin importar tu experiencia, hay un lugar para vos.
           </p>
 
-          <div className="animate-fade-up delay-300 mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="animate-fade-up delay-300 mb-12 flex flex-col items-center justify-center gap-3 sm:gap-4 sm:flex-row">
             <a
               href="https://herohub.gamejamplus.com/#/jam"
               target="_blank"
               rel="noopener noreferrer"
-              className="jam-glow-pulse flex h-10 items-center justify-center rounded-md px-8 font-bold uppercase tracking-wider transition-transform hover:scale-105"
+              className="jam-glow-pulse flex h-11 w-auto items-center justify-center rounded-md px-8 font-bold uppercase tracking-wider transition-transform hover:scale-105 text-sm sm:text-base"
               style={{ backgroundColor: "#3cff9e", color: "#0b1020" }}
             >
               Registrarse Ahora
@@ -363,7 +363,7 @@ export default function JamPage() {
               href="https://discord.gg/Kh6JDj44cE"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-10 items-center justify-center rounded-md border px-8 font-bold uppercase tracking-wider transition-transform hover:scale-105"
+              className="flex h-11 w-auto items-center justify-center rounded-md border px-8 font-bold uppercase tracking-wider transition-transform hover:scale-105 text-sm sm:text-base"
               style={{ borderColor: "#8b6cff", backgroundColor: "transparent", color: "#8b6cff" }}
             >
               Unirse al Discord
@@ -409,14 +409,14 @@ export default function JamPage() {
             >
               Cuenta Regresiva
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-1 sm:gap-3 md:gap-4">
               {(countdown ?? getCountdown(JAM_START)).map((s) => (
                 <div key={s.label} className="text-center">
-                  <div className="text-4xl font-extrabold tabular-nums sm:text-6xl" style={{ color: "#3cff9e" }}>
+                  <div className="text-3xl font-extrabold tabular-nums sm:text-5xl md:text-7xl lg:text-9xl" style={{ color: "#3cff9e", lineHeight: "1" }}>
                     {s.value}
                   </div>
                   <div
-                    className="mt-2 text-xs font-semibold uppercase tracking-wider sm:text-sm"
+                    className="mt-1 text-xs font-semibold uppercase tracking-wider sm:mt-2 md:mt-3 text-[10px] sm:text-xs md:text-sm"
                     style={{ color: "#b6c2ff" }}
                   >
                     {s.label}
@@ -441,9 +441,9 @@ export default function JamPage() {
           }}
         />
 
-      <section id="about" className="relative mx-auto max-w-6xl px-6 py-24">
+      <section id="about" className="relative mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-24">
         <div className="text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">
             <span style={{ color: "#3cff9e", textShadow: "0 0 15px rgba(60, 255, 158, 0.5)" }}>¿Qué es</span>{" "}
             <span style={{ color: "#ffffff" }}>la Game Jam?</span>
           </h2>
@@ -460,12 +460,24 @@ export default function JamPage() {
             return (
               <div
                 key={f.title}
-                className="relative p-6 text-center backdrop-blur-sm transition-colors duration-300 hover:border-primary/50"
+                className="group relative p-4 sm:p-6 text-center backdrop-blur-sm transition-all duration-300"
                 style={{
                   backgroundColor: "rgba(18, 24, 45, 0.5)",
                   border: "1px solid rgba(139, 108, 255, 0.2)",
                   boxShadow:
                     "0 0 0 1px rgba(139, 108, 255, 0.2), 0 0 10px rgba(139, 108, 255, 0.08), inset 0 0 10px rgba(139, 108, 255, 0.02)",
+                }}
+                onMouseEnter={(e) => {
+                  if (window.matchMedia("(hover: hover)").matches) {
+                    (e.currentTarget as HTMLElement).style.borderColor = "rgba(60, 255, 158, 0.5)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 1px rgba(60, 255, 158, 0.5), 0 0 20px rgba(60, 255, 158, 0.2), inset 0 0 10px rgba(60, 255, 158, 0.05)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (window.matchMedia("(hover: hover)").matches) {
+                    (e.currentTarget as HTMLElement).style.borderColor = "rgba(139, 108, 255, 0.2)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 1px rgba(139, 108, 255, 0.2), 0 0 10px rgba(139, 108, 255, 0.08), inset 0 0 10px rgba(139, 108, 255, 0.02)";
+                  }
                 }}
               >
                 <div
@@ -477,7 +489,9 @@ export default function JamPage() {
                     height: "20px",
                     borderTop: "2px solid rgba(139, 108, 255, 0.5)",
                     borderLeft: "2px solid rgba(139, 108, 255, 0.5)",
+                    transition: "border-color 0.3s duration-300",
                   }}
+                  className="group-hover:border-accent"
                 />
                 <div
                   style={{
@@ -488,16 +502,35 @@ export default function JamPage() {
                     height: "20px",
                     borderBottom: "2px solid rgba(139, 108, 255, 0.5)",
                     borderRight: "2px solid rgba(139, 108, 255, 0.5)",
+                    transition: "border-color 0.3s duration-300",
                   }}
+                  className="group-hover:border-accent"
                 />
                 <div
-                  className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg"
+                  className="mx-auto mb-3 sm:mb-4 flex h-12 sm:h-14 w-12 sm:w-14 items-center justify-center rounded-lg transition-all duration-300"
                   style={{ backgroundColor: "rgba(139, 108, 255, 0.2)" }}
+                  onMouseEnter={(e) => {
+                    if (window.matchMedia("(hover: hover)").matches) {
+                      (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(60, 255, 158, 0.2)";
+                      const icon = (e.currentTarget as HTMLElement).querySelector("svg");
+                      if (icon) icon.style.color = "#3cff9e";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (window.matchMedia("(hover: hover)").matches) {
+                      (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(139, 108, 255, 0.2)";
+                      const icon = (e.currentTarget as HTMLElement).querySelector("svg");
+                      if (icon) icon.style.color = "#8b6cff";
+                    }
+                  }}
                 >
-                  <Icon className="h-7 w-7" style={{ color: "#8b6cff" }} />
+                  <Icon
+                    className="h-6 sm:h-7 w-6 sm:w-7 transition-colors duration-300"
+                    style={{ color: "#8b6cff" }}
+                  />
                 </div>
-                <h3 className="mb-2 font-bold text-white">{f.title}</h3>
-                <p className="text-sm" style={{ color: "#b6c2ff", fontFamily: "var(--font-inter)" }}>
+                <h3 className="mb-2 text-sm sm:text-base font-bold text-white">{f.title}</h3>
+                <p className="text-xs sm:text-sm" style={{ color: "#b6c2ff", fontFamily: "var(--font-inter)" }}>
                   {f.body}
                 </p>
               </div>
@@ -519,9 +552,9 @@ export default function JamPage() {
           }}
         />
 
-      <section id="features" className="relative mx-auto max-w-4xl px-6 py-24">
+      <section id="features" className="relative mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-24">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+          <h2 className="mb-4 text-2xl font-bold sm:text-3xl md:text-4xl">
             <span style={{ color: "#8b6cff" }}>
               Cronograma
             </span>{" "}
@@ -655,16 +688,15 @@ export default function JamPage() {
         </div>
 
         <section id="comunidad" className="relative">
-        <div className="relative mx-auto max-w-4xl px-6 py-24 text-center">
+        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-24 text-center">
           <Gamepad
             className="mx-auto h-10 w-10 animate-float"
             style={{
               color: "#3cff9e",
             }}
           />
-          <h2 className="mt-6 text-3xl sm:text-4xl font-extrabold">Sumate a la comunidad</h2>
+          <h2 className="mt-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight">Creá tu cuenta gratis y formá parte de la red de videojuegos de Entre Ríos</h2>
           <p className="mx-auto mt-4 max-w-xl" style={{ color: "#b6c2ff", fontFamily: "var(--font-inter)" }}>
-            Creá tu cuenta gratis y formá parte de la red de creativos más grande de Entre Ríos.
             Tu lugar en la escena empieza acá.
           </p>
           <div
@@ -688,9 +720,9 @@ export default function JamPage() {
         </section>
       </div>
 
-      <footer className="border-t py-12 px-6" style={{ borderColor: "rgba(60, 255, 158, 0.1)", backgroundColor: "#0b1020" }}>
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 md:flex-row">
-          <div className="flex items-center gap-4">
+      <footer className="border-t py-12 px-6 relative" style={{ borderColor: "rgba(60, 255, 158, 0.1)", backgroundColor: "#0b1020" }}>
+        <div className="mx-auto max-w-6xl flex flex-col items-center justify-center gap-6 md:flex-row md:justify-between md:items-center" style={{ position: "relative" }}>
+          <div className="flex items-center gap-4 md:order-1">
             <span className="font-oxanium font-extrabold" style={{ color: "#3cff9e" }}>
               Paraná Game Jam
             </span>
@@ -698,7 +730,7 @@ export default function JamPage() {
             <span className="text-sm" style={{ color: "#b6c2ff" }}>Game Jam Plus 2026</span>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-6 text-sm md:order-3 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
             <Link
               href="/jam/convivencia"
               className="transition-colors hover:text-white"
@@ -717,7 +749,7 @@ export default function JamPage() {
             </a>
           </div>
 
-          <p className="text-xs" style={{ color: "#b6c2ff" }}>© 2026 Paraná Game Jam.</p>
+          <p className="text-xs md:order-2" style={{ color: "#b6c2ff" }}>© 2026 Paraná Game Jam.</p>
         </div>
       </footer>
       </div>

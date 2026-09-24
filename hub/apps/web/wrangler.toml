@@ -6,3 +6,11 @@ main = ".open-next/worker.js"
 
 [assets]
 directory = ".open-next/assets"
+
+[[routes]]
+pattern = "gameer.com.ar/*"
+zone_id = "3da753fd4dce5b24bd2aa3efeaf5bfdf"
+
+[[routes]]
+pattern = "paranagamejam.com.ar/*"
+zone_id = "7add1ceab6c4ce00f4f30ff69c470896"
