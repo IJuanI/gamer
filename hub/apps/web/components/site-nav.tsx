@@ -30,69 +30,98 @@ export function SiteNav() {
       <RenderTelemetry component="SiteNav" />
       <header className="sticky top-0 z-50 border-b transition-colors" style={navStyle}>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Logo brand={brand} />
-        <div className="flex items-center gap-3 text-sm">
-          {!isJamRoute && <ThemeToggle />}
-          {!isJamRoute && (
-            <Link href="/jam" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
-              Game Jam
-            </Link>
-          )}
-          <Link href={isJamRoute ? "/jam#cronograma" : "/#comunidad"} className="transition-colors hidden sm:block" style={{ color: linkColor }}>
-            {isJamRoute ? "Cronograma" : "Comunidad"}
-          </Link>
-          <Link href={isJamRoute ? "/jam#features" : "/#features"} className="transition-colors hidden sm:block" style={{ color: linkColor }}>
-            {isJamRoute ? "Colaboradores" : "Qué hacemos"}
-          </Link>
-          {user ? (
-            <Link
-              href="/dashboard"
-              className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
-              style={isJamRoute ? {
-                color: "#3cff9e",
-                borderColor: "#3cff9e",
-                borderWidth: "2px"
-              } : isGameDevsRoute ? {
-                color: "#fff",
-                borderColor: "#72b341",
-                borderWidth: "2px"
-              } : {
-                color: "var(--foreground)",
-                borderColor: "var(--gamer-purple)",
-                borderWidth: "2px"
-              }}
-            >
-              Mi panel
-            </Link>
-          ) : (
-            <>
-              <Link href="/login" className="px-3 py-2 transition-colors" style={{ color: linkColor }}>
-                Ingresar
+          <Logo brand={brand} />
+          <div className="flex items-center gap-3 text-sm">
+            {!isJamRoute && <ThemeToggle />}
+            {!isJamRoute && (
+              <Link href="/jam" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+                Game Jam
               </Link>
+            )}
+            {isJamRoute && (
+              <Link href="/jam#cronograma" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+                Cronograma
+              </Link>
+            )}
+            {isJamRoute && (
+              <Link href="/jam/convivencia" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+                Normas de convivencia
+              </Link>
+            )}
+            {!isJamRoute && (
+              <>
+                <Link href="/#comunidad" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+                  Comunidad
+                </Link>
+                <Link href="/#features" className="transition-colors hidden sm:block" style={{ color: linkColor }}>
+                  Qué hacemos
+                </Link>
+              </>
+            )}
+            <div style={{ width: isJamRoute ? "40px" : "0px" }} />
+            {user ? (
               <Link
-                href="/register"
+                href="/dashboard"
                 className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
                 style={isJamRoute ? {
-                  backgroundColor: "transparent",
                   color: "#3cff9e",
-                  border: "2px solid #3cff9e",
+                  borderColor: "#3cff9e",
+                  borderWidth: "2px"
                 } : isGameDevsRoute ? {
-                  backgroundColor: "#72b341",
                   color: "#fff",
-                  boxShadow: "0 0 20px rgba(114, 179, 65, 0.4)"
+                  borderColor: "#72b341",
+                  borderWidth: "2px"
                 } : {
-                  backgroundColor: "var(--gamer-purple)",
-                  color: "#fff",
-                  boxShadow: "var(--box-glow-purple)"
+                  color: "var(--foreground)",
+                  borderColor: "var(--gamer-purple)",
+                  borderWidth: "2px"
                 }}
               >
-                {isJamRoute ? "Registrarse" : "Unirme"}
+                Mi panel
               </Link>
-            </>
-          )}
-        </div>
-      </nav>
-    </header>
+            ) : (
+              <>
+                {!isJamRoute && (
+                  <Link href="/login" className="px-3 py-2 transition-colors" style={{ color: linkColor }}>
+                    Ingresar
+                  </Link>
+                )}
+                {isJamRoute ? (
+                  <a
+                    href="https://herohub.gamejamplus.com/#/jam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
+                    style={{
+                      backgroundColor: "transparent",
+                      color: "#3cff9e",
+                      border: "2px solid #3cff9e",
+                    }}
+                  >
+                    Registrarse
+                  </a>
+                ) : (
+                  <Link
+                    href="/register"
+                    className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
+                    style={isGameDevsRoute ? {
+                      backgroundColor: "#72b341",
+                      color: "#fff",
+                      boxShadow: "0 0 20px rgba(114, 179, 65, 0.4)"
+                    } : {
+                      backgroundColor: "var(--gamer-purple)",
+                      color: "#fff",
+                      boxShadow: "var(--box-glow-purple)"
+                    }}
+                  >
+                    Unirme
+                  </Link>
+                )}
+              </>
+            )}
+          </div>
+        </nav>
+      </header>
     </>
   );
 }

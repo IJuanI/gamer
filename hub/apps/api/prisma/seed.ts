@@ -3,7 +3,24 @@ import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
+const seedGames = [
+  { slug: "cs2", name: "Counter-Strike 2", rankVerifiable: true },
+  { slug: "lol", name: "League of Legends", rankVerifiable: true },
+  { slug: "valorant", name: "Valorant", rankVerifiable: false },
+  { slug: "rocket-league", name: "Rocket League", rankVerifiable: false },
+];
+
 async function main() {
+  for (const g of seedGames) {
+    await prisma.game.upsert({
+      where: { slug: g.slug },
+      update: { name: g.name, rankVerifiable: g.rankVerifiable },
+      create: g,
+    });
+    // eslint-disable-next-line no-console
+    console.log(`seeded game: ${g.name}`);
+  }
+
   const seedUsers = [
     { email: "admin@gamer.net.ar", displayName: "Admin GamER", role: Role.ADMIN, password: "admin1234" },
     { email: "editor@gamer.net.ar", displayName: "Editor GamER", role: Role.EDITOR, password: "editor1234" },

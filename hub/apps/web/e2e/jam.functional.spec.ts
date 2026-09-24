@@ -8,7 +8,8 @@ test("jam page: static and parallax elements move differently on scroll", async 
 
   // Both containers scroll with page, but parallax gets additional transform
   // Static: moves with scroll (600px)
-  // Parallax: moves with scroll (600px) + transform (-90px) = appears to move 510px (90px less)
+  // Parallax: moves with scroll (600px) - transform (+90px) = appears to move 90px less,
+  // in the opposite direction of the static layer
 
   // Just verify that the parallax transform is being applied
   const parallaxContainer = page.locator("div[style*='transform']").first();
@@ -18,7 +19,7 @@ test("jam page: static and parallax elements move differently on scroll", async 
   );
 
   await page.evaluate(() => window.scrollBy(0, 600));
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(1200); // Let the lerp settle to its target
 
   const transformAfter = await parallaxContainer.evaluate((el) =>
     window.getComputedStyle(el).transform
@@ -37,7 +38,9 @@ test("jam page: static and parallax elements move differently on scroll", async 
   const yAfter = parseMatrixY(transformAfter);
   const movement = Math.abs(yAfter - yBefore);
 
-  // Parallax should move ~90px with -0.15 factor on 600px scroll
+  // Parallax should move ~90px with 0.15 factor on 600px scroll, in the
+  // positive direction (opposite of the static layer's scroll movement)
+  expect(yAfter).toBeGreaterThan(yBefore);
   expect(movement).toBeGreaterThan(50);
   expect(movement).toBeLessThan(150);
 });
@@ -70,7 +73,7 @@ test("jam page: parallax icons move less than scroll distance", async ({
   // Scroll 600px down
   const scrollAmount = 600;
   await page.evaluate((amount) => window.scrollBy(0, amount), scrollAmount);
-  await page.waitForTimeout(500); // Wait longer for RAF
+  await page.waitForTimeout(1200); // Let the lerp settle to its target
 
   // Debug: check scroll position and transform after scroll
   const afterScrollInfo = await parallaxContainer.evaluate((el) => ({
@@ -103,7 +106,7 @@ test("jam page: parallax icons move less than scroll distance", async ({
 
   const parallelaxMovement = Math.abs(yAfterVal - yBeforeVal);
 
-  // With -0.15 factor: 600 * 0.15 = 90px parallax movement
+  // With 0.15 factor: 600 * 0.15 = 90px parallax movement
   // Should move significantly LESS than 600px scroll
   expect(parallelaxMovement).toBeGreaterThan(50); // Verify parallax IS happening
   expect(parallelaxMovement).toBeLessThan(scrollAmount * 0.5); // But much less than scroll
@@ -126,7 +129,7 @@ test("jam page: static vs parallax movement ratio is correct", async ({
 
   // Scroll 400px
   await page.evaluate(() => window.scrollBy(0, 400));
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(1200); // Let the lerp settle to its target
 
   const scrolledTransform = await parallaxContainer.evaluate(
     (el) => window.getComputedStyle(el).transform
@@ -149,7 +152,7 @@ test("jam page: static vs parallax movement ratio is correct", async ({
   const yAfter = parseY(scrolledTransform);
   const movement = Math.abs(yAfter - yBefore);
 
-  // For 400px scroll with -0.15 factor: expect ~60px movement
+  // For 400px scroll with 0.15 factor: expect ~60px movement
   // Allow 30% variance for timing/render differences
   const expectedMovement = 400 * 0.15;
   const tolerance = expectedMovement * 0.3;

@@ -15,16 +15,19 @@ enum Role {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  displayName  String
+  id                String            @id @default(cuid())
+  email             String            @unique
+  displayName       String
   // Null for accounts created purely via OAuth (no local password).
-  passwordHash String?
-  role         Role      @default(MEMBER)
-  avatarUrl    String?
-  accounts     Account[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  passwordHash      String?
+  role              Role              @default(MEMBER)
+  avatarUrl         String?
+  accounts          Account[]
+  gameProfiles      GameProfile[]
+  teamMemberships   TeamMember[]
+  recruitmentPosts  RecruitmentPost[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   @@map("users")
 }
@@ -41,4 +44,126 @@ model Account {
   @@unique([provider, providerAccountId])
   @@index([userId])
   @@map("accounts")
+}
+
+// FACEIT and RIOT can supply a verified rank; EPIC (Rocket League) is
+// identity-only today since Psyonix has no public rank API.
+enum PlatformProvider {
+  FACEIT
+  RIOT
+  EPIC
+}
+
+model Game {
+  id             String            @id @default(cuid())
+  slug           String            @unique
+  name           String
+  iconUrl        String?
+  // Whether this game currently has any verified rank source at all.
+  // Drives whether the UI attempts to render a rank badge for it.
+  rankVerifiable Boolean           @default(false)
+  profiles       GameProfile[]
+  teams          Team[]
+  posts          RecruitmentPost[]
+  createdAt      DateTime          @default(now())
+
+  @@map("games")
+}
+
+// A user's per-game profile: self-reported handle only — never a rank.
+// Rank/ELO, when it exists, always comes from PlatformLink.cachedStats.
+model GameProfile {
+  id           String        @id @default(cuid())
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  game         Game          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId       String
+  inGameHandle String
+  platformLink PlatformLink?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([userId, gameId])
+  @@map("game_profiles")
+}
+
+// External platform account linked to one GameProfile.
+// hasRankData distinguishes "verified identity" (Valorant, Rocket League)
+// from "verified identity + real rank/stats" (CS2 via FACEIT, LoL via Riot).
+model PlatformLink {
+  id             String           @id @default(cuid())
+  gameProfile    GameProfile      @relation(fields: [gameProfileId], references: [id], onDelete: Cascade)
+  gameProfileId  String           @unique
+  provider       PlatformProvider
+  externalId     String
+  externalHandle String
+  hasRankData    Boolean          @default(false)
+  accessToken    String?
+  refreshToken   String?
+  cachedStats    Json?
+  statsFetchedAt DateTime?
+  createdAt      DateTime         @default(now())
+
+  @@unique([provider, externalId])
+  @@map("platform_links")
+}
+
+enum TeamRole {
+  CAPTAIN
+  MEMBER
+}
+
+model Team {
+  id        String            @id @default(cuid())
+  name      String
+  tag       String?
+  logoUrl   String?
+  bio       String?
+  game      Game              @relation(fields: [gameId], references: [id])
+  gameId    String
+  members   TeamMember[]
+  posts     RecruitmentPost[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([name, gameId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  role     TeamRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+enum RecruitmentPostType {
+  LOOKING_FOR_TEAM
+  LOOKING_FOR_PLAYERS
+}
+
+model RecruitmentPost {
+  id        String              @id @default(cuid())
+  type      RecruitmentPostType
+  author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  game      Game                @relation(fields: [gameId], references: [id])
+  gameId    String
+  // Only set when type = LOOKING_FOR_PLAYERS and the post is on behalf of a team.
+  team      Team?               @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  teamId    String?
+  title     String
+  body      String
+  isOpen    Boolean             @default(true)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([gameId, type, isOpen])
+  @@map("recruitment_posts")
 }

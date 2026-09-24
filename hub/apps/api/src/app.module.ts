@@ -4,6 +4,11 @@ import { join } from "path";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
+import { GamesModule } from "./games/games.module";
+import { GameProfilesModule } from "./game-profiles/game-profiles.module";
+import { TeamsModule } from "./teams/teams.module";
+import { RecruitmentPostsModule } from "./recruitment-posts/recruitment-posts.module";
+import { PlatformLinksModule } from "./platform-links/platform-links.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -16,6 +21,11 @@ import { HealthController } from "./health.controller";
     PrismaModule,
     AuthModule,
     UsersModule,
+    GamesModule,
+    GameProfilesModule,
+    TeamsModule,
+    RecruitmentPostsModule,
+    PlatformLinksModule,
   ],
   controllers: [HealthController],
 })

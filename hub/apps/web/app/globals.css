@@ -223,6 +223,12 @@ html.light .gradient-block-purple {
   50% { transform: translateY(-10px) rotate(-5deg); }
 }
 .animate-float-rotate { animation: jam-float-rotate 3s ease-in-out infinite; }
+
+@keyframes jam-glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(60, 255, 158, 0.3), 0 0 10px rgba(60, 255, 158, 0.15); }
+  50% { box-shadow: 0 0 15px rgba(60, 255, 158, 0.5), 0 0 20px rgba(60, 255, 158, 0.25); }
+}
+.jam-glow-pulse { animation: jam-glow-pulse 2s ease-in-out infinite; }
 .animate-fade-up { animation: fade-in-up 0.6s ease-out forwards; opacity: 0; }
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }

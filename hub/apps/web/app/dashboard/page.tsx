@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, ShieldCheck, Users as UsersIcon, Pencil, Gamepad2 } from "lucide-react";
+import Link from "next/link";
+import { LogOut, ShieldCheck, Users as UsersIcon, Pencil, Gamepad2, Megaphone } from "lucide-react";
 import { ROLE_LABELS, Role, type PublicUser } from "@gamer/shared";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/components/auth-provider";
@@ -95,8 +96,19 @@ export default function DashboardPage() {
         </h2>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <Tile icon={Gamepad2} title="Eventos" body="Inscribite a torneos y eventos de la comunidad." accent="green" />
+          <Link href="/profile">
+            <Tile icon={Gamepad2} title="Perfil de gamer" body="Cargá tus juegos y conectá tus cuentas verificadas." accent="purple" />
+          </Link>
+          <Link href="/teams">
+            <Tile icon={UsersIcon} title="Equipos" body="Creá tu equipo o sumate a uno existente." accent="purple" />
+          </Link>
+          <Link href="/recruitment">
+            <Tile icon={Megaphone} title="Reclutamiento" body="Buscá equipo o encontrá jugadores para el tuyo." accent="green" />
+          </Link>
           {(user.role === Role.EDITOR || user.role === Role.ADMIN) && (
-            <Tile icon={Pencil} title="Gestión de contenido" body="Crear y editar eventos, torneos y banners." accent="purple" />
+            <Link href="/admin/flyers">
+              <Tile icon={Pencil} title="Generador de flyers" body="Exportar flyers y banners para redes sociales." accent="purple" />
+            </Link>
           )}
           {user.role === Role.ADMIN && (
             <Tile icon={UsersIcon} title="Administración" body="Gestionar miembros y roles de la comunidad." accent="purple" />
