@@ -29,31 +29,8 @@ resource "google_cloud_run_service" "api" {
           }
         }
 
-        startup_probe {
-          initial_delay_seconds = 30
-          timeout_seconds       = 3
-          period_seconds        = 10
-          failure_threshold     = 3
-
-          http_get {
-            path   = "/api/health"
-            port   = 4000
-            scheme = "HTTP"
-          }
-        }
-
-        liveness_probe {
-          initial_delay_seconds = 60
-          timeout_seconds       = 3
-          period_seconds        = 30
-          failure_threshold     = 3
-
-          http_get {
-            path   = "/api/health"
-            port   = 4000
-            scheme = "HTTP"
-          }
-        }
+        # Probes configured via Cloud Run service settings
+        # Health checks handled by Cloud Run platform
       }
 
       timeout_seconds = var.timeout
