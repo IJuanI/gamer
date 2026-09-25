@@ -41,12 +41,12 @@ COPY --from=builder /app/packages/*/dist ./packages/*/dist
 
 # Production dependencies are already installed from node_modules copies above
 
-# Expose the API port
-EXPOSE 4000
+# Expose the port (Cloud Run uses 8080, defaults to 4000 for local dev)
+EXPOSE 8080 4000
 
-# Health check
+# Health check (uses PORT env var, defaults to 8080 for Cloud Run)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:4000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+    CMD node -e "const port = process.env.PORT || 8080; require('http').get('http://localhost:' + port + '/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Start the API
 CMD ["node", "dist/main.js"]

@@ -20,7 +20,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = Number(process.env.API_PORT ?? 4000);
+  const port = Number(process.env.PORT ?? process.env.API_PORT ?? 4000);
   await app.listen(port);
   Logger.log(`GamER Hub API escuchando en http://localhost:${port}/api`, "Bootstrap");
 }
