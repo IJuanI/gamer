@@ -27,11 +27,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const theme = localStorage.getItem('theme');
-                if (theme) {
-                  document.documentElement.classList.remove('dark', 'light');
-                  document.documentElement.classList.add(theme);
-                }
+                const stored = localStorage.getItem('theme');
+                const theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.classList.remove('dark', 'light');
+                document.documentElement.classList.add(theme);
               } catch (e) {}
             `,
           }}

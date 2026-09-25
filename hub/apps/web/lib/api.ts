@@ -16,6 +16,12 @@ import type {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
+// No production API is deployed yet, so unless NEXT_PUBLIC_API_URL was set at
+// build time, this would otherwise point every deployed domain at localhost —
+// a private address that public HTTPS pages can't reach without triggering
+// the browser's Private Network Access permission prompt.
+export const API_CONFIGURED = Boolean(process.env.NEXT_PUBLIC_API_URL);
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}/api${path}`, {
     ...init,
