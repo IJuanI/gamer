@@ -45,7 +45,7 @@ COPY --from=builder /app/packages/*/dist ./packages/*/dist
 EXPOSE 8080 4000
 
 # Health check (uses PORT env var, defaults to 8080 for Cloud Run)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD node -e "const port = process.env.PORT || 8080; require('http').get('http://localhost:' + port + '/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Start the API
