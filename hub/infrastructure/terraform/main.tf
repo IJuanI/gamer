@@ -14,9 +14,10 @@ terraform {
 
   # Backend configuration - uses Cloud Storage for state
   # Initialize with: terraform init -backend-config="bucket=YOUR_BUCKET"
-  backend "gcs" {
-    prefix = "gamer-hub/terraform"
-  }
+  # Temporarily disabled for local deployment
+  # backend "gcs" {
+  #   prefix = "gamer-hub/terraform"
+  # }
 }
 
 provider "google" {
