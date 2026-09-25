@@ -29,17 +29,20 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy only necessary files from builder
+# Copy workspace and lock files first
 COPY --from=builder /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./
-COPY --from=builder /app/apps/api/node_modules ./node_modules
-COPY --from=builder /app/node_modules ./root_node_modules
-COPY --from=builder /app/packages/*/dist ./packages/*/dist
 
-# Production dependencies are already installed from node_modules copies above
+# Copy package.json files
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/api/package.json ./
+
+# Install production dependencies using pnpm
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy built application
+COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/packages/*/dist ./packages/*/dist
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
