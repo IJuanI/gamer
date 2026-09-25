@@ -695,7 +695,7 @@ export default function JamPage() {
               color: "#3cff9e",
             }}
           />
-          <h2 className="mt-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight">Creá tu cuenta gratis y formá parte de la red de videojuegos de Entre Ríos</h2>
+          <h2 className="mt-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight" style={{ color: "#f2f4ff" }}>Creá tu cuenta gratis y formá parte de la red de videojuegos de Entre Ríos</h2>
           <p className="mx-auto mt-4 max-w-xl" style={{ color: "#b6c2ff", fontFamily: "var(--font-inter)" }}>
             Tu lugar en la escena empieza acá.
           </p>
