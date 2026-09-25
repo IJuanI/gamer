@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { initializeApp, cert, getApp } from "firebase-admin/app";
-import { getFirestore, Firestore } from "firebase-admin/firestore";
+import { getFirestore, Firestore, Query } from "firebase-admin/firestore";
 import * as process from "process";
 
 @Injectable()
 export class FirestoreService implements OnModuleInit {
-  private db: Firestore;
+  private db!: Firestore;
 
   async onModuleInit() {
     const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -97,13 +97,13 @@ export class FirestoreService implements OnModuleInit {
     collection: string,
     where: Array<[field: string, operator: string, value: any]>
   ): Promise<T[]> {
-    let query = this.getFirestore().collection(collection);
+    let q: any = this.getFirestore().collection(collection);
 
     for (const [field, operator, value] of where) {
-      query = query.where(field, operator as any, value);
+      q = q.where(field, operator as any, value);
     }
 
-    const snapshot = await query.get();
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as T));
+    const snapshot = await q.get();
+    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as T));
   }
 }

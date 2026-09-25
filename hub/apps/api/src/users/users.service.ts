@@ -44,11 +44,14 @@ export class UsersService {
     role?: string;
   }): Promise<User> {
     const id = uuidv4();
+    const now = new Date().toISOString();
     return this.firestore.set<User>("users", id, {
       email: data.email.toLowerCase(),
       displayName: data.displayName,
-      avatarUrl: data.avatarUrl,
+      avatarUrl: data.avatarUrl || null,
       role: data.role || "user",
+      createdAt: now,
+      updatedAt: now,
     });
   }
 
@@ -98,8 +101,8 @@ export class UsersService {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
-      role: user.role || "user",
-      avatarUrl: user.avatarUrl,
+      role: (user.role || "user") as any,
+      avatarUrl: user.avatarUrl || null,
       createdAt: user.createdAt,
     };
   }
