@@ -14,7 +14,10 @@ COPY hub/apps ./apps
 # Install dependencies (frozen lockfile for reproducibility)
 RUN pnpm install --frozen-lockfile
 
-# Build the API and dependencies
+# Build all packages first
+RUN pnpm run --filter @gamer/shared build || true
+
+# Build the API
 RUN pnpm run --filter @gamer/api build
 
 # Stage 2: Runtime
