@@ -210,7 +210,7 @@ export default function JamPage() {
 
   return (
     <>
-      <SiteNav />
+      <SiteNav section="jam" />
 
       <div className="font-oxanium">
       {/* ── Hero + Features + Community share one continuous background ── */}

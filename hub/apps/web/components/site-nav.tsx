@@ -9,11 +9,11 @@ import { RenderTelemetry } from "./render-telemetry";
 import { useEffect } from "react";
 import { captureEvent } from "@/lib/telemetry";
 
-export function SiteNav() {
+export function SiteNav({ section }: { section?: "jam" | "gamedevs" | "gamer" } = {}) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
-  const isGameDevsRoute = pathname.startsWith("/devs");
-  const isJamRoute = pathname.startsWith("/jam");
+  const isGameDevsRoute = section ? section === "gamedevs" : pathname.startsWith("/devs");
+  const isJamRoute = section ? section === "jam" : pathname.startsWith("/jam");
 
   useEffect(() => {
     captureEvent("event", "SiteNav mounted", "info", { pathname, isGameDevsRoute });

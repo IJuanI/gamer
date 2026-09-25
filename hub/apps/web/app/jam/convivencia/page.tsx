@@ -142,7 +142,7 @@ const consequences = [
 export default function ConvivenciaPage() {
   return (
     <>
-      <SiteNav />
+      <SiteNav section="jam" />
       <main className="font-oxanium relative min-h-screen overflow-hidden" style={{ backgroundColor: BG }}>
         <div className="mx-auto max-w-4xl px-6 pt-24 pb-20">
           <Link

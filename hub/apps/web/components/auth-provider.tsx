@@ -35,6 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // The jam-only domain has no first-party session with the API's origin,
+    // so a credentialed cross-site request here only triggers the browser's
+    // third-party storage access prompt without ever succeeding.
+    if (typeof window !== "undefined" && window.location.hostname.includes("paranagamejam.com.ar")) {
+      setLoading(false);
+      return;
+    }
     void refresh();
   }, [refresh]);
 
