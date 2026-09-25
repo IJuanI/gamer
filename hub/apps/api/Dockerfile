@@ -27,14 +27,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy package.json from builder
+# Copy all node_modules from builder (installed at workspace root)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy package files and built code
 COPY --from=builder /app/apps/api/package.json ./
-
-# Copy node_modules directly from builder (all dependencies already installed)
-COPY --from=builder /app/apps/api/node_modules ./node_modules
-
-# Copy built application
 COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/packages ./packages
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
