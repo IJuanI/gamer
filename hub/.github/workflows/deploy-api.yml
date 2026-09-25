@@ -11,6 +11,7 @@ on:
     paths:
       - 'apps/api/**'
       - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
 
 env:
   GCP_PROJECT: unity-dummy
