@@ -71,9 +71,9 @@ jobs:
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
             --region=${{ env.GCP_REGION }} \
-            --tag=${{ steps.tag.outputs.revision_tag }} \
             --no-traffic \
-            --update-env-vars=NODE_ENV=production
+            --update-env-vars=NODE_ENV=production \
+            --set-env-vars=FIREBASE_PROJECT_ID=unity-dummy
 
       - name: Deploy to Cloud Run (Production - with traffic)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -81,9 +81,9 @@ jobs:
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
             --region=${{ env.GCP_REGION }} \
-            --tag=prod \
-            --traffic=prod=100 \
-            --update-env-vars=NODE_ENV=production
+            --allow-unauthenticated \
+            --update-env-vars=NODE_ENV=production \
+            --set-env-vars=FIREBASE_PROJECT_ID=unity-dummy
 
       - name: Comment PR with ephemeral URL
         if: github.event_name == 'pull_request'
