@@ -1,0 +1,130 @@
+name: Deploy API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/deploy-api.yml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT: unity-dummy
+  GCP_REGION: us-central1
+  SERVICE_NAME: gamer-hub-api
+  IMAGE_NAME: gcr.io/unity-dummy/gamer-hub-api
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "tag=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "revision_tag=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "revision_tag=prod" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f apps/api/Dockerfile \
+            -t ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            .
+
+      - name: Push to GCR
+        run: |
+          docker push ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run (PR - no traffic)
+        if: github.event_name == 'pull_request'
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image=${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
+            --region=${{ env.GCP_REGION }} \
+            --tag=${{ steps.tag.outputs.revision_tag }} \
+            --no-traffic \
+            --update-env-vars=NODE_ENV=production
+
+      - name: Deploy to Cloud Run (Production - with traffic)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image=${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
+            --region=${{ env.GCP_REGION }} \
+            --tag=prod \
+            --traffic=prod=100 \
+            --update-env-vars=NODE_ENV=production
+
+      - name: Comment PR with ephemeral URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const revisionTag = `pr-${prNumber}`;
+            const url = `https://${revisionTag}---${{ env.SERVICE_NAME }}-${{ env.GCP_REGION }}.run.app`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 API Deployed\n\nEphemeral API for this PR:\n\`\`\`\n${url}\n\`\`\`\n\nUse \`ephemeralApi(${prNumber})\` in the console to switch to this version.`
+            });
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Delete ephemeral revision
+        run: |
+          gcloud run revisions delete pr-${{ github.event.pull_request.number }} \
+            --service=${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --quiet || true
+
+      - name: Delete ephemeral image tag
+        run: |
+          gcloud container images delete ${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }} \
+            --quiet || true
