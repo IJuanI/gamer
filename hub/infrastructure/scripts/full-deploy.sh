@@ -29,7 +29,7 @@ cat << "EOF"
 ║  1. Create Google OAuth credentials                       ║
 ║  2. Build and push Docker image                           ║
 ║  3. Initialize Terraform backend                          ║
-║  4. Deploy infrastructure (Cloud SQL + Cloud Run)         ║
+║  4. Deploy infrastructure (Firestore + Cloud Run)         ║
 ║  5. Update frontend configuration                         ║
 ║  6. Verify the API is working                             ║
 ║                                                            ║

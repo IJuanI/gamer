@@ -38,15 +38,7 @@ resource "null_resource" "create_google_oauth" {
   ]
 }
 
-# Data source to list existing OAuth credentials
-data "null_data_source" "google_oauth_info" {
-  count = var.oauth_create_credentials ? 0 : 1
-
-  inputs = {
-    note = "Google OAuth credentials must be created manually or via gcloud"
-    command = "gcloud iam oauth-clients list --project=${var.gcp_project_id} --format=json"
-  }
-}
+# Note: Google OAuth credentials management via Terraform data source removed (deprecated)
 
 # Local variables for OAuth output
 locals {

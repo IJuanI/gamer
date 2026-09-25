@@ -1,27 +1,60 @@
 import { Injectable } from "@nestjs/common";
-import type { Prisma, User } from "@prisma/client";
 import type { PublicUser } from "@gamer/shared";
-import { PrismaService } from "../prisma/prisma.service";
+import { FirestoreService } from "../firestore/firestore.service";
+import { v4 as uuidv4 } from "uuid";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  role?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Account {
+  id: string;
+  provider: string;
+  providerAccountId: string;
+  userId: string;
+  createdAt: string;
+}
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly firestore: FirestoreService) {}
 
-  findByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  async findByEmail(email: string): Promise<User | null> {
+    return this.firestore.findByField<User>(
+      "users",
+      "email",
+      email.toLowerCase()
+    );
   }
 
-  findById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
+  async findById(id: string): Promise<User | null> {
+    return this.firestore.findUnique<User>("users", id);
   }
 
-  create(data: Prisma.UserCreateInput) {
-    return this.prisma.user.create({
-      data: { ...data, email: data.email.toLowerCase() },
+  async create(data: {
+    email: string;
+    displayName: string;
+    avatarUrl?: string | null;
+    role?: string;
+  }): Promise<User> {
+    const id = uuidv4();
+    const now = new Date().toISOString();
+    return this.firestore.set<User>("users", id, {
+      email: data.email.toLowerCase(),
+      displayName: data.displayName,
+      avatarUrl: data.avatarUrl || null,
+      role: data.role || "user",
+      createdAt: now,
+      updatedAt: now,
     });
   }
 
-  /** Find a user by OAuth identity, creating one (and the User) on first login. */
   async findOrCreateByOAuth(params: {
     provider: string;
     providerAccountId: string;
@@ -29,32 +62,37 @@ export class UsersService {
     displayName: string;
     avatarUrl?: string | null;
   }): Promise<User> {
-    const existing = await this.prisma.account.findUnique({
-      where: {
-        provider_providerAccountId: {
-          provider: params.provider,
-          providerAccountId: params.providerAccountId,
-        },
-      },
-      include: { user: true },
-    });
-    if (existing) return existing.user;
+    const accountKey = `${params.provider}_${params.providerAccountId}`;
+
+    const existing = await this.firestore.findByField<Account>(
+      "accounts",
+      "accountKey",
+      accountKey
+    );
+
+    if (existing) {
+      const user = await this.firestore.findUnique<User>("users", existing.userId);
+      if (user) return user;
+    }
 
     const email = params.email.toLowerCase();
-    // Reuse a local account with the same email if one exists; else create.
-    const user =
-      (await this.prisma.user.findUnique({ where: { email } })) ??
-      (await this.prisma.user.create({
-        data: { email, displayName: params.displayName, avatarUrl: params.avatarUrl },
-      }));
+    let user = await this.firestore.findByField<User>("users", "email", email);
 
-    await this.prisma.account.create({
-      data: {
-        provider: params.provider,
-        providerAccountId: params.providerAccountId,
-        userId: user.id,
-      },
+    if (!user) {
+      user = await this.create({
+        email,
+        displayName: params.displayName,
+        avatarUrl: params.avatarUrl,
+      });
+    }
+
+    await this.firestore.create<Account>("accounts", {
+      accountKey,
+      provider: params.provider,
+      providerAccountId: params.providerAccountId,
+      userId: user.id,
     });
+
     return user;
   }
 
@@ -63,9 +101,9 @@ export class UsersService {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
-      role: user.role,
-      avatarUrl: user.avatarUrl,
-      createdAt: user.createdAt.toISOString(),
+      role: (user.role || "user") as any,
+      avatarUrl: user.avatarUrl || null,
+      createdAt: user.createdAt,
     };
   }
 }

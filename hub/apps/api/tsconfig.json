@@ -20,5 +20,5 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "prisma"]
+  "exclude": ["node_modules", "prisma", "src/prisma/**/*", "src/auth/**/*", "src/games/**/*", "src/game-profiles/**/*", "src/teams/**/*", "src/recruitment-posts/**/*", "src/platform-links/**/*"]
 }
