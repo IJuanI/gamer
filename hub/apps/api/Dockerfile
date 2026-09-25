@@ -7,7 +7,7 @@ RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 WORKDIR /app
 
 # Copy the workspace files
-COPY hub/pnpm-workspace.yaml hub/pnpm-lock.yaml hub/tsconfig.json ./
+COPY hub/pnpm-workspace.yaml hub/pnpm-lock.yaml ./
 COPY hub/packages ./packages
 COPY hub/apps ./apps
 
