@@ -4,7 +4,6 @@ import { join } from "path";
 import { FirestoreModule } from "./firestore/firestore.module";
 import { UsersModule } from "./users/users.module";
 import { HealthController } from "./health.controller";
-import { DevModule } from "./dev/dev.module";
 
 @Module({
   imports: [
@@ -22,7 +21,7 @@ import { DevModule } from "./dev/dev.module";
     // TeamsModule,
     // RecruitmentPostsModule,
     // PlatformLinksModule,
-    ...(process.env.NODE_ENV !== 'production' ? [DevModule] : []),
+    // DevModule,  // Temporarily disabled for Cloud Run deployment
   ],
   controllers: [HealthController],
 })
