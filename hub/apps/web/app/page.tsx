@@ -40,7 +40,7 @@ const stats = [
 export default function LandingPage() {
   return (
     <>
-      <SiteNav />
+      <SiteNav section="gamer" />
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">

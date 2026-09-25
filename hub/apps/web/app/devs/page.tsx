@@ -50,7 +50,7 @@ const stats = [
 export default function GameDevsLanding() {
   return (
     <>
-      <SiteNav />
+      <SiteNav section="gamedevs" />
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
