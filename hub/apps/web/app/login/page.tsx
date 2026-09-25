@@ -57,7 +57,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
         ¿No tenés cuenta?{" "}
-        <Link href="/register" className="text-[var(--gamer-green-text)] hover:underline">
+        <Link href="/registro" className="text-[var(--gamer-green-text)] hover:underline">
           Unite acá
         </Link>
       </p>

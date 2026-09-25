@@ -705,8 +705,8 @@ export default function JamPage() {
               background: "linear-gradient(90deg, transparent, #3cff9e, transparent)",
             }}
           />
-          <Link
-            href="/register"
+          <a
+            href="https://gameer.com.ar/registro"
             className="mt-9 inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold transition-transform hover:scale-105"
             style={{
               backgroundColor: "#3cff9e",
@@ -715,7 +715,7 @@ export default function JamPage() {
           >
             <Gamepad2 className="h-5 w-5" />
             Crear mi cuenta
-          </Link>
+          </a>
         </div>
         </section>
       </div>
