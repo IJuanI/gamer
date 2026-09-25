@@ -39,8 +39,7 @@ COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/node_modules ./root_node_modules
 COPY --from=builder /app/packages/*/dist ./packages/*/dist
 
-# Install only production dependencies
-RUN pnpm install --frozen-lockfile --production
+# Production dependencies are already installed from node_modules copies above
 
 # Expose the API port
 EXPOSE 4000
