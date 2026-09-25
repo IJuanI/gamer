@@ -9,50 +9,6 @@ variable "gcp_region" {
   default     = "us-central1"
 }
 
-# Database Configuration
-variable "db_instance_name" {
-  description = "Cloud SQL instance name"
-  type        = string
-  default     = "gamer-hub-db"
-}
-
-variable "db_version" {
-  description = "PostgreSQL version"
-  type        = string
-  default     = "POSTGRES_15"
-}
-
-variable "db_tier" {
-  description = "Cloud SQL machine tier"
-  type        = string
-  default     = "db-f1-micro"
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "gamer_hub"
-}
-
-variable "db_username" {
-  description = "Database username"
-  type        = string
-  default     = "gamer_hub"
-  sensitive   = true
-}
-
-variable "db_backup_start_time" {
-  description = "Time when automated backups start (HH:MM format)"
-  type        = string
-  default     = "03:00"
-}
-
-variable "db_availability_type" {
-  description = "Regional availability (REGIONAL for HA, ZONAL for single zone)"
-  type        = string
-  default     = "ZONAL"
-}
-
 # Cloud Run Configuration
 variable "cloud_run_service_name" {
   description = "Cloud Run service name"

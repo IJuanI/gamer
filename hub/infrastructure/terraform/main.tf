@@ -24,25 +24,21 @@ provider "google" {
   region  = var.gcp_region
 }
 
-# Generate secure random password for database
-resource "random_password" "db_password" {
-  length  = 32
-  special = true
+# Enable Firestore API
+resource "google_project_service" "firestore_api" {
+  project = var.gcp_project_id
+  service = "firestore.googleapis.com"
+  disable_on_destroy = false
 }
 
-# Cloud SQL PostgreSQL Instance
-module "cloud_sql" {
-  source = "./modules/cloud-sql"
+# Create Firestore database (free tier)
+resource "google_firestore_database" "main" {
+  project = var.gcp_project_id
+  name = "gamer-hub"
+  location_id = var.gcp_region
+  type = "FIRESTORE_NATIVE"
 
-  instance_name         = var.db_instance_name
-  database_version      = var.db_version
-  region                = var.gcp_region
-  tier                  = var.db_tier
-  database_name         = var.db_name
-  db_username           = var.db_username
-  db_password           = random_password.db_password.result
-  backup_start_time     = var.db_backup_start_time
-  availability_type     = var.db_availability_type
+  depends_on = [google_project_service.firestore_api]
 }
 
 # Cloud Run Service Account
@@ -52,10 +48,10 @@ resource "google_service_account" "gamer_hub_api" {
   description  = "Service account for GamER Hub API running on Cloud Run"
 }
 
-# IAM binding for Cloud SQL Client role
-resource "google_project_iam_member" "cloud_sql_client" {
+# IAM binding for Firestore access
+resource "google_project_iam_member" "firestore_user" {
   project = var.gcp_project_id
-  role    = "roles/cloudsql.client"
+  role    = "roles/datastore.user"
   member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
 }
 
@@ -77,7 +73,7 @@ module "cloud_run" {
     API_PORT                   = "4000"
     JWT_SECRET                 = var.jwt_secret
     WEB_ORIGIN                 = var.web_origin
-    DATABASE_URL               = module.cloud_sql.connection_string
+    FIREBASE_PROJECT_ID        = var.gcp_project_id
     DISCORD_CLIENT_ID          = var.discord_client_id
     DISCORD_CLIENT_SECRET      = var.discord_client_secret
     GOOGLE_CLIENT_ID           = var.google_client_id
@@ -85,7 +81,7 @@ module "cloud_run" {
   }
 
   depends_on = [
-    google_project_iam_member.cloud_sql_client
+    google_project_iam_member.firestore_user
   ]
 }
 
@@ -93,7 +89,6 @@ module "cloud_run" {
 resource "google_project_service" "required_apis" {
   for_each = toset([
     "run.googleapis.com",
-    "sqladmin.googleapis.com",
     "compute.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "iap.googleapis.com",
