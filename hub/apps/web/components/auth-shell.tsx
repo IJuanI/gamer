@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 
 /** Branded centered card used by the login and register pages. */
 export function AuthShell({
@@ -15,6 +16,10 @@ export function AuthShell({
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
       <div className="pointer-events-none absolute inset-0 bg-grid-neon-fade" />
       <div className="pointer-events-none absolute inset-0 radial-glow-purple" />
+
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
 
       <div className="relative w-full max-w-md">
         <div className="mb-8 flex justify-center">
@@ -50,7 +55,7 @@ export function Field({
       </span>
       <input
         {...props}
-        className="w-full rounded-md border border-white/10 bg-[#12121E] px-3.5 py-2.5 text-white outline-none transition-colors focus:border-[var(--gamer-purple)] focus:box-glow-purple"
+        className="w-full rounded-md border border-white/10 bg-[var(--background)] px-3.5 py-2.5 text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gamer-purple)] focus:box-glow-purple"
       />
     </label>
   );
