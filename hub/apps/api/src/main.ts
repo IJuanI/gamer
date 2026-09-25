@@ -5,7 +5,9 @@ import { AppModule } from "./app.module";
 import { FileLogger } from "./logger";
 
 async function bootstrap() {
+  console.log("Starting GamER Hub API...");
   const app = await NestFactory.create(AppModule, { logger: new FileLogger() });
+  console.log("AppModule created");
 
   app.use(cookieParser());
   app.useGlobalPipes(
@@ -19,8 +21,10 @@ async function bootstrap() {
       : ["http://localhost:3000", "http://localhost:3100"],
     credentials: true,
   });
+  console.log("Middleware configured");
 
   const port = Number(process.env.PORT ?? process.env.API_PORT ?? 4000);
+  console.log(`Listening on port ${port}`);
   await app.listen(port);
   Logger.log(`GamER Hub API escuchando en http://localhost:${port}/api`, "Bootstrap");
 }
