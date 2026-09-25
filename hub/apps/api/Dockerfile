@@ -36,9 +36,6 @@ COPY --from=builder /app/apps/api/node_modules ./node_modules
 # Copy built application
 COPY --from=builder /app/apps/api/dist ./dist
 
-# Copy shared package distributions if they exist
-COPY --from=builder /app/packages/*/dist ./packages/*/dist 2>/dev/null || true
-
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
 
