@@ -17,7 +17,8 @@ env:
   GCP_PROJECT: unity-dummy
   GCP_REGION: us-central1
   SERVICE_NAME: gamer-hub-api
-  IMAGE_NAME: gcr.io/unity-dummy/gamer-hub-api
+  REGISTRY: us-central1-docker.pkg.dev
+  IMAGE_NAME: us-central1-docker.pkg.dev/unity-dummy/docker/gamer-hub-api
 
 jobs:
   build-and-deploy:
@@ -37,8 +38,8 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }}
 
       - name: Determine image tag
         id: tag
