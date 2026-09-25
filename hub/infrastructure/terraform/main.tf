@@ -120,3 +120,39 @@ resource "google_project_iam_member" "github_artifact_registry" {
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
 }
+
+# Enable Cloud Build API
+resource "google_project_service" "cloudbuild_api" {
+  project            = var.gcp_project_id
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Enable Container Registry API
+resource "google_project_service" "container_registry_api" {
+  project            = var.gcp_project_id
+  service            = "containerregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+# IAM role for Cloud Build
+resource "google_project_iam_member" "cloud_build_editor" {
+  project = var.gcp_project_id
+  role    = "roles/cloudbuild.builds.editor"
+  member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
+}
+
+# IAM role for logging (Cloud Build needs this)
+resource "google_project_iam_member" "logging_log_writer" {
+  project = var.gcp_project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
+}
+
+# IAM role for pushing to GCR
+resource "google_project_iam_member" "container_registry_writer" {
+  project = var.gcp_project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
+}
+
