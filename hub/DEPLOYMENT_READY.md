@@ -32,6 +32,18 @@ Everything is prepared for production deployment to Google Cloud Platform. All a
 ## 📋 What You Need to Do
 
 ### 1. Google OAuth Credentials (5 min)
+
+**Option A: Automated Setup (Recommended)**
+```bash
+bash infrastructure/scripts/setup-google-oauth.sh
+```
+This script will:
+- Open GCP Console in your browser
+- Guide you through credential creation
+- Collect and export the credentials
+- Optionally save to `.env.local`
+
+**Option B: Manual Setup**
 **Location:** https://console.cloud.google.com/apis/credentials
 
 1. Click "+ Create Credentials" → "OAuth client ID"
@@ -42,6 +54,12 @@ Everything is prepared for production deployment to Google Cloud Platform. All a
 5. Create and save:
    - `GOOGLE_CLIENT_ID`
    - `GOOGLE_CLIENT_SECRET`
+
+**Option C: Python Helper**
+```bash
+python3 infrastructure/scripts/create-google-oauth.py
+```
+Opens GCP Console and prompts for credentials
 
 ### 2. Run Deployment Script (25 min)
 

@@ -32,8 +32,21 @@ This will:
 - Initialize Terraform backend
 - Validate configuration
 
-## Step 3: Set Environment Variables (1 min)
+## Step 3: Set Environment Variables (1-5 min)
 
+### Option A: Automated OAuth Setup (Recommended)
+```bash
+# Run this to create Google OAuth credentials automatically
+bash infrastructure/scripts/setup-google-oauth.sh
+
+# Then set Discord and other variables
+export TF_VAR_discord_client_id="1553032775924187256"
+export TF_VAR_discord_client_secret="2ztYlziDO5y2yJcOxvFTrOuDB9SoMzlb"
+export TF_VAR_jwt_secret=$(openssl rand -hex 32)
+export TF_VAR_container_image_url="gcr.io/unity-dummy/gamer-hub-api:latest"
+```
+
+### Option B: Manual Setup
 ```bash
 # Discord credentials (provided)
 export TF_VAR_discord_client_id="1553032775924187256"
