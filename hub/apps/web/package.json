@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit",
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots",
-    "pages:build": "opennextjs-cloudflare build"
+    "pages:build": "opennextjs-cloudflare build && node patch-worker.mjs"
   },
   "dependencies": {
     "@gamer/shared": "workspace:*",
