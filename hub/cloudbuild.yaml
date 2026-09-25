@@ -6,8 +6,6 @@ steps:
       - 'apps/api/Dockerfile'
       - '-t'
       - 'gcr.io/unity-dummy/gamer-hub-api:latest'
-      - '-t'
-      - 'gcr.io/unity-dummy/gamer-hub-api:${SHORT_SHA}'
       - '.'
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -15,14 +13,8 @@ steps:
       - 'push'
       - 'gcr.io/unity-dummy/gamer-hub-api:latest'
 
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'push'
-      - 'gcr.io/unity-dummy/gamer-hub-api:${SHORT_SHA}'
-
 images:
   - 'gcr.io/unity-dummy/gamer-hub-api:latest'
-  - 'gcr.io/unity-dummy/gamer-hub-api:${SHORT_SHA}'
 
 options:
   machineType: 'E2_HIGHCPU_8'
