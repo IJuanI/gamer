@@ -1,5 +1,6 @@
 # Multi-stage production build for GamER Hub API
 # Stage 1: Builder
+ARG CACHE_BUST=1
 FROM node:24-alpine AS builder
 
 RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
