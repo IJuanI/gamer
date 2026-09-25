@@ -42,7 +42,10 @@ COPY --from=builder /app/apps/api/dist ./dist
 
 # Install production dependencies only
 RUN pnpm install --frozen-lockfile --prod && \
-    find ./dist -name "*.map" -delete
+    echo "pnpm install completed successfully" && \
+    ls -la node_modules/ | head -20 && \
+    find ./dist -name "*.map" -delete && \
+    echo "Image build complete"
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
