@@ -55,6 +55,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+            --no-cache \
             -f hub/apps/api/Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
