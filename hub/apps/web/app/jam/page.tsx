@@ -687,7 +687,7 @@ export default function JamPage() {
           })}
         </div>
 
-        <section id="comunidad" className="relative">
+        <section id="comunidad" className="relative" style={{ display: "none" }}>
         <div className="relative mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-24 text-center">
           <Gamepad
             className="mx-auto h-10 w-10 animate-float"
