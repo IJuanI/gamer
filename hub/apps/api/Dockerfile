@@ -13,38 +13,32 @@ COPY hub/packages ./packages
 COPY hub/apps ./apps
 
 # Install dependencies (frozen lockfile for reproducibility)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile && \
+    echo "Dependencies installed to:" && \
+    ls -lah /app/node_modules 2>&1 | head -20 || echo "node_modules not found"
 
 # Build all packages first
 RUN pnpm run --filter @gamer/shared build || true
 
 # Build the API
-RUN pnpm run --filter @gamer/api build
+RUN pnpm run --filter @gamer/api build && \
+    echo "API built successfully"
 
 # Stage 2: Runtime
 FROM node:24-alpine
-
-RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy workspace files for dependency installation
-COPY --from=builder /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/packages ./packages
+# Copy entire node_modules tree from builder
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copy package files and built code
-COPY --from=builder /app/apps/api/package.json ./apps/api/
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-
-# Install production dependencies
-RUN pnpm install --frozen-lockfile --prod
+# Copy built API code
+COPY --from=builder /app/apps/api/dist ./dist
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
 
 # Start the API
-CMD ["node", "apps/api/dist/main.js"]
+CMD ["node", "dist/main.js"]
