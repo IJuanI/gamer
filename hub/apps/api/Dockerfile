@@ -23,8 +23,8 @@ RUN pnpm run --filter @gamer/shared build || true
 # Build the API
 RUN pnpm run --filter @gamer/api build
 
-# Verify node_modules was created
-RUN echo "Verifying node_modules in builder:" && ls -la /app/node_modules/.bin/ | head -20
+# Mark builder stage completion
+RUN echo "Builder stage complete - $(date)" > /tmp/builder.txt && cat /tmp/builder.txt
 
 # Stage 2: Runtime
 FROM node:24-alpine
@@ -33,15 +33,23 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy ONLY what's needed: node_modules and the built app
+# Copy marker file to test if COPY works at all
+COPY --from=builder /tmp/builder.txt ./builder-marker.txt
+
+# Copy node_modules
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy built API code
 COPY --from=builder /app/apps/api/dist ./dist
 
-# Remove source maps to reduce size
+# Remove source maps
 RUN find ./dist -name "*.map" -delete
 
-# Verify dependencies are present
-RUN test -d ./node_modules && echo "node_modules copied successfully" && ls -la node_modules/.bin | head -10
+# Debug: verify what was copied
+RUN echo "=== Checking copied files ===" && \
+    [ -f ./builder-marker.txt ] && echo "✓ builder-marker.txt exists" || echo "✗ builder-marker.txt missing" && \
+    [ -d ./node_modules ] && echo "✓ node_modules dir exists: $(ls -d ./node_modules)" || echo "✗ node_modules missing" && \
+    [ -d ./dist ] && echo "✓ dist dir exists" || echo "✗ dist missing"
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
