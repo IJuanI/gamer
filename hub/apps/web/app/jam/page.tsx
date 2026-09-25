@@ -707,7 +707,7 @@ export default function JamPage() {
           />
           <a
             href="https://gameer.com.ar/registro"
-            className="mt-9 inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold transition-transform hover:scale-105"
+            className="hidden mt-9 inline-flex items-center gap-2 rounded-lg px-8 py-4 font-semibold transition-transform hover:scale-105"
             style={{
               backgroundColor: "#3cff9e",
               color: "#0b1020",
