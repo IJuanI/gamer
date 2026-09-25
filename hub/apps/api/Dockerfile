@@ -23,30 +23,25 @@ RUN pnpm run --filter @gamer/shared build || true
 # Build the API
 RUN pnpm run --filter @gamer/api build
 
+# Verify node_modules was created
+RUN echo "Verifying node_modules in builder:" && ls -la /app/node_modules/.bin/ | head -20
+
 # Stage 2: Runtime
 FROM node:24-alpine
-
-RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy workspace configuration files
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/packages ./packages
-
-# Copy built API code (excluding source maps for smaller image)
+# Copy ONLY what's needed: node_modules and the built app
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod && \
-    echo "pnpm install completed successfully" && \
-    ls -la node_modules/ | head -20 && \
-    find ./dist -name "*.map" -delete && \
-    echo "Image build complete"
+# Remove source maps to reduce size
+RUN find ./dist -name "*.map" -delete
+
+# Verify dependencies are present
+RUN test -d ./node_modules && echo "node_modules copied successfully" && ls -la node_modules/.bin | head -10
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
