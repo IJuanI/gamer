@@ -57,7 +57,7 @@ jobs:
             -f hub/apps/api/Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            hub/apps/api/
+            .
 
       - name: Push to GCR
         run: |

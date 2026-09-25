@@ -7,9 +7,9 @@ RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 WORKDIR /app
 
 # Copy the workspace files
-COPY pnpm-workspace.yaml pnpm-lock.yaml tsconfig.json ./
-COPY packages ./packages
-COPY apps ./apps
+COPY hub/pnpm-workspace.yaml hub/pnpm-lock.yaml hub/tsconfig.json ./
+COPY hub/packages ./packages
+COPY hub/apps ./apps
 
 # Install dependencies (frozen lockfile for reproducibility)
 RUN pnpm install --frozen-lockfile
