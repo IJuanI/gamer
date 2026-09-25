@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'apps/api/**'
+      - 'hub/apps/api/**'
       - '.github/workflows/deploy-api.yml'
   pull_request:
     paths:
-      - 'apps/api/**'
+      - 'hub/apps/api/**'
       - '.github/workflows/deploy-api.yml'
   workflow_dispatch:
 
@@ -54,10 +54,10 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            -f apps/api/Dockerfile \
+            -f hub/apps/api/Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            .
+            hub/apps/api/
 
       - name: Push to GCR
         run: |
