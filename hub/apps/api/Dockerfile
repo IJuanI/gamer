@@ -22,9 +22,6 @@ RUN pnpm run --filter @gamer/shared build || true
 # Build the API
 RUN pnpm run --filter @gamer/api build
 
-# Prune dev dependencies to reduce image size
-RUN pnpm prune --prod
-
 # Stage 2: Runtime
 FROM node:24-alpine
 
