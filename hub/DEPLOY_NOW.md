@@ -21,12 +21,12 @@ This single script will:
 2. ✅ Build Docker image (~5 min)
 3. ✅ Push to Google Container Registry (~2 min)
 4. ✅ Create Terraform backend
-5. ✅ Deploy Cloud SQL + Cloud Run (~15 min)
+5. ✅ Deploy Firestore + Cloud Run (~15 min)
 6. ✅ Update frontend with new API URL
 7. ✅ Test that everything works
 8. ✅ Output the live API URL
 
-**Total time: ~30 minutes**
+**Total time: ~25 minutes** (faster with Firestore, no DB setup)
 
 ## What Happens
 
@@ -36,7 +36,7 @@ Infrastructure before:
 ❌ No API
 
 After full-deploy.sh:
-✅ PostgreSQL 15 with automated backups
+✅ Firestore database (free tier, $0/month)
 ✅ Cloud Run API with auto-scaling (0-100 replicas)
 ✅ Discord + Google OAuth configured
 ✅ Health checks and monitoring
@@ -49,7 +49,8 @@ The script outputs:
 
 ```
 API URL: https://gamer-hub-api-xxx.run.app
-Database: unity-dummy:us-central1:gamer-hub-db
+Database: Firestore (gamer-hub)
+Cost: $0/month (free tier)
 ```
 
 ### Test the API
