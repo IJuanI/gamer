@@ -24,20 +24,27 @@ RUN pnpm run --filter @gamer/api build
 # Stage 2: Runtime
 FROM node:24-alpine
 
+RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
+
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy all node_modules from builder (installed at workspace root)
-COPY --from=builder /app/node_modules ./node_modules
+# Copy workspace files for dependency installation
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/packages ./packages
 
 # Copy package files and built code
-COPY --from=builder /app/apps/api/package.json ./
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+# Install production dependencies
+RUN pnpm install --frozen-lockfile --prod
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
 
 # Start the API
-CMD ["node", "dist/main.js"]
+CMD ["node", "apps/api/dist/main.js"]
