@@ -29,4 +29,7 @@ async function bootstrap() {
   Logger.log(`GamER Hub API escuchando en http://localhost:${port}/api`, "Bootstrap");
 }
 
-void bootstrap();
+bootstrap().catch((error) => {
+  console.error("Bootstrap failed:", error);
+  process.exit(1);
+});
