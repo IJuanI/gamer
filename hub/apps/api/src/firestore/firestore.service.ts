@@ -5,9 +5,18 @@ import * as process from "process";
 
 @Injectable()
 export class FirestoreService implements OnModuleInit {
-  private db!: Firestore;
+  private db: Firestore | null = null;
+  private initPromise: Promise<Firestore> | null = null;
 
-  async onModuleInit() {
+  onModuleInit() {
+    // Initialize Firestore asynchronously without blocking app startup
+    this.initPromise = this.initialize().catch((error) => {
+      console.error("Failed to initialize Firestore:", error);
+      throw error;
+    });
+  }
+
+  private async initialize(): Promise<Firestore> {
     const projectId = process.env.FIREBASE_PROJECT_ID;
 
     if (!projectId) {
@@ -23,21 +32,25 @@ export class FirestoreService implements OnModuleInit {
       });
       this.db = getFirestore(app);
     }
-  }
-
-  getFirestore(): Firestore {
-    if (!this.db) {
-      throw new Error("Firestore not initialized");
-    }
     return this.db;
   }
 
-  collection(name: string) {
-    return this.getFirestore().collection(name);
+  async getFirestore(): Promise<Firestore> {
+    if (this.db) {
+      return this.db;
+    }
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+    return this.initialize();
+  }
+
+  async collection(name: string) {
+    return (await this.getFirestore()).collection(name);
   }
 
   async findUnique<T>(collection: string, id: string): Promise<T | null> {
-    const doc = await this.getFirestore().collection(collection).doc(id).get();
+    const doc = await (await this.getFirestore()).collection(collection).doc(id).get();
     if (!doc.exists) return null;
     return { id: doc.id, ...doc.data() } as T;
   }
@@ -47,7 +60,7 @@ export class FirestoreService implements OnModuleInit {
     field: string,
     value: string | number
   ): Promise<T | null> {
-    const query = await this.getFirestore()
+    const query = await (await this.getFirestore())
       .collection(collection)
       .where(field, "==", value)
       .limit(1)
@@ -59,7 +72,7 @@ export class FirestoreService implements OnModuleInit {
   }
 
   async create<T>(collection: string, data: Record<string, any>): Promise<T> {
-    const docRef = await this.getFirestore().collection(collection).add({
+    const docRef = await (await this.getFirestore()).collection(collection).add({
       ...data,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -74,7 +87,8 @@ export class FirestoreService implements OnModuleInit {
     id: string,
     data: Record<string, any>
   ): Promise<T> {
-    await this.getFirestore()
+    const db = await this.getFirestore();
+    await db
       .collection(collection)
       .doc(id)
       .set(
@@ -85,19 +99,19 @@ export class FirestoreService implements OnModuleInit {
         { merge: true }
       );
 
-    const doc = await this.getFirestore().collection(collection).doc(id).get();
+    const doc = await db.collection(collection).doc(id).get();
     return { id: doc.id, ...doc.data() } as T;
   }
 
   async delete(collection: string, id: string): Promise<void> {
-    await this.getFirestore().collection(collection).doc(id).delete();
+    await (await this.getFirestore()).collection(collection).doc(id).delete();
   }
 
   async query<T>(
     collection: string,
     where: Array<[field: string, operator: string, value: any]>
   ): Promise<T[]> {
-    let q: any = this.getFirestore().collection(collection);
+    let q: any = (await this.getFirestore()).collection(collection);
 
     for (const [field, operator, value] of where) {
       q = q.where(field, operator as any, value);
