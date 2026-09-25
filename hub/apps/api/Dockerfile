@@ -15,8 +15,7 @@ COPY apps ./apps
 RUN pnpm install --frozen-lockfile
 
 # Build the API and dependencies
-RUN pnpm run --filter @gamer/api prisma:generate && \
-    pnpm run --filter @gamer/api build
+RUN pnpm run --filter @gamer/api build
 
 # Stage 2: Runtime
 FROM node:24-alpine
@@ -36,9 +35,6 @@ COPY --from=builder /app/apps/api/package.json ./
 COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/node_modules ./root_node_modules
 COPY --from=builder /app/packages/*/dist ./packages/*/dist
-
-# Copy Prisma schema and migrations for runtime
-COPY --from=builder /app/apps/api/prisma ./prisma
 
 # Install only production dependencies
 RUN pnpm install --frozen-lockfile --production
