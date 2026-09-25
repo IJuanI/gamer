@@ -26,21 +26,23 @@ provider "google" {
 }
 
 # Enable Firestore API
-resource "google_project_service" "firestore_api" {
-  project = var.gcp_project_id
-  service = "firestore.googleapis.com"
-  disable_on_destroy = false
-}
+# TEMPORARILY COMMENTED - billing configuration issue
+# resource "google_project_service" "firestore_api" {
+#   project = var.gcp_project_id
+#   service = "firestore.googleapis.com"
+#   disable_on_destroy = false
+# }
 
 # Create Firestore database (free tier)
-resource "google_firestore_database" "main" {
-  project = var.gcp_project_id
-  name = "gamer-hub"
-  location_id = var.gcp_region
-  type = "FIRESTORE_NATIVE"
-
-  depends_on = [google_project_service.firestore_api]
-}
+# TEMPORARILY COMMENTED - billing configuration issue
+# resource "google_firestore_database" "main" {
+#   project = var.gcp_project_id
+#   name = "gamer-hub"
+#   location_id = var.gcp_region
+#   type = "FIRESTORE_NATIVE"
+#
+#   depends_on = [google_project_service.firestore_api]
+# }
 
 # Cloud Run Service Account
 resource "google_service_account" "gamer_hub_api" {
@@ -98,4 +100,23 @@ resource "google_project_service" "required_apis" {
   project            = var.gcp_project_id
   service            = each.value
   disable_on_destroy = false
+}
+
+# GitHub Actions service account key (for CI/CD)
+resource "google_service_account_key" "github_actions" {
+  service_account_id = google_service_account.gamer_hub_api.name
+  public_key_type    = "TYPE_X509_PEM_FILE"
+}
+
+# IAM role for Cloud Run deployments and artifact registry
+resource "google_project_iam_member" "github_cloud_run" {
+  project = var.gcp_project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
+}
+
+resource "google_project_iam_member" "github_artifact_registry" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
 }

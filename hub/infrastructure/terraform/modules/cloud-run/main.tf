@@ -16,11 +16,6 @@ resource "google_cloud_run_service" "api" {
           }
         }
 
-        env {
-          name  = "PORT"
-          value = "4000"
-        }
-
         dynamic "env" {
           for_each = var.environment_variables
           content {

@@ -10,6 +10,7 @@ import { TeamsModule } from "./teams/teams.module";
 import { RecruitmentPostsModule } from "./recruitment-posts/recruitment-posts.module";
 import { PlatformLinksModule } from "./platform-links/platform-links.module";
 import { HealthController } from "./health.controller";
+import { DevModule } from "./dev/dev.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HealthController } from "./health.controller";
     TeamsModule,
     RecruitmentPostsModule,
     PlatformLinksModule,
+    ...(process.env.NODE_ENV !== 'production' ? [DevModule] : []),
   ],
   controllers: [HealthController],
 })

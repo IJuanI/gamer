@@ -5,7 +5,7 @@ output "service_name" {
 
 output "service_url" {
   description = "URL of the Cloud Run service"
-  value       = google_cloud_run_service.api.status[0].url
+  value       = try(google_cloud_run_service.api.status[0].url, null)
 }
 
 output "service_id" {
@@ -15,7 +15,7 @@ output "service_id" {
 
 output "revision" {
   description = "Latest revision of the service"
-  value       = google_cloud_run_service.api.status[0].latest_ready_revision_name
+  value       = try(google_cloud_run_service.api.status[0].latest_ready_revision_name, null)
 }
 
 output "location" {
