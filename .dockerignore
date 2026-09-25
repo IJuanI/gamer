@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+DEPLOYMENT*.md
+DEPLOY_NOW.md
+FIRESTORE_MIGRATION.md
+GITHUB_ACTIONS_SETUP.md
+
+# Dependencies and build artifacts
+node_modules/
+dist/
+.next/
+build/
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+
+# Tests
+*.test.ts
+*.spec.ts
+__tests__/
+test/
+
+# Temporary files
+*.tmp
+.cache/
+
+# Lock files for other package managers (we use pnpm)
+package-lock.json
+yarn.lock
+
+# Local development
+docker-compose.yml
+.env.example
+
+# Build context doesn't need entire hub directory structure
+hub/**/node_modules/
+hub/**/.next/
+hub/**/dist/

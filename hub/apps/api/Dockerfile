@@ -14,16 +14,16 @@ COPY hub/packages ./packages
 COPY hub/apps ./apps
 
 # Install dependencies (frozen lockfile for reproducibility)
-RUN pnpm install --frozen-lockfile && \
-    echo "Dependencies installed to:" && \
-    ls -lah /app/node_modules 2>&1 | head -20 || echo "node_modules not found"
+RUN pnpm install --frozen-lockfile
 
 # Build all packages first
 RUN pnpm run --filter @gamer/shared build || true
 
 # Build the API
-RUN pnpm run --filter @gamer/api build && \
-    echo "API built successfully"
+RUN pnpm run --filter @gamer/api build
+
+# Prune dev dependencies to reduce image size
+RUN pnpm prune --prod
 
 # Stage 2: Runtime
 FROM node:24-alpine
@@ -32,11 +32,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy entire node_modules tree from builder
+# Copy pruned node_modules (prod only, no devDeps)
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy built API code
+# Copy built API code (excluding source maps for smaller image)
 COPY --from=builder /app/apps/api/dist ./dist
+RUN find ./dist -name "*.map" -delete
 
 # Expose the port (Cloud Run uses 8080)
 EXPOSE 8080
