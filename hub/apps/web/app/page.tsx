@@ -70,7 +70,7 @@ export default function LandingPage() {
 
           <div className="animate-fade-up delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/register"
+              href="/registro"
               className="group flex items-center gap-2 rounded-lg bg-[var(--gamer-purple)] px-7 py-3.5 font-semibold text-white box-glow-purple transition-transform hover:scale-105"
             >
               <Gamepad2 className="h-5 w-5" />
@@ -155,7 +155,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-9 h-px w-full neon-line-h" />
           <Link
-            href="/register"
+            href="/registro"
             className="mt-9 inline-flex items-center gap-2 rounded-lg bg-[var(--gamer-purple)] px-8 py-4 font-semibold text-white box-glow-purple transition-transform hover:scale-105"
           >
             <Gamepad2 className="h-5 w-5" />

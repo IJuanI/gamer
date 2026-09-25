@@ -24,7 +24,7 @@ export function AuthShell({
         <div className="relative panel-clip border border-white/8 bg-[var(--background-elevated)] p-8">
           <div className="hud-bracket-tl" />
           <div className="hud-bracket-br" />
-          <h1 className="font-azonix text-2xl text-white">{title}</h1>
+          <h1 className="font-azonix text-2xl text-[var(--foreground)]">{title}</h1>
           <p className="mt-2 text-sm text-[var(--text-secondary)]">{subtitle}</p>
           <div className="mt-7">{children}</div>
         </div>

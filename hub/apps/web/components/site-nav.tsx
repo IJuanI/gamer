@@ -102,7 +102,7 @@ export function SiteNav({ section }: { section?: "jam" | "gamedevs" | "gamer" } 
                   </a>
                 ) : (
                   <Link
-                    href="/register"
+                    href="/registro"
                     className="rounded-md px-4 py-2 font-medium transition-transform hover:scale-105"
                     style={isGameDevsRoute ? {
                       backgroundColor: "#72b341",
