@@ -64,7 +64,7 @@ module "cloud_run" {
 
   service_name           = var.cloud_run_service_name
   region                 = var.gcp_region
-  image_url              = var.container_image_url
+  image_url              = "us-central1-docker.pkg.dev/unity-dummy/docker/gamer-hub-api:latest"
   service_account_email  = google_service_account.gamer_hub_api.email
   memory                 = var.cloud_run_memory
   cpu                    = var.cloud_run_cpu
@@ -84,7 +84,8 @@ module "cloud_run" {
   }
 
   depends_on = [
-    google_project_iam_member.firestore_user
+    google_project_iam_member.firestore_user,
+    google_artifact_registry_repository.docker
   ]
 }
 
@@ -119,6 +120,31 @@ resource "google_project_iam_member" "github_artifact_registry" {
   project = var.gcp_project_id
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
+}
+
+# IAM role to allow service account to act as itself
+resource "google_project_iam_member" "github_service_account_user" {
+  project = var.gcp_project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.gamer_hub_api.email}"
+}
+
+# Enable Artifact Registry API
+resource "google_project_service" "artifact_registry_api" {
+  project            = var.gcp_project_id
+  service            = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Create Docker repository in Artifact Registry
+resource "google_artifact_registry_repository" "docker" {
+  location      = var.gcp_region
+  repository_id = "docker"
+  description   = "Docker repository for GamER Hub API"
+  format        = "DOCKER"
+  project       = var.gcp_project_id
+
+  depends_on = [google_project_service.artifact_registry_api]
 }
 
 # Enable Cloud Build API
