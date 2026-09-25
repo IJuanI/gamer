@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Shield, Users, Bed, ShowerHead, UtensilsCrossed, Building, Lock, Baby } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
+
+export const metadata: Metadata = {
+  title: "Normas de Convivencia — Paraná Game Jam",
+  description:
+    "Reglas y normas de convivencia para los participantes de la Paraná Game Jam 2026.",
+  openGraph: {
+    title: "Normas de Convivencia — Paraná Game Jam",
+    description: "Normas de convivencia para la Paraná Game Jam.",
+    locale: "es_AR",
+    type: "website",
+  },
+};
 
 const GREEN = "#3cff9e";
 const PURPLE = "#8b6cff";
