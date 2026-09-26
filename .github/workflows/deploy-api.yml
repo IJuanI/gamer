@@ -58,14 +58,24 @@ jobs:
             --no-cache \
             -f hub/apps/api/Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} \
-            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg CACHE_BUST=${{ github.sha }} \
             .
 
       - name: Push to GCR
         run: |
           docker push ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
-          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Clean old PR image tags
+        if: github.event_name == 'pull_request'
+        run: |
+          # Delete old PR tags (keep only current PR)
+          gcloud artifacts docker images list ${{ env.IMAGE_NAME }} --format='value(tags)' \
+            --project=${{ env.GCP_PROJECT }} | grep -oE 'pr-[0-9]+' | sort -u | while read tag; do
+            if [[ "$tag" != "pr-${{ github.event.pull_request.number }}" ]]; then
+              gcloud artifacts docker images delete ${{ env.IMAGE_NAME }}:$tag \
+                --project=${{ env.GCP_PROJECT }} --quiet || true
+            fi
+          done
 
       - name: Deploy to Cloud Run (PR - no traffic)
         if: github.event_name == 'pull_request'
