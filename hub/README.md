@@ -17,33 +17,68 @@ hub/
    └─ shared/  shared TypeScript types (roles, DTOs)
 ```
 
-- **DB**: PostgreSQL 16 via Docker (`docker-compose.yml`), host port **5433**.
-- **ORM**: Prisma (`apps/api/prisma/schema.prisma`) — `User` + `Account` + `Role` enum.
+- **DB**: Firestore (production) / Firestore Emulator (local) — direct firebase-admin SDK.
 - **Auth**: email/password (bcrypt) **and** OAuth (Discord + Google), session via
   httpOnly JWT cookie. RBAC with `ADMIN` / `EDITOR` / `MEMBER` roles enforced by a
   global `RolesGuard` + `@Roles()` decorator.
+- **Local dev DB**: Firestore Emulator auto-starts via `pnpm dev` (no Docker required).
 
 ## Quick start
 
 ```bash
 cd hub
-cp .env.example .env          # adjust secrets / add OAuth creds if you have them
-pnpm install
-pnpm db:up                    # start Postgres in Docker
-pnpm db:migrate               # create tables
-pnpm db:seed                  # seed ADMIN / EDITOR / MEMBER demo users
-pnpm dev                      # runs api (:4000) + web (:3000) together
+pnpm install                  # install dependencies + firebase-tools
+pnpm dev                      # starts Firestore Emulator + api (:4000) + web (:3000)
 ```
 
-Open http://localhost:3000.
+The first run will take ~30s as the emulator starts. Open http://localhost:3000.
 
-### Seeded demo accounts
+### Seed demo accounts (optional)
+
+To populate demo accounts for quick testing:
+
+```bash
+pnpm db:seed:local            # seed ADMIN / EDITOR / MEMBER demo users
+```
+
+### Demo accounts (after seeding)
 
 | Role   | Email                  | Password    |
 |--------|------------------------|-------------|
 | Admin  | admin@gamer.net.ar     | admin1234   |
 | Editor | editor@gamer.net.ar    | editor1234  |
 | Member | miembro@gamer.net.ar   | miembro1234 |
+
+## Local Development Database
+
+### Firestore Emulator
+
+The `pnpm dev` command automatically starts Firestore Emulator at `localhost:8080`. The emulator:
+- ✅ Requires no GCP credentials or authentication
+- ✅ Matches production Firestore schema exactly
+- ✅ Auto-stops when `pnpm dev` exits
+- ✅ Data persists across restarts (stored in `~/.cache/firebase/emulators`)
+
+### Seed Demo Accounts
+
+After `pnpm dev` is running, in another terminal:
+
+```bash
+pnpm db:seed:local
+```
+
+This seeds:
+- Games: CS2, League of Legends, Valorant, Rocket League
+- Users: Admin, Editor, Member (see Demo accounts table above)
+
+### Reset Emulator Data
+
+```bash
+# Clear all emulator data
+rm -rf ~/.cache/firebase/emulators/firestore.ldb
+
+# Next `pnpm dev` starts with clean slate
+```
 
 ## OAuth (optional)
 

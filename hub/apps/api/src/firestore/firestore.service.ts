@@ -18,6 +18,7 @@ export class FirestoreService implements OnModuleInit {
 
   private async initialize(): Promise<Firestore> {
     const projectId = process.env.FIREBASE_PROJECT_ID;
+    const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST;
 
     if (!projectId) {
       throw new Error("FIREBASE_PROJECT_ID environment variable is not set");
@@ -32,6 +33,14 @@ export class FirestoreService implements OnModuleInit {
       });
       this.db = getFirestore(app);
     }
+
+    // Log connection info for debugging
+    if (emulatorHost) {
+      console.log(`[Firestore] Connected to Emulator at ${emulatorHost}`);
+    } else {
+      console.log(`[Firestore] Connected to production (project: ${projectId})`);
+    }
+
     return this.db;
   }
 

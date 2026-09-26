@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "seed:firestore": "tsx prisma/seed-firestore.ts"
   },
   "dependencies": {
     "@gamer/shared": "workspace:*",
