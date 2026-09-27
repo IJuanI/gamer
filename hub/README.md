@@ -43,11 +43,11 @@ pnpm db:seed:local            # seed ADMIN / EDITOR / MEMBER demo users
 
 ### Demo accounts (after seeding)
 
-| Role   | Email  | Password    |
-|--------|--------|-------------|
-| Admin  | admin  | admin1234   |
-| Editor | editor | editor1234  |
-| Member | member | member1234  |
+| Role   | Email        | Password    |
+|--------|--------------|-------------|
+| Admin  | admin@local  | admin1234   |
+| Editor | editor@local | editor1234  |
+| Member | member@local | member1234  |
 
 ## Local Development Database
 

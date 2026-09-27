@@ -22,9 +22,9 @@ async function main() {
   }
 
   const seedUsers = [
-    { email: "admin", displayName: "Admin GamER", role: Role.ADMIN, password: "admin1234" },
-    { email: "editor", displayName: "Editor GamER", role: Role.EDITOR, password: "editor1234" },
-    { email: "member", displayName: "Miembro GamER", role: Role.MEMBER, password: "member1234" },
+    { email: "admin@local", displayName: "Admin GamER", role: Role.ADMIN, password: "admin1234" },
+    { email: "editor@local", displayName: "Editor GamER", role: Role.EDITOR, password: "editor1234" },
+    { email: "member@local", displayName: "Miembro GamER", role: Role.MEMBER, password: "member1234" },
   ];
 
   for (const u of seedUsers) {

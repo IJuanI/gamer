@@ -41,19 +41,19 @@ async function main() {
   // Seed users
   const users = [
     {
-      email: "admin",
+      email: "admin@local",
       displayName: "Admin GamER",
       role: "ADMIN",
       password: "admin1234",
     },
     {
-      email: "editor",
+      email: "editor@local",
       displayName: "Editor GamER",
       role: "EDITOR",
       password: "editor1234",
     },
     {
-      email: "member",
+      email: "member@local",
       displayName: "Miembro GamER",
       role: "MEMBER",
       password: "member1234",

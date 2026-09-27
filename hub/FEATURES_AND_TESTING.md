@@ -27,11 +27,11 @@ GamER Hub is a community platform for Entre Ríos Gamers. It provides:
 Just visit **https://gameer.com.ar** and test. Uses live Cloud Run API and Firestore database.
 
 **Pre-seeded demo accounts**:
-| Role   | Email  | Password    |
-|--------|--------|-------------|
-| Admin  | admin  | admin1234   |
-| Editor | editor | editor1234  |
-| Member | member | member1234  |
+| Role   | Email        | Password    |
+|--------|--------------|-------------|
+| Admin  | admin@local  | admin1234   |
+| Editor | editor@local | editor1234  |
+| Member | member@local | member1234  |
 
 These accounts are seeded in both local dev and production Firestore.
 
