@@ -8,6 +8,7 @@
     "start": "next start --port 3000",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
+    "test": "playwright test e2e/smoke.spec.ts",
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots",
     "pages:build": "opennextjs-cloudflare build && node patch-worker.mjs"
