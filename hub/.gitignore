@@ -4,8 +4,6 @@ node_modules/
 dist/
 logs/
 test-results/
-test-output.log
-test-results.txt
 playwright-report/
 coverage/
 .env
@@ -15,3 +13,10 @@ coverage/
 .telemetry.json
 apps/api/prisma/dev.db
 .wrangler/
+
+# Ad-hoc scratch scripts/logs at repo root (any name) — real tests live
+# under apps/*/test or a tests/ dir, not loose files at the hub root.
+/*.log
+/*.txt
+/test-*.js
+/test-*.ts

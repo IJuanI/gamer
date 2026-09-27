@@ -8,6 +8,7 @@ Repository for the **GamER** brand system and banner-generation tooling for **En
 2. If working on banners, also read `banners/CLAUDE.md`
 3. If generating banner content, read `docs/prompts.md`
 4. If working on format dimensions or safe zones, read `docs/formats.md`
+5. If working in `hub/` (the community platform app), read `hub/CLAUDE.md` first
 
 ## Repo layout
 
