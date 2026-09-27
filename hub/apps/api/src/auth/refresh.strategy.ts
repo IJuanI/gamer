@@ -6,30 +6,33 @@ import { UsersService } from "../users/users.service";
 
 const INACTIVITY_TIMEOUT_DAYS = 90;
 
-export interface JwtPayload {
+export interface RefreshJwtPayload {
   sub: string;
-  type?: "access" | "refresh";
+  type: "refresh";
 }
 
 function cookieExtractor(req: Request): string | null {
-  return req?.cookies?.access_token ?? null;
+  return req?.cookies?.refresh_token ?? null;
 }
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
+export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
   constructor(private readonly users: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         cookieExtractor,
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromBodyAsJson("refreshToken"),
       ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET ?? "dev-only-change-me-please-32chars-min",
     });
   }
 
-  // Whatever this returns becomes request.user.
-  async validate(payload: JwtPayload) {
+  async validate(payload: RefreshJwtPayload) {
+    if (payload.type !== "refresh") {
+      throw new UnauthorizedException("Invalid token type");
+    }
+
     const user = await this.users.findById(payload.sub);
     if (!user) throw new UnauthorizedException();
 

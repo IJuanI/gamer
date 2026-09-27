@@ -10,6 +10,7 @@ interface User {
   passwordHash?: string;
   avatarUrl?: string | null;
   role?: string;
+  lastActivityAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,6 +41,10 @@ export class UsersService {
 
   async getAll(): Promise<User[]> {
     return this.firestore.findAll<User>("users");
+  }
+
+  async updateActivity(id: string): Promise<void> {
+    await this.firestore.set<Partial<User>>("users", id, { lastActivityAt: new Date().toISOString() });
   }
 
   async create(data: {

@@ -5,6 +5,8 @@ import { UsersService } from "../users/users.service";
 import { RegisterDto } from "./dto";
 
 const SALT_ROUNDS = 12;
+const ACCESS_TOKEN_EXPIRES_IN = "15m";
+const REFRESH_TOKEN_EXPIRES_IN = "90d";
 
 interface UserWithPassword {
   id: string;
@@ -15,6 +17,12 @@ interface UserWithPassword {
   role?: string;
   createdAt: string;
   updatedAt: string;
+  lastActivityAt?: string;
+}
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
 }
 
 @Injectable()
@@ -46,7 +54,10 @@ export class AuthService {
     return user as any;
   }
 
-  signToken(user: UserWithPassword): string {
-    return this.jwt.sign({ sub: user.id });
+  signTokens(user: UserWithPassword): TokenPair {
+    return {
+      accessToken: this.jwt.sign({ sub: user.id, type: "access" }, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
+      refreshToken: this.jwt.sign({ sub: user.id, type: "refresh" }, { expiresIn: REFRESH_TOKEN_EXPIRES_IN }),
+    };
   }
 }

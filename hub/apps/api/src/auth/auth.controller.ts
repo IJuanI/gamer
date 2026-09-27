@@ -24,25 +24,38 @@ interface User {
   passwordHash?: string;
   avatarUrl?: string | null;
   role?: string;
+  lastActivityAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-const COOKIE_NAME = "access_token";
-
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly users: UsersService,
+  ) {}
 
-  private setSessionCookie(res: Response, user: User) {
-    const token = this.auth.signToken(user);
-    res.cookie(COOKIE_NAME, token, {
+  private setSessionCookies(res: Response, tokens: { accessToken: string; refreshToken: string }) {
+    res.cookie("access_token", tokens.accessToken, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 15 * 60 * 1000,
       path: "/",
     });
+    res.cookie("refresh_token", tokens.refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 90 * 24 * 60 * 60 * 1000,
+      path: "/",
+    });
+  }
+
+  private clearSessionCookies(res: Response) {
+    res.clearCookie("access_token", { path: "/" });
+    res.clearCookie("refresh_token", { path: "/" });
   }
 
   @Post("register")
@@ -51,7 +64,9 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
     const user = await this.auth.register(dto);
-    this.setSessionCookie(res, user);
+    await this.users.updateActivity(user.id);
+    const tokens = this.auth.signTokens(user);
+    this.setSessionCookies(res, tokens);
     return { user: UsersService.toPublic(user) };
   }
 
@@ -61,20 +76,39 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
     const user = await this.auth.validateCredentials(dto.email, dto.password);
-    this.setSessionCookie(res, user);
+    await this.users.updateActivity(user.id);
+    const tokens = this.auth.signTokens(user);
+    this.setSessionCookies(res, tokens);
+    return { user: UsersService.toPublic(user) };
+  }
+
+  @Post("refresh")
+  @UseGuards(AuthGuard("refresh"))
+  async refresh(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponse> {
+    if (!user) throw new UnauthorizedException();
+    await this.users.updateActivity(user.id);
+    const tokens = this.auth.signTokens(user);
+    this.setSessionCookies(res, tokens);
     return { user: UsersService.toPublic(user) };
   }
 
   @Post("logout")
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie(COOKIE_NAME, { path: "/" });
+    this.clearSessionCookies(res);
     return { ok: true };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get("me")
-  me(@CurrentUser() user: User): AuthResponse {
+  async me(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponse> {
     if (!user) throw new UnauthorizedException();
+    await this.users.updateActivity(user.id);
     return { user: UsersService.toPublic(user) };
   }
 
@@ -87,8 +121,11 @@ export class AuthController {
 
   @Get("discord/callback")
   @UseGuards(AuthGuard("discord"))
-  discordCallback(@Req() req: Request, @Res() res: Response) {
-    this.setSessionCookie(res, req.user as User);
+  async discordCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as User;
+    await this.users.updateActivity(user.id);
+    const tokens = this.auth.signTokens(user);
+    this.setSessionCookies(res, tokens);
     res.redirect(`${process.env.WEB_ORIGIN ?? "http://localhost:3000"}/dashboard`);
   }
 
@@ -101,8 +138,11 @@ export class AuthController {
 
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
-  googleCallback(@Req() req: Request, @Res() res: Response) {
-    this.setSessionCookie(res, req.user as User);
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as User;
+    await this.users.updateActivity(user.id);
+    const tokens = this.auth.signTokens(user);
+    this.setSessionCookies(res, tokens);
     res.redirect(`${process.env.WEB_ORIGIN ?? "http://localhost:3000"}/dashboard`);
   }
 }

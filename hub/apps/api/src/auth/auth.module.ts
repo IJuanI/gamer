@@ -5,6 +5,7 @@ import { UsersModule } from "../users/users.module";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./jwt.strategy";
+import { RefreshStrategy } from "./refresh.strategy";
 import { DiscordStrategy } from "./discord.strategy";
 import { GoogleStrategy } from "./google.strategy";
 
@@ -24,13 +25,12 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET ?? "dev-only-change-me-please-32chars-min",
-      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN ?? "7d") as `${number}d` },
     }),
   ],
   controllers: [AuthController],
   // RolesGuard is NOT registered globally: global guards run before
   // controller-scoped JwtAuthGuard, so request.user wouldn't be set yet.
   // Instead protected routes use @UseGuards(JwtAuthGuard, RolesGuard).
-  providers: [AuthService, JwtStrategy, ...oauthProviders],
+  providers: [AuthService, JwtStrategy, RefreshStrategy, ...oauthProviders],
 })
 export class AuthModule {}
