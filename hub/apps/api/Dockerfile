@@ -1,4 +1,5 @@
 # Single-stage production build for GamER Hub API
+# AuthModule re-enabled for login/register endpoints
 FROM node:24-alpine
 
 RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
