@@ -22,9 +22,9 @@ async function main() {
   }
 
   const seedUsers = [
-    { email: "admin@gamer.net.ar", displayName: "Admin GamER", role: Role.ADMIN, password: "admin1234" },
-    { email: "editor@gamer.net.ar", displayName: "Editor GamER", role: Role.EDITOR, password: "editor1234" },
-    { email: "miembro@gamer.net.ar", displayName: "Miembro GamER", role: Role.MEMBER, password: "miembro1234" },
+    { email: "admin", displayName: "Admin GamER", role: Role.ADMIN, password: "admin1234" },
+    { email: "editor", displayName: "Editor GamER", role: Role.EDITOR, password: "editor1234" },
+    { email: "member", displayName: "Miembro GamER", role: Role.MEMBER, password: "member1234" },
   ];
 
   for (const u of seedUsers) {

@@ -43,11 +43,11 @@ pnpm db:seed:local            # seed ADMIN / EDITOR / MEMBER demo users
 
 ### Demo accounts (after seeding)
 
-| Role   | Email                  | Password    |
-|--------|------------------------|-------------|
-| Admin  | admin@gamer.net.ar     | admin1234   |
-| Editor | editor@gamer.net.ar    | editor1234  |
-| Member | miembro@gamer.net.ar   | miembro1234 |
+| Role   | Email  | Password    |
+|--------|--------|-------------|
+| Admin  | admin  | admin1234   |
+| Editor | editor | editor1234  |
+| Member | member | member1234  |
 
 ## Local Development Database
 

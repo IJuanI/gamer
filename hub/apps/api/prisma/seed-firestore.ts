@@ -41,22 +41,22 @@ async function main() {
   // Seed users
   const users = [
     {
-      email: "admin@gamer.net.ar",
+      email: "admin",
       displayName: "Admin GamER",
       role: "ADMIN",
       password: "admin1234",
     },
     {
-      email: "editor@gamer.net.ar",
+      email: "editor",
       displayName: "Editor GamER",
       role: "EDITOR",
       password: "editor1234",
     },
     {
-      email: "miembro@gamer.net.ar",
+      email: "member",
       displayName: "Miembro GamER",
       role: "MEMBER",
-      password: "miembro1234",
+      password: "member1234",
     },
   ];
 
