@@ -37,17 +37,18 @@ export class AuthController {
   ) {}
 
   private setSessionCookies(res: Response, tokens: { accessToken: string; refreshToken: string }) {
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("access_token", tokens.accessToken, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
       maxAge: 15 * 60 * 1000,
       path: "/",
     });
     res.cookie("refresh_token", tokens.refreshToken, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
       maxAge: 90 * 24 * 60 * 60 * 1000,
       path: "/",
     });

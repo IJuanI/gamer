@@ -19,10 +19,7 @@ function cookieExtractor(req: Request): string | null {
 export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
   constructor(private readonly users: UsersService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        cookieExtractor,
-        ExtractJwt.fromBodyAsJson("refreshToken"),
-      ]),
+      jwtFromRequest: cookieExtractor,
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET ?? "dev-only-change-me-please-32chars-min",
     });

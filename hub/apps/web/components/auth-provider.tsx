@@ -25,23 +25,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshTokens = useCallback(async () => {
     try {
       const { user } = await api.refresh();
+      if (!user) {
+        setUser(null);
+        return false;
+      }
       setUser(user);
       return true;
-    } catch {
+    } catch (err) {
+      console.error("[Auth] Token refresh failed:", err instanceof Error ? err.message : err);
       setUser(null);
       return false;
     }
   }, []);
 
   const initializeAuth = useCallback(async () => {
+    if (!API_CONFIGURED) {
+      setLoading(false);
+      return;
+    }
     try {
-      // First, try to refresh the access token using the refresh token
+      // Try to refresh the access token using the refresh token
       const success = await refreshTokens();
       if (!success) {
-        setLoading(false);
-        return;
+        console.log("[Auth] Refresh failed on init, user must login");
       }
-    } catch {
+    } catch (err) {
+      console.error("[Auth] Init error:", err);
       setUser(null);
     } finally {
       setLoading(false);
