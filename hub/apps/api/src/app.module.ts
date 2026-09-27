@@ -10,8 +10,10 @@ import { TeamsModule } from "./teams/teams.module";
 import { RecruitmentPostsModule } from "./recruitment-posts/recruitment-posts.module";
 import { PlatformLinksModule } from "./platform-links/platform-links.module";
 import { TelemetryModule } from "./telemetry/telemetry.module";
+import { MetricsModule } from "./metrics/metrics.module";
 import { HealthController } from "./health.controller";
 import { RequestLoggingMiddleware } from "./common/request-logging.middleware";
+import { MetricsMiddleware } from "./metrics/metrics.middleware";
 import { DatabaseInitializer } from "./common/database-init";
 
 @Module({
@@ -30,6 +32,7 @@ import { DatabaseInitializer } from "./common/database-init";
     RecruitmentPostsModule,
     PlatformLinksModule,
     TelemetryModule,
+    MetricsModule,
     // TODO: Migrate to Firestore
     // DevModule,
   ],
@@ -38,6 +41,8 @@ import { DatabaseInitializer } from "./common/database-init";
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestLoggingMiddleware).forRoutes("*");
+    consumer
+      .apply(RequestLoggingMiddleware, MetricsMiddleware)
+      .forRoutes("*");
   }
 }
