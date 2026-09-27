@@ -13,7 +13,15 @@ export interface RefreshJwtPayload {
 
 function cookieExtractor(req: Request): string | null {
   const token = req?.cookies?.refresh_token ?? null;
-  console.log("[RefreshStrategy] Cookie extraction - has token:", !!token);
+  const requestId = (req as any).id || "unknown";
+  // Log at the Express middleware level for diagnostic purposes
+  if (!token) {
+    (req as any).__refreshLog = {
+      timestamp: new Date().toISOString(),
+      event: "refresh_token_missing",
+      requestId,
+    };
+  }
   return token;
 }
 
@@ -28,29 +36,22 @@ export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
   }
 
   async validate(payload: RefreshJwtPayload) {
-    console.log("[RefreshStrategy] Validating payload, type:", payload.type, "userId:", payload.sub);
-
     if (payload.type !== "refresh") {
-      console.error("[RefreshStrategy] Invalid token type:", payload.type);
       throw new UnauthorizedException("Invalid token type");
     }
 
     const user = await this.users.findById(payload.sub);
     if (!user) {
-      console.error("[RefreshStrategy] User not found:", payload.sub);
       throw new UnauthorizedException("User not found");
     }
 
     const lastActivity = user.lastActivityAt ? new Date(user.lastActivityAt) : new Date(user.createdAt);
     const daysSinceActivity = (Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
-    console.log("[RefreshStrategy] User activity check - days since activity:", daysSinceActivity.toFixed(1));
 
     if (daysSinceActivity > INACTIVITY_TIMEOUT_DAYS) {
-      console.error("[RefreshStrategy] Session expired due to inactivity:", daysSinceActivity.toFixed(1), "days");
       throw new UnauthorizedException("Session expired due to inactivity");
     }
 
-    console.log("[RefreshStrategy] Token validation successful");
     return user;
   }
 }

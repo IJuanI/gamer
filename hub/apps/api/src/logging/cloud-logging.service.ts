@@ -77,4 +77,27 @@ export class CloudLoggingService implements OnModuleInit {
       }
     }
   }
+
+  async logInfo(message: string, metadata?: Record<string, any>, context?: string): Promise<void> {
+    const entry = {
+      timestamp: new Date(),
+      severity: "INFO",
+      jsonPayload: {
+        message,
+        context,
+        metadata,
+      },
+    };
+
+    if (this.logger) {
+      try {
+        await this.logger.write(this.logger.entry(entry));
+      } catch (err) {
+        console.error("Failed to write to Cloud Logging:", err);
+      }
+    } else {
+      // Fallback to console in dev
+      console.log("[INFO]", context || "", message, metadata || "");
+    }
+  }
 }

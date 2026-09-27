@@ -37,27 +37,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      if (isRefreshPath) {
-        console.log(`[API] Refresh attempt ${attempt + 1}/${MAX_RETRIES + 1}`);
-      }
-
       const res = await fetch(`${API_URL}/api${path}`, {
         ...init,
         credentials: "include",
         headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
       });
 
-      if (isRefreshPath) {
-        console.log(`[API] Refresh response status: ${res.status}`);
-      }
-
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         const error = new Error(body.message ?? `Request failed (${res.status})`);
-
-        if (isRefreshPath) {
-          console.error("[API] Refresh failed:", res.status, body.message || "no message");
-        }
 
         // Retry on 5xx errors (server errors) or network issues
         const isRetryable = res.status >= 500 && attempt < MAX_RETRIES;
@@ -69,7 +57,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         }
 
         // Report API errors to telemetry
-        if (res.status >= 500 || path === "/auth/refresh") {
+        if (res.status >= 500 || isRefreshPath) {
           reportError({
             message: `API error: ${path}`,
             context: "apiError",
@@ -78,6 +66,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
               status: res.status,
               message: body.message,
               attempts: attempt + 1,
+              requestId: res.headers.get("x-request-id"),
             },
           }).catch(() => {});
         }
@@ -85,17 +74,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         throw error;
       }
 
-      if (isRefreshPath) {
-        console.log("[API] Refresh successful");
-      }
-
       return res.json() as Promise<T>;
     } catch (err) {
       if (err instanceof TypeError && attempt < MAX_RETRIES) {
         // Network error, retry
-        if (isRefreshPath) {
-          console.error("[API] Refresh network error:", err instanceof Error ? err.message : String(err));
-        }
         lastError = err as Error;
         await sleep(RETRY_DELAY * Math.pow(2, attempt));
         continue;

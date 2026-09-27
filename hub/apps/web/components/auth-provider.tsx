@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import type { PublicUser } from "@gamer/shared";
 import { api, API_CONFIGURED } from "@/lib/api";
+import { reportError } from "@/lib/telemetry";
 
 interface AuthContextValue {
   user: PublicUser | null;
@@ -26,14 +27,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshTokens = useCallback(async () => {
     try {
-      console.log("[Auth] Attempting token refresh...");
-
-      // Debug: check if refresh_token cookie exists
       const cookies = document.cookie;
       const hasRefreshToken = cookies.includes("refresh_token");
-      console.log("[Auth] Has refresh_token cookie:", hasRefreshToken);
+
+      await reportError({
+        message: "Token refresh attempt",
+        context: "tokenRefresh",
+        metadata: {
+          event: "refresh_attempt",
+          hasRefreshTokenCookie: hasRefreshToken,
+          timestamp: new Date().toISOString(),
+        },
+      }).catch(() => {});
+
       if (!hasRefreshToken) {
-        console.warn("[Auth] refresh_token cookie not found - cannot refresh");
+        await reportError({
+          message: "Token refresh failed: refresh_token cookie not found",
+          context: "tokenRefresh",
+          metadata: {
+            event: "refresh_failed",
+            reason: "no_refresh_token_cookie",
+            failureCount: failedRefreshCountRef.current + 1,
+          },
+        }).catch(() => {});
         failedRefreshCountRef.current = MAX_REFRESH_FAILURES;
         setUser(null);
         return false;
@@ -41,23 +57,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { user } = await api.refresh();
       if (!user) {
-        console.error("[Auth] Refresh returned no user");
+        await reportError({
+          message: "Token refresh failed: no user in response",
+          context: "tokenRefresh",
+          metadata: {
+            event: "refresh_failed",
+            reason: "no_user_in_response",
+            failureCount: failedRefreshCountRef.current + 1,
+          },
+        }).catch(() => {});
         setUser(null);
         failedRefreshCountRef.current = MAX_REFRESH_FAILURES;
         return false;
       }
-      console.log("[Auth] Token refresh successful");
+
+      await reportError({
+        message: "Token refresh successful",
+        context: "tokenRefresh",
+        metadata: {
+          event: "refresh_success",
+          userId: user.id,
+          timestamp: new Date().toISOString(),
+        },
+      }).catch(() => {});
+
       setUser(user);
-      failedRefreshCountRef.current = 0; // Reset on success
+      failedRefreshCountRef.current = 0;
       return true;
     } catch (err) {
       failedRefreshCountRef.current++;
       const errMsg = err instanceof Error ? err.message : String(err);
-      console.error(
-        `[Auth] Token refresh failed (${failedRefreshCountRef.current}/${MAX_REFRESH_FAILURES}): ${errMsg}`
-      );
+
+      await reportError({
+        message: `Token refresh failed: ${errMsg}`,
+        context: "tokenRefresh",
+        metadata: {
+          event: "refresh_failed",
+          reason: "exception",
+          error: errMsg,
+          failureCount: failedRefreshCountRef.current,
+          maxFailures: MAX_REFRESH_FAILURES,
+        },
+      }).catch(() => {});
+
       if (failedRefreshCountRef.current >= MAX_REFRESH_FAILURES) {
-        console.log("[Auth] Max refresh failures reached, user must login");
+        await reportError({
+          message: "Max token refresh failures reached, logging out user",
+          context: "tokenRefresh",
+          metadata: {
+            event: "max_failures_reached",
+            failureCount: failedRefreshCountRef.current,
+          },
+        }).catch(() => {});
         setUser(null);
       }
       return false;
@@ -70,13 +121,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      // Try to refresh the access token using the refresh token
-      const success = await refreshTokens();
-      if (!success) {
-        console.log("[Auth] Refresh failed on init, user must login");
-      }
+      await refreshTokens();
     } catch (err) {
-      console.error("[Auth] Init error:", err);
+      await reportError({
+        message: `Auth initialization error: ${err instanceof Error ? err.message : String(err)}`,
+        context: "authInit",
+        metadata: {
+          event: "init_error",
+        },
+      }).catch(() => {});
       setUser(null);
     } finally {
       setLoading(false);

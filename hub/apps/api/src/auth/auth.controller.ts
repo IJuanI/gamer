@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Post,
   Req,
   Res,
@@ -17,6 +18,7 @@ import { UsersService } from "../users/users.service";
 import { LoginDto, RegisterDto } from "./dto";
 import { CurrentUser } from "./decorators";
 import { JwtAuthGuard } from "./guards";
+import { CloudLoggingService } from "../logging/cloud-logging.service";
 
 interface User {
   id: string;
@@ -36,6 +38,7 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly users: UsersService,
+    @Inject(CloudLoggingService) private readonly cloudLogging: CloudLoggingService,
   ) {}
 
   private setSessionCookies(res: Response, tokens: { accessToken: string; refreshToken: string }) {
@@ -101,20 +104,42 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
-    console.log("[Auth] Refresh endpoint called");
-    console.log("[Auth] Has refresh_token cookie:", !!req.cookies?.refresh_token);
-    console.log("[Auth] User from guard:", user?.id);
+    const requestId = (req as any).id || "unknown";
+    const hasCookie = !!req.cookies?.refresh_token;
+
+    await this.cloudLogging.logInfo("Token refresh endpoint called", {
+      requestId,
+      event: "refresh_attempt",
+      hasRefreshTokenCookie: hasCookie,
+      userFromGuard: user?.id,
+    }, "tokenRefresh").catch(() => {});
 
     if (!user) {
-      console.error("[Auth] Refresh failed: no user from guard");
+      await this.cloudLogging.logInfo("Token refresh failed: no user from guard", {
+        requestId,
+        event: "refresh_failed",
+        reason: "no_user_from_guard",
+      }, "tokenRefresh").catch(() => {});
       throw new UnauthorizedException("Invalid refresh token");
     }
 
-    console.log("[Auth] Refreshing tokens for user:", user.id);
+    await this.cloudLogging.logInfo("Refreshing tokens", {
+      requestId,
+      event: "refresh_in_progress",
+      userId: user.id,
+    }, "tokenRefresh").catch(() => {});
+
     await this.users.updateActivity(user.id);
     const tokens = this.auth.signTokens(user);
     this.setSessionCookies(res, tokens);
-    console.log("[Auth] Tokens refreshed and cookies set");
+
+    await this.cloudLogging.logInfo("Token refresh successful", {
+      requestId,
+      event: "refresh_success",
+      userId: user.id,
+      tokenExpiry: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    }, "tokenRefresh").catch(() => {});
+
     return { user: UsersService.toPublic(user) };
   }
 
