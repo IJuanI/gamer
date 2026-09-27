@@ -1,11 +1,22 @@
 import { Controller, Get, Query, Req, Res, UseGuards } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { randomBytes } from "crypto";
-import type { User } from "@prisma/client";
 import { CurrentUser } from "../auth/decorators";
 import { JwtAuthGuard } from "../auth/guards";
 import { FaceitService } from "./faceit.service";
 import { PlatformLinksService } from "./platform-links.service";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  passwordHash?: string;
+  avatarUrl?: string | null;
+  role?: string;
+  lastActivityAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const STATE_COOKIE = "faceit_oauth_state";
 const VERIFIER_COOKIE = "faceit_pkce_verifier";

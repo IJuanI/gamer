@@ -11,13 +11,24 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import type { User } from "@prisma/client";
 import type { PublicTeam } from "@gamer/shared";
 import { CurrentUser } from "../auth/decorators";
 import { JwtAuthGuard } from "../auth/guards";
 import { GamesService } from "../games/games.service";
 import { TeamsService } from "./teams.service";
 import { AddTeamMemberDto, CreateTeamDto, UpdateTeamDto } from "./dto";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  passwordHash?: string;
+  avatarUrl?: string | null;
+  role?: string;
+  lastActivityAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Controller("teams")
 export class TeamsController {

@@ -1,10 +1,21 @@
 import { Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
-import type { User } from "@prisma/client";
 import { CurrentUser } from "../auth/decorators";
 import { JwtAuthGuard } from "../auth/guards";
 import { PlatformLinksService } from "./platform-links.service";
 import { FaceitService } from "./faceit.service";
 import { RiotService } from "./riot.service";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  passwordHash?: string;
+  avatarUrl?: string | null;
+  role?: string;
+  lastActivityAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 /** Provider-agnostic management once a link exists: refresh cached stats, or unlink. */
 @Controller("platform-links")

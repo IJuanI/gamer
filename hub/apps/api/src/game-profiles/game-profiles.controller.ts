@@ -9,13 +9,24 @@ import {
   Post,
   UseGuards,
 } from "@nestjs/common";
-import type { User } from "@prisma/client";
 import type { PublicGameProfile } from "@gamer/shared";
 import { CurrentUser } from "../auth/decorators";
 import { JwtAuthGuard } from "../auth/guards";
 import { GamesService } from "../games/games.service";
 import { GameProfilesService } from "./game-profiles.service";
 import { CreateGameProfileDto, UpdateGameProfileDto } from "./dto";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  passwordHash?: string;
+  avatarUrl?: string | null;
+  role?: string;
+  lastActivityAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Controller()
 export class GameProfilesController {

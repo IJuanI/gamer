@@ -10,7 +10,6 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import type { User } from "@prisma/client";
 import type { PublicRecruitmentPost, RecruitmentPostType } from "@gamer/shared";
 import { CurrentUser } from "../auth/decorators";
 import { JwtAuthGuard } from "../auth/guards";
@@ -18,6 +17,18 @@ import { GamesService } from "../games/games.service";
 import { TeamsService } from "../teams/teams.service";
 import { RecruitmentPostsService } from "./recruitment-posts.service";
 import { CreateRecruitmentPostDto, UpdateRecruitmentPostDto } from "./dto";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  passwordHash?: string;
+  avatarUrl?: string | null;
+  role?: string;
+  lastActivityAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Controller("recruitment-posts")
 export class RecruitmentPostsController {
