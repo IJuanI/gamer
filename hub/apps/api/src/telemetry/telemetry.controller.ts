@@ -1,13 +1,34 @@
-import { Body, Controller, Post, Req, Headers } from "@nestjs/common";
+import { Body, Controller, Post, Req, Headers, BadRequestException } from "@nestjs/common";
+import { IsString, IsOptional, MaxLength } from "class-validator";
 import type { Request } from "express";
 import { CloudLoggingService } from "../logging/cloud-logging.service";
 
-interface ErrorReport {
-  message: string;
+class ErrorReportDto {
+  @IsString()
+  @MaxLength(500)
+  message!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
   stack?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
   url?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
   context?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
   userId?: string;
+
+  @IsOptional()
   metadata?: Record<string, any>;
 }
 
@@ -17,10 +38,21 @@ export class TelemetryController {
 
   @Post("error")
   async reportError(
-    @Body() report: ErrorReport,
+    @Body() report: ErrorReportDto,
     @Req() req: Request,
     @Headers("user-agent") userAgent?: string,
   ) {
+    if (!report.message) {
+      throw new BadRequestException("Error message is required");
+    }
+
+    // Truncate metadata to prevent logging abuse
+    const metadata = report.metadata ? Object.fromEntries(
+      Object.entries(report.metadata)
+        .slice(0, 10)
+        .map(([k, v]) => [k, typeof v === 'string' ? v.substring(0, 500) : v])
+    ) : undefined;
+
     await this.logging.logError({
       timestamp: new Date().toISOString(),
       level: "error",
@@ -30,7 +62,7 @@ export class TelemetryController {
       userAgent,
       url: report.url,
       stack: report.stack,
-      metadata: report.metadata,
+      metadata,
     });
 
     return { ok: true };

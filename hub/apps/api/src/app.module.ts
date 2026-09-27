@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, type MiddlewareConsumer, type NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { join } from "path";
 import { FirestoreModule } from "./firestore/firestore.module";
@@ -11,6 +11,7 @@ import { RecruitmentPostsModule } from "./recruitment-posts/recruitment-posts.mo
 import { PlatformLinksModule } from "./platform-links/platform-links.module";
 import { TelemetryModule } from "./telemetry/telemetry.module";
 import { HealthController } from "./health.controller";
+import { RequestLoggingMiddleware } from "./common/request-logging.middleware";
 
 @Module({
   imports: [
@@ -33,4 +34,8 @@ import { HealthController } from "./health.controller";
   ],
   controllers: [HealthController],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggingMiddleware).forRoutes("*");
+  }
+}

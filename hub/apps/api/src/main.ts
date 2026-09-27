@@ -1,13 +1,38 @@
 import { NestFactory } from "@nestjs/core";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
 import { AppModule } from "./app.module";
 import { FileLogger } from "./logger";
+import { HttpExceptionFilter } from "./common/http-exception.filter";
+import { CloudLoggingService } from "./logging/cloud-logging.service";
 
 async function bootstrap() {
   console.log("Starting GamER Hub API...");
   const app = await NestFactory.create(AppModule, { logger: new FileLogger() });
   console.log("AppModule created");
+
+  const cloudLogging = app.get(CloudLoggingService);
+  app.useGlobalFilters(new HttpExceptionFilter(cloudLogging));
+
+  // Rate limiting: stricter for telemetry endpoints
+  const telemetryLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100, // 100 errors per minute per IP
+    message: "Too many error reports, please try again later",
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1000, // 1000 requests per 15 min per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use(generalLimiter);
+  app.use("/api/telemetry", telemetryLimiter);
 
   app.use(cookieParser());
   app.useGlobalPipes(
