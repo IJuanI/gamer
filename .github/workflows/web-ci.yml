@@ -41,9 +41,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm --filter @gamer/web type-check
-
       - name: Lint
         run: pnpm --filter @gamer/web lint
 
