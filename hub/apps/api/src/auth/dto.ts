@@ -1,8 +1,10 @@
-import { IsEmail, IsString, MinLength, MaxLength } from "class-validator";
+import { IsString, MinLength, MaxLength, Matches } from "class-validator";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // All validation messages are in Argentine Spanish — the only supported locale.
 export class RegisterDto {
-  @IsEmail({}, { message: "El email no es válido" })
+  @Matches(EMAIL_REGEX, { message: "El email no es válido" })
   email!: string;
 
   @IsString({ message: "La contraseña es obligatoria" })
@@ -17,7 +19,7 @@ export class RegisterDto {
 }
 
 export class LoginDto {
-  @IsEmail({}, { message: "El email no es válido" })
+  @Matches(EMAIL_REGEX, { message: "El email no es válido" })
   email!: string;
 
   @IsString({ message: "La contraseña es obligatoria" })
