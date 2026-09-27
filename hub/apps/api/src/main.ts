@@ -1,5 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { Logger, ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import { AppModule } from "./app.module";
@@ -77,8 +78,31 @@ async function bootstrap() {
   if (process.env.RIOT_CLIENT_ID) console.log(`    ✓ Riot Games Integration`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
+  const config = new DocumentBuilder()
+    .setTitle("GamER Hub API")
+    .setDescription("API documentation for GamER Hub - Entre Ríos Gamers")
+    .setVersion("1.0.0")
+    .addBearerAuth(
+      { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+      "access_token"
+    )
+    .addCookieAuth("access_token", {
+      type: "apiKey",
+      in: "cookie",
+      description: "JWT token in cookie",
+    })
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("docs", app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      defaultModelsExpandDepth: 1,
+    },
+  });
+
   await app.listen(port);
   Logger.log(`GamER Hub API escuchando en http://localhost:${port}/api`, "Bootstrap");
+  Logger.log(`Swagger docs disponibles en http://localhost:${port}/docs`, "Bootstrap");
 }
 
 bootstrap().catch((error) => {

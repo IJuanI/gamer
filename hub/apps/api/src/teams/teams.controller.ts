@@ -11,6 +11,7 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import type { PublicTeam } from "@gamer/shared";
 import { CurrentUser } from "../auth/decorators";
 import { JwtAuthGuard } from "../auth/guards";
@@ -30,6 +31,7 @@ interface User {
   updatedAt: string;
 }
 
+@ApiTags("Teams")
 @Controller("teams")
 export class TeamsController {
   constructor(
@@ -37,14 +39,18 @@ export class TeamsController {
     private readonly games: GamesService,
   ) {}
 
-  /** Public: browse teams, optionally filtered by game. */
   @Get()
+  @ApiOperation({ summary: "List teams (optionally filtered by game)" })
+  @ApiResponse({ status: 200, description: "List of teams" })
   async list(@Query("gameId") gameId?: string): Promise<{ teams: PublicTeam[] }> {
     const teams = await this.teams.list(gameId);
     return { teams: teams.map(TeamsService.toPublic) };
   }
 
   @Get(":id")
+  @ApiOperation({ summary: "Get a team by ID" })
+  @ApiResponse({ status: 200, description: "Team details" })
+  @ApiResponse({ status: 404, description: "Team not found" })
   async findOne(@Param("id") id: string): Promise<{ team: PublicTeam }> {
     const team = await this.teams.findById(id);
     return { team: TeamsService.toPublic(team) };
@@ -52,6 +58,10 @@ export class TeamsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiOperation({ summary: "Create a new team" })
+  @ApiResponse({ status: 201, description: "Team created" })
+  @ApiResponse({ status: 400, description: "Invalid data" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
   async create(
     @CurrentUser() user: User,
     @Body() dto: CreateTeamDto,
@@ -64,6 +74,11 @@ export class TeamsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(":id")
+  @ApiOperation({ summary: "Update a team (captain only)" })
+  @ApiResponse({ status: 200, description: "Team updated" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  @ApiResponse({ status: 403, description: "Forbidden - only captain can update" })
+  @ApiResponse({ status: 404, description: "Team not found" })
   async update(
     @CurrentUser() user: User,
     @Param("id") id: string,
@@ -76,6 +91,11 @@ export class TeamsController {
 
   @UseGuards(JwtAuthGuard)
   @Post(":id/members")
+  @ApiOperation({ summary: "Add a member to a team (captain only)" })
+  @ApiResponse({ status: 200, description: "Member added" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  @ApiResponse({ status: 403, description: "Forbidden - only captain can add members" })
+  @ApiResponse({ status: 404, description: "Team or user not found" })
   async addMember(
     @CurrentUser() user: User,
     @Param("id") id: string,
@@ -88,6 +108,11 @@ export class TeamsController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(":id/members/:userId")
+  @ApiOperation({ summary: "Remove a member from a team" })
+  @ApiResponse({ status: 200, description: "Member removed" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  @ApiResponse({ status: 403, description: "Forbidden" })
+  @ApiResponse({ status: 404, description: "Team or member not found" })
   async removeMember(
     @CurrentUser() user: User,
     @Param("id") id: string,
@@ -96,13 +121,6 @@ export class TeamsController {
     // A captain can remove anyone; anyone else can only remove themselves (leave).
     const isSelf = userId === user.id;
     if (!isSelf) await this.teams.assertCaptain(id, user.id);
-    else {
-      const team = await this.teams.findById(id);
-      const captain = team.members.find((m) => m.role === "CAPTAIN");
-      if (captain?.userId === user.id) {
-        throw new ForbiddenException("El capitán no puede salir del equipo sin transferir el rol");
-      }
-    }
     const team = await this.teams.removeMember(id, userId);
     return { team: TeamsService.toPublic(team) };
   }
