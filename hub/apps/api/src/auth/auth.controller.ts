@@ -98,12 +98,23 @@ export class AuthController {
   @ApiResponse({ status: 401, description: "Refresh token expired or invalid" })
   async refresh(
     @CurrentUser() user: User,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponse> {
-    if (!user) throw new UnauthorizedException();
+    console.log("[Auth] Refresh endpoint called");
+    console.log("[Auth] Has refresh_token cookie:", !!req.cookies?.refresh_token);
+    console.log("[Auth] User from guard:", user?.id);
+
+    if (!user) {
+      console.error("[Auth] Refresh failed: no user from guard");
+      throw new UnauthorizedException("Invalid refresh token");
+    }
+
+    console.log("[Auth] Refreshing tokens for user:", user.id);
     await this.users.updateActivity(user.id);
     const tokens = this.auth.signTokens(user);
     this.setSessionCookies(res, tokens);
+    console.log("[Auth] Tokens refreshed and cookies set");
     return { user: UsersService.toPublic(user) };
   }
 

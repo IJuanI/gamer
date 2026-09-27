@@ -65,3 +65,31 @@ export function setupGlobalErrorHandler(userId?: string): void {
     });
   });
 }
+
+// Aliases for backward compatibility
+export const initTelemetry = setupGlobalErrorHandler;
+
+// Handle the old captureEvent API with 3-4 arguments
+export function captureEvent(
+  type: string,
+  message: string,
+  level?: string,
+  metadata?: Record<string, any>
+): Promise<void> {
+  return reportError({
+    message,
+    context: type,
+    metadata: { level, ...metadata },
+  });
+}
+
+// Handle the old captureError API with optional metadata
+export function captureError(error: any, metadata?: Record<string, any>): Promise<void> {
+  const message = error instanceof Error ? error.message : String(error);
+  const stack = error instanceof Error ? error.stack : undefined;
+  return reportError({
+    message,
+    stack,
+    metadata,
+  });
+}

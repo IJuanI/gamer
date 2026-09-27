@@ -26,20 +26,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshTokens = useCallback(async () => {
     try {
+      console.log("[Auth] Attempting token refresh...");
+
+      // Debug: check if refresh_token cookie exists
+      const cookies = document.cookie;
+      const hasRefreshToken = cookies.includes("refresh_token");
+      console.log("[Auth] Has refresh_token cookie:", hasRefreshToken);
+      if (!hasRefreshToken) {
+        console.warn("[Auth] refresh_token cookie not found - cannot refresh");
+        failedRefreshCountRef.current = MAX_REFRESH_FAILURES;
+        setUser(null);
+        return false;
+      }
+
       const { user } = await api.refresh();
       if (!user) {
+        console.error("[Auth] Refresh returned no user");
         setUser(null);
         failedRefreshCountRef.current = MAX_REFRESH_FAILURES;
         return false;
       }
+      console.log("[Auth] Token refresh successful");
       setUser(user);
       failedRefreshCountRef.current = 0; // Reset on success
       return true;
     } catch (err) {
       failedRefreshCountRef.current++;
+      const errMsg = err instanceof Error ? err.message : String(err);
       console.error(
-        `[Auth] Token refresh failed (${failedRefreshCountRef.current}/${MAX_REFRESH_FAILURES}):`,
-        err instanceof Error ? err.message : err
+        `[Auth] Token refresh failed (${failedRefreshCountRef.current}/${MAX_REFRESH_FAILURES}): ${errMsg}`
       );
       if (failedRefreshCountRef.current >= MAX_REFRESH_FAILURES) {
         console.log("[Auth] Max refresh failures reached, user must login");
@@ -126,6 +141,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  if (!ctx) {
+    // Return a safe default during build time / when context is unavailable
+    if (typeof window === "undefined") {
+      return {
+        user: null,
+        loading: true,
+        refresh: async () => {},
+        logout: async () => {},
+        setUser: () => {},
+      };
+    }
+    throw new Error("useAuth must be used within AuthProvider");
+  }
   return ctx;
 }

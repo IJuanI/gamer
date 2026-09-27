@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Download, ArrowLeft } from "lucide-react";
@@ -11,9 +11,11 @@ import { JAM_FLYER_DATA, type JamFlyerData } from "@/lib/jam-flyer-data";
 import { FLYER_FORMAT_LIST, FLYER_FORMATS } from "@/lib/flyer-formats";
 import { exportFlyer } from "@/lib/export-flyer";
 
+export const dynamic = "force-dynamic";
+
 const PREVIEW_WIDTH = 340;
 
-export default function AdminFlyersPage() {
+function AdminFlyersContent() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [formatId, setFormatId] = useState(FLYER_FORMAT_LIST[0].id);
@@ -53,9 +55,7 @@ export default function AdminFlyersPage() {
   }
 
   return (
-    <main className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-0 bg-grid-neon-fade" />
-
+    <>
       <header className="relative border-b border-white/5 bg-[#12121E]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-white">
@@ -128,6 +128,15 @@ export default function AdminFlyersPage() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+export default function AdminFlyersPage() {
+  return (
+    <main className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-grid-neon-fade" />
+      <AdminFlyersContent />
     </main>
   );
 }
