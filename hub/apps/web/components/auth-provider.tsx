@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return;
     }
-    void initializeAuth();
+    initializeAuth().catch(() => {});
   }, [initializeAuth]);
 
   // Set up periodic token refresh

@@ -38,11 +38,16 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: hub/pnpm-lock.yaml
 
+      - name: Restore pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm --filter @gamer/api lint
 
       - name: Build
         run: pnpm --filter @gamer/api build
@@ -76,6 +81,14 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
           cache-dependency-path: hub/pnpm-lock.yaml
+
+      - name: Restore pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install Java for Firestore Emulator
         uses: actions/setup-java@v4

@@ -74,7 +74,7 @@ function ErrorBoundaryWithContext({ children, userId }: Props) {
   useEffect(() => {
     // Catch unhandled console errors
     const originalError = console.error;
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       originalError(...args);
       const error = args[0];
       if (error instanceof Error && !error.message.includes("React does not recognize")) {

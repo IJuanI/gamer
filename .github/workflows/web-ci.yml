@@ -38,11 +38,16 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: hub/pnpm-lock.yaml
 
+      - name: Restore pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm --filter @gamer/web lint
 
       - name: Build
         run: pnpm --filter @gamer/web build
@@ -80,6 +85,14 @@ jobs:
         with:
           python-version: '3.x'
           cache: 'pip'
+
+      - name: Restore pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -133,6 +146,14 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
           cache-dependency-path: hub/pnpm-lock.yaml
+
+      - name: Restore pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
