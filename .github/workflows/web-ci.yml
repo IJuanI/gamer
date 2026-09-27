@@ -96,18 +96,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm --filter @gamer/web exec playwright install --with-deps
 
-      - name: Start dev servers
+      - name: Start dev server
         run: |
-          pnpm dev &
+          pnpm dev > /tmp/server.log 2>&1 &
           sleep 30
         timeout-minutes: 1
         env:
           NODE_ENV: test
 
       - name: Run E2E smoke tests
-        run: pnpm --filter @gamer/web test:visual
+        run: pnpm --filter @gamer/web test
         timeout-minutes: 10
         env:
           BASE_URL: 'http://localhost:3000'
