@@ -40,9 +40,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="min-h-full bg-background text-foreground">
         <TelemetryInit />
-        <GlobalErrorSetup />
         <ThemeProvider>
           <AuthProvider>
+            <GlobalErrorSetup />
             <ErrorBoundary>{children}</ErrorBoundary>
           </AuthProvider>
         </ThemeProvider>
