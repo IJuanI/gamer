@@ -7,6 +7,7 @@ interface User {
   id: string;
   email: string;
   displayName: string;
+  passwordHash?: string;
   avatarUrl?: string | null;
   role?: string;
   createdAt: string;
@@ -40,6 +41,7 @@ export class UsersService {
   async create(data: {
     email: string;
     displayName: string;
+    passwordHash?: string;
     avatarUrl?: string | null;
     role?: string;
   }): Promise<User> {
@@ -48,6 +50,7 @@ export class UsersService {
     return this.firestore.set<User>("users", id, {
       email: data.email.toLowerCase(),
       displayName: data.displayName,
+      ...(data.passwordHash && { passwordHash: data.passwordHash }),
       avatarUrl: data.avatarUrl || null,
       role: data.role || "user",
       createdAt: now,

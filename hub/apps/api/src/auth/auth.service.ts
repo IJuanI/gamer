@@ -32,6 +32,7 @@ export class AuthService {
     return this.users.create({
       email: dto.email,
       displayName: dto.displayName,
+      passwordHash,
     }) as any;
   }
 
