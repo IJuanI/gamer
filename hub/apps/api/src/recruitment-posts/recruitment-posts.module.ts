@@ -1,11 +1,12 @@
 import { Module } from "@nestjs/common";
+import { FirestoreModule } from "../firestore/firestore.module";
 import { GamesModule } from "../games/games.module";
 import { TeamsModule } from "../teams/teams.module";
 import { RecruitmentPostsService } from "./recruitment-posts.service";
 import { RecruitmentPostsController } from "./recruitment-posts.controller";
 
 @Module({
-  imports: [GamesModule, TeamsModule],
+  imports: [FirestoreModule, GamesModule, TeamsModule],
   controllers: [RecruitmentPostsController],
   providers: [RecruitmentPostsService],
 })
