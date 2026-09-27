@@ -1,6 +1,6 @@
 import { IsString, MinLength, MaxLength, Matches } from "class-validator";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+(\.[^\s@]+)?$/;
 
 // All validation messages are in Argentine Spanish — the only supported locale.
 export class RegisterDto {
