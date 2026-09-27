@@ -84,11 +84,6 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: hub/pnpm-lock.yaml
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-          cache: 'pip'
-
       - name: Restore pnpm store
         uses: actions/cache@v3
         with:
