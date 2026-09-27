@@ -1,4 +1,6 @@
 import { Module, type Type } from "@nestjs/common";
+import { FirestoreModule } from "../firestore/firestore.module";
+import { GamesModule } from "../games/games.module";
 import { GameProfilesModule } from "../game-profiles/game-profiles.module";
 import { PlatformLinksService } from "./platform-links.service";
 import { PlatformLinksController } from "./platform-links.controller";
@@ -21,7 +23,7 @@ if (process.env.RIOT_CLIENT_ID && process.env.RIOT_CLIENT_SECRET && process.env.
 }
 
 @Module({
-  imports: [GameProfilesModule],
+  imports: [FirestoreModule, GamesModule, GameProfilesModule],
   controllers: [PlatformLinksController, ...providerControllers],
   providers: [PlatformLinksService, FaceitService, RiotService],
 })
