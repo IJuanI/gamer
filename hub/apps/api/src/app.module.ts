@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { join } from "path";
 import { FirestoreModule } from "./firestore/firestore.module";
 import { UsersModule } from "./users/users.module";
+import { AuthModule } from "./auth/auth.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -13,7 +14,7 @@ import { HealthController } from "./health.controller";
       envFilePath: [join(__dirname, "../../../.env"), join(__dirname, "../.env")],
     }),
     FirestoreModule,
-    // AuthModule,  // TODO: Fix Prisma imports
+    AuthModule,
     UsersModule,
     // TODO: Migrate these modules from Prisma to Firestore
     // GamesModule,
