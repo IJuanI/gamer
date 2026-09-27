@@ -10,13 +10,23 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import type { Request, Response } from "express";
-import type { User } from "@prisma/client";
 import type { AuthResponse } from "@gamer/shared";
 import { AuthService } from "./auth.service";
 import { UsersService } from "../users/users.service";
 import { LoginDto, RegisterDto } from "./dto";
 import { CurrentUser } from "./decorators";
 import { JwtAuthGuard } from "./guards";
+
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  passwordHash?: string;
+  avatarUrl?: string | null;
+  role?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const COOKIE_NAME = "access_token";
 
