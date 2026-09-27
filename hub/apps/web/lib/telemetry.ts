@@ -1,130 +1,67 @@
-export interface TelemetryEvent {
-  id: string;
-  timestamp: string;
-  type: "error" | "event" | "performance" | "navigation";
-  severity: "info" | "warning" | "error" | "critical";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+
+export interface TelemetryError {
   message: string;
-  data?: Record<string, unknown>;
-  stackTrace?: string;
-  userAgent?: string;
+  stack?: string;
   url?: string;
-  sessionId?: string;
+  context?: string;
+  userId?: string;
+  metadata?: Record<string, any>;
 }
 
-const STORAGE_KEY = "telemetry_events";
-const MAX_EVENTS = 500;
-const SESSION_ID = typeof window !== "undefined" ? generateSessionId() : "";
+export async function reportError(error: TelemetryError): Promise<void> {
+  if (!process.env.NEXT_PUBLIC_API_URL && process.env.NODE_ENV === "production") {
+    // Don't report errors in production if API isn't configured
+    return;
+  }
 
-function generateSessionId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
-
-function getStoredEvents(): TelemetryEvent[] {
-  if (typeof window === "undefined") return [];
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    await fetch(`${API_URL}/api/telemetry/error`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: error.message,
+        stack: error.stack,
+        url: error.url || typeof window !== "undefined" ? window.location.href : undefined,
+        context: error.context,
+        userId: error.userId,
+        metadata: error.metadata,
+      }),
+    }).catch(() => {
+      // Silently fail if telemetry endpoint is down
+    });
   } catch {
-    return [];
+    // Fail silently
   }
 }
 
-function saveEvents(events: TelemetryEvent[]) {
-  if (typeof window === "undefined") return;
-  try {
-    const trimmed = events.slice(-MAX_EVENTS);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-  } catch (e) {
-    console.error("Failed to save telemetry:", e);
-  }
-}
-
-export function captureEvent(
-  type: TelemetryEvent["type"],
-  message: string,
-  severity: TelemetryEvent["severity"] = "info",
-  data?: Record<string, unknown>
-) {
+export function setupGlobalErrorHandler(userId?: string): void {
   if (typeof window === "undefined") return;
 
-  const event: TelemetryEvent = {
-    id: Math.random().toString(36).substr(2, 9),
-    timestamp: new Date().toISOString(),
-    type,
-    severity,
-    message,
-    data,
-    url: window.location.href,
-    sessionId: SESSION_ID,
-    userAgent: navigator.userAgent,
-  };
-
-  fetch("/api/telemetry", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event }),
-  }).catch((e) => {
-    console.error("Failed to send telemetry:", e);
-  });
-
-  const events = getStoredEvents();
-  events.push(event);
-  saveEvents(events);
-
-  if (severity === "error" || severity === "critical") {
-    console.error(`[${type}]`, message, data);
-  } else if (severity === "warning") {
-    console.warn(`[${type}]`, message, data);
-  } else {
-    console.log(`[${type}]`, message, data);
-  }
-}
-
-export function captureError(
-  error: Error | unknown,
-  context?: Record<string, unknown>
-) {
-  const errorObj = error instanceof Error ? error : new Error(String(error));
-  captureEvent("error", errorObj.message, "error", {
-    name: errorObj.name,
-    stack: errorObj.stack,
-    ...context,
-  });
-}
-
-export function getAllEvents(): TelemetryEvent[] {
-  return getStoredEvents();
-}
-
-export function clearEvents() {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {}
-}
-
-export function getEventsByType(type: TelemetryEvent["type"]): TelemetryEvent[] {
-  return getStoredEvents().filter((e) => e.type === type);
-}
-
-export function getErrorEvents(): TelemetryEvent[] {
-  return getStoredEvents().filter((e) => e.severity === "error" || e.severity === "critical");
-}
-
-export function initTelemetry() {
-  if (typeof window === "undefined") return;
-
-  window.addEventListener("error", (event) => {
-    captureError(event.error, {
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
+  // Catch unhandled promise rejections
+  window.addEventListener("unhandledrejection", (event) => {
+    const error = event.reason;
+    reportError({
+      message: error?.message || String(error),
+      stack: error?.stack,
+      context: "unhandledRejection",
+      userId,
     });
   });
 
-  window.addEventListener("unhandledrejection", (event) => {
-    captureError(event.reason, {
-      type: "unhandledRejection",
+  // Catch global errors
+  window.addEventListener("error", (event) => {
+    reportError({
+      message: event.message,
+      stack: event.error?.stack,
+      context: "globalError",
+      userId,
+      metadata: {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      },
     });
   });
 }

@@ -14,6 +14,8 @@ import type {
   UpdateRecruitmentPostPayload,
 } from "@gamer/shared";
 
+import { reportError } from "./telemetry";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 // No production API is deployed yet, so unless NEXT_PUBLIC_API_URL was set at
@@ -30,7 +32,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message ?? `Request failed (${res.status})`);
+    const error = new Error(body.message ?? `Request failed (${res.status})`);
+    // Report API errors to telemetry
+    if (res.status >= 500 || path === "/auth/refresh") {
+      reportError({
+        message: `API error: ${path}`,
+        context: "apiError",
+        metadata: {
+          path,
+          status: res.status,
+          message: body.message,
+        },
+      }).catch(() => {});
+    }
+    throw error;
   }
   return res.json() as Promise<T>;
 }

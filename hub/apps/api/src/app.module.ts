@@ -9,6 +9,7 @@ import { GameProfilesModule } from "./game-profiles/game-profiles.module";
 import { TeamsModule } from "./teams/teams.module";
 import { RecruitmentPostsModule } from "./recruitment-posts/recruitment-posts.module";
 import { PlatformLinksModule } from "./platform-links/platform-links.module";
+import { TelemetryModule } from "./telemetry/telemetry.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -26,6 +27,7 @@ import { HealthController } from "./health.controller";
     TeamsModule,
     RecruitmentPostsModule,
     PlatformLinksModule,
+    TelemetryModule,
     // TODO: Migrate to Firestore
     // DevModule,
   ],
