@@ -4,6 +4,7 @@ import { join } from "path";
 import { FirestoreModule } from "./firestore/firestore.module";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
+import { StubsModule } from "./stubs/stubs.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -16,13 +17,14 @@ import { HealthController } from "./health.controller";
     FirestoreModule,
     AuthModule,
     UsersModule,
-    // TODO: Migrate these modules from Prisma to Firestore
+    StubsModule,
+    // TODO: Migrate from Prisma to Firestore
     // GamesModule,
     // GameProfilesModule,
     // TeamsModule,
     // RecruitmentPostsModule,
     // PlatformLinksModule,
-    // DevModule,  // Temporarily disabled for Cloud Run deployment
+    // DevModule,
   ],
   controllers: [HealthController],
 })
