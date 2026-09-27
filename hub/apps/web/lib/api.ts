@@ -24,30 +24,67 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 // the browser's Private Network Access permission prompt.
 export const API_CONFIGURED = Boolean(process.env.NEXT_PUBLIC_API_URL);
 
+const MAX_RETRIES = 2;
+const RETRY_DELAY = 500; // ms
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}/api${path}`, {
-    ...init,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    const error = new Error(body.message ?? `Request failed (${res.status})`);
-    // Report API errors to telemetry
-    if (res.status >= 500 || path === "/auth/refresh") {
-      reportError({
-        message: `API error: ${path}`,
-        context: "apiError",
-        metadata: {
-          path,
-          status: res.status,
-          message: body.message,
-        },
-      }).catch(() => {});
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(`${API_URL}/api${path}`, {
+        ...init,
+        credentials: "include",
+        headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const error = new Error(body.message ?? `Request failed (${res.status})`);
+
+        // Retry on 5xx errors (server errors) or network issues
+        const isRetryable = res.status >= 500 && attempt < MAX_RETRIES;
+
+        if (isRetryable) {
+          lastError = error;
+          await sleep(RETRY_DELAY * Math.pow(2, attempt)); // exponential backoff
+          continue;
+        }
+
+        // Report API errors to telemetry
+        if (res.status >= 500 || path === "/auth/refresh") {
+          reportError({
+            message: `API error: ${path}`,
+            context: "apiError",
+            metadata: {
+              path,
+              status: res.status,
+              message: body.message,
+              attempts: attempt + 1,
+            },
+          }).catch(() => {});
+        }
+
+        throw error;
+      }
+
+      return res.json() as Promise<T>;
+    } catch (err) {
+      if (err instanceof TypeError && attempt < MAX_RETRIES) {
+        // Network error, retry
+        lastError = err as Error;
+        await sleep(RETRY_DELAY * Math.pow(2, attempt));
+        continue;
+      }
+      throw err;
     }
-    throw error;
   }
-  return res.json() as Promise<T>;
+
+  throw lastError || new Error("Request failed after retries");
 }
 
 export const api = {
