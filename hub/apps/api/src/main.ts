@@ -8,6 +8,7 @@ import { FileLogger } from "./logger";
 import { HttpExceptionFilter } from "./common/http-exception.filter";
 import { CloudLoggingService } from "./logging/cloud-logging.service";
 import { RequestIdMiddleware } from "./common/request-id.middleware";
+import { DatabaseInitializer } from "./common/database-init";
 import { validateEnvironment } from "./common/environment.validator";
 
 async function bootstrap() {
@@ -24,6 +25,14 @@ async function bootstrap() {
 
   const cloudLogging = app.get(CloudLoggingService);
   app.useGlobalFilters(new HttpExceptionFilter(cloudLogging));
+
+  // Verify database connectivity
+  const dbInitializer = app.get(DatabaseInitializer);
+  const dbReady = await dbInitializer.verifyDatabase();
+  if (!dbReady) {
+    console.warn("⚠️  Database verification failed, but continuing startup");
+  }
+  await dbInitializer.ensureCollections();
 
   // Rate limiting: stricter for telemetry endpoints
   const telemetryLimiter = rateLimit({

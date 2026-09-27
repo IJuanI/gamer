@@ -12,6 +12,7 @@ import { PlatformLinksModule } from "./platform-links/platform-links.module";
 import { TelemetryModule } from "./telemetry/telemetry.module";
 import { HealthController } from "./health.controller";
 import { RequestLoggingMiddleware } from "./common/request-logging.middleware";
+import { DatabaseInitializer } from "./common/database-init";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RequestLoggingMiddleware } from "./common/request-logging.middleware";
     // DevModule,
   ],
   controllers: [HealthController],
+  providers: [DatabaseInitializer],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
