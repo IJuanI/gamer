@@ -38,6 +38,10 @@ export class UsersService {
     return this.firestore.findUnique<User>("users", id);
   }
 
+  async getAll(): Promise<User[]> {
+    return this.firestore.findAll<User>("users");
+  }
+
   async create(data: {
     email: string;
     displayName: string;

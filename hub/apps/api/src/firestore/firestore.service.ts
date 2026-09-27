@@ -129,4 +129,9 @@ export class FirestoreService implements OnModuleInit {
     const snapshot = await q.get();
     return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as T));
   }
+
+  async findAll<T>(collection: string): Promise<T[]> {
+    const snapshot = await (await this.getFirestore()).collection(collection).get();
+    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as T));
+  }
 }
