@@ -7,6 +7,7 @@ interface ErrorResponse {
   message: string;
   path: string;
   timestamp: string;
+  requestId?: string;
 }
 
 @Catch()
@@ -17,6 +18,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+    const requestId = (request as any).id || "unknown";
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = "Internal server error";
@@ -41,6 +43,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           path: request.path,
           method: request.method,
           error: exception.message,
+          requestId,
         },
       });
     }
@@ -50,6 +53,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message,
       path: request.url,
       timestamp: new Date().toISOString(),
+      requestId,
     };
 
     response.status(status).json(errorResponse);

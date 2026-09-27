@@ -6,6 +6,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const startTime = Date.now();
     const originalSend = res.send;
+    const requestId = (req as any).id || "unknown";
 
     res.send = function (data: any) {
       const duration = Date.now() - startTime;
@@ -13,7 +14,9 @@ export class RequestLoggingMiddleware implements NestMiddleware {
 
       // Log slow requests or errors
       if (statusCode >= 400 || duration > 5000) {
-        console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} ${statusCode} ${duration}ms`);
+        console.log(
+          `[${new Date().toISOString()}] [${requestId}] ${req.method} ${req.path} ${statusCode} ${duration}ms`
+        );
       }
 
       return originalSend.call(this, data);

@@ -7,6 +7,7 @@ import { AppModule } from "./app.module";
 import { FileLogger } from "./logger";
 import { HttpExceptionFilter } from "./common/http-exception.filter";
 import { CloudLoggingService } from "./logging/cloud-logging.service";
+import { RequestIdMiddleware } from "./common/request-id.middleware";
 import { validateEnvironment } from "./common/environment.validator";
 
 async function bootstrap() {
@@ -43,6 +44,7 @@ async function bootstrap() {
   app.use(generalLimiter);
   app.use("/api/telemetry", telemetryLimiter);
 
+  app.use(new RequestIdMiddleware().use.bind(new RequestIdMiddleware()));
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
