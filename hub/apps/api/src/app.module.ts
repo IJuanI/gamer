@@ -5,6 +5,7 @@ import { FirestoreModule } from "./firestore/firestore.module";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
 import { GamesModule } from "./games/games.module";
+import { GameProfilesModule } from "./game-profiles/game-profiles.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -18,8 +19,8 @@ import { HealthController } from "./health.controller";
     AuthModule,
     UsersModule,
     GamesModule,
+    GameProfilesModule,
     // TODO: Migrate to Firestore
-    // GameProfilesModule,
     // TeamsModule,
     // RecruitmentPostsModule,
     // PlatformLinksModule,

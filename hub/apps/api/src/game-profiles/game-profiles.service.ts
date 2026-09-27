@@ -1,78 +1,61 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import type { Prisma } from "@prisma/client";
 import type { PublicGameProfile, PlatformLinkStats } from "@gamer/shared";
-import { PrismaService } from "../prisma/prisma.service";
+import { FirestoreService } from "../firestore/firestore.service";
 import { GamesService } from "../games/games.service";
 
-const withRelations = {
-  game: true,
-  platformLink: true,
-} satisfies Prisma.GameProfileInclude;
-
-type GameProfileWithRelations = Prisma.GameProfileGetPayload<{ include: typeof withRelations }>;
+interface GameProfile {
+  id: string;
+  userId: string;
+  gameId: string;
+  inGameHandle: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Injectable()
 export class GameProfilesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly firestore: FirestoreService) {}
 
-  listForUser(userId: string) {
-    return this.prisma.gameProfile.findMany({
-      where: { userId },
-      include: withRelations,
-      orderBy: { createdAt: "asc" },
-    });
+  async listForUser(userId: string): Promise<GameProfile[]> {
+    return this.firestore.query<GameProfile>("gameProfiles", [["userId", "==", userId]]);
   }
 
-  async findOwned(id: string, userId: string) {
-    const profile = await this.prisma.gameProfile.findUnique({
-      where: { id },
-      include: withRelations,
-    });
+  async findOwned(id: string, userId: string): Promise<GameProfile> {
+    const profile = await this.firestore.findUnique<GameProfile>("gameProfiles", id);
     if (!profile) throw new NotFoundException("Perfil de juego no encontrado");
     if (profile.userId !== userId) throw new ForbiddenException("No podés editar este perfil");
     return profile;
   }
 
-  async create(userId: string, gameId: string, inGameHandle: string) {
-    const existing = await this.prisma.gameProfile.findUnique({
-      where: { userId_gameId: { userId, gameId } },
-    });
-    if (existing) throw new ConflictException("Ya tenés un perfil para este juego");
-    return this.prisma.gameProfile.create({
-      data: { userId, gameId, inGameHandle },
-      include: withRelations,
-    });
-  }
-
-  update(id: string, inGameHandle: string) {
-    return this.prisma.gameProfile.update({
-      where: { id },
-      data: { inGameHandle },
-      include: withRelations,
+  async create(userId: string, gameId: string, inGameHandle: string): Promise<GameProfile> {
+    const existing = await this.firestore.query<GameProfile>("gameProfiles", [
+      ["userId", "==", userId],
+      ["gameId", "==", gameId],
+    ]);
+    if (existing.length > 0) throw new ConflictException("Ya tenés un perfil para este juego");
+    return this.firestore.create<GameProfile>("gameProfiles", {
+      userId,
+      gameId,
+      inGameHandle,
     });
   }
 
-  delete(id: string) {
-    return this.prisma.gameProfile.delete({ where: { id } });
+  async update(id: string, inGameHandle: string): Promise<GameProfile> {
+    return this.firestore.set<GameProfile>("gameProfiles", id, { inGameHandle });
   }
 
-  static toPublic(profile: GameProfileWithRelations): PublicGameProfile {
+  async delete(id: string): Promise<void> {
+    await this.firestore.delete("gameProfiles", id);
+  }
+
+  static toPublic(profile: GameProfile): PublicGameProfile {
     return {
       id: profile.id,
       userId: profile.userId,
-      game: GamesService.toPublic(profile.game),
+      game: { id: profile.gameId, slug: "", name: "", iconUrl: null, rankVerifiable: false },
       inGameHandle: profile.inGameHandle,
-      createdAt: profile.createdAt.toISOString(),
-      platformLink: profile.platformLink
-        ? {
-            id: profile.platformLink.id,
-            provider: profile.platformLink.provider,
-            externalHandle: profile.platformLink.externalHandle,
-            hasRankData: profile.platformLink.hasRankData,
-            cachedStats: (profile.platformLink.cachedStats as PlatformLinkStats | null) ?? null,
-            statsFetchedAt: profile.platformLink.statsFetchedAt?.toISOString() ?? null,
-          }
-        : null,
+      createdAt: profile.createdAt,
+      platformLink: null,
     };
   }
 }
