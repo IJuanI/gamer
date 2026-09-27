@@ -102,9 +102,32 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(port);
+  const server = await app.listen(port);
   Logger.log(`GamER Hub API escuchando en http://localhost:${port}/api`, "Bootstrap");
   Logger.log(`Swagger docs disponibles en http://localhost:${port}/docs`, "Bootstrap");
+
+  // Graceful shutdown
+  const gracefulShutdown = async (signal: string) => {
+    Logger.log(`${signal} received, shutting down gracefully...`, "Bootstrap");
+    await app.close();
+    server.close(() => {
+      Logger.log("Server closed", "Bootstrap");
+      process.exit(0);
+    });
+
+    // Force exit after 10 seconds if graceful shutdown fails
+    setTimeout(() => {
+      Logger.error("Forced shutdown after 10 seconds", "Bootstrap");
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+  process.on("unhandledRejection", (reason, promise) => {
+    Logger.error(`Unhandled Rejection at: ${promise} reason: ${reason}`, "Bootstrap");
+  });
 }
 
 bootstrap().catch((error) => {
