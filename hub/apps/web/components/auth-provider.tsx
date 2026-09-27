@@ -16,24 +16,35 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 // Token refresh interval: 10 minutes (refresh token before 15-minute access token expires)
 const TOKEN_REFRESH_INTERVAL = 10 * 60 * 1000;
+const MAX_REFRESH_FAILURES = 3; // After 3 failures, stop retrying until next login
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const failedRefreshCountRef = useRef(0);
 
   const refreshTokens = useCallback(async () => {
     try {
       const { user } = await api.refresh();
       if (!user) {
         setUser(null);
+        failedRefreshCountRef.current = MAX_REFRESH_FAILURES;
         return false;
       }
       setUser(user);
+      failedRefreshCountRef.current = 0; // Reset on success
       return true;
     } catch (err) {
-      console.error("[Auth] Token refresh failed:", err instanceof Error ? err.message : err);
-      setUser(null);
+      failedRefreshCountRef.current++;
+      console.error(
+        `[Auth] Token refresh failed (${failedRefreshCountRef.current}/${MAX_REFRESH_FAILURES}):`,
+        err instanceof Error ? err.message : err
+      );
+      if (failedRefreshCountRef.current >= MAX_REFRESH_FAILURES) {
+        console.log("[Auth] Max refresh failures reached, user must login");
+        setUser(null);
+      }
       return false;
     }
   }, []);
@@ -83,7 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     refreshIntervalRef.current = setInterval(() => {
-      void refreshTokens().catch(() => {});
+      // Only refresh if we haven't hit max failures
+      if (failedRefreshCountRef.current < MAX_REFRESH_FAILURES) {
+        void refreshTokens().catch(() => {});
+      }
     }, TOKEN_REFRESH_INTERVAL);
 
     return () => {
