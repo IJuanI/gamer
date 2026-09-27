@@ -6,8 +6,16 @@ import { AppModule } from "./app.module";
 import { FileLogger } from "./logger";
 import { HttpExceptionFilter } from "./common/http-exception.filter";
 import { CloudLoggingService } from "./logging/cloud-logging.service";
+import { validateEnvironment } from "./common/environment.validator";
 
 async function bootstrap() {
+  try {
+    validateEnvironment();
+  } catch (error) {
+    console.error("Environment validation failed:", error);
+    process.exit(1);
+  }
+
   console.log("Starting GamER Hub API...");
   const app = await NestFactory.create(AppModule, { logger: new FileLogger() });
   console.log("AppModule created");
