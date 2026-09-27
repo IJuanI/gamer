@@ -44,6 +44,8 @@ export const api = {
 
   logout: () => request<{ ok: boolean }>("/auth/logout", { method: "POST" }),
 
+  refresh: () => request<AuthResponse>("/auth/refresh", { method: "POST" }),
+
   me: () => request<AuthResponse>("/auth/me"),
 
   listUsers: () => request<{ users: PublicUser[] }>("/users"),

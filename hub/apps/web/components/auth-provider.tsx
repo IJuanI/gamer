@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import type { PublicUser } from "@gamer/shared";
 import { api, API_CONFIGURED } from "@/lib/api";
 
@@ -14,9 +14,76 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Token refresh interval: 10 minutes (refresh token before 15-minute access token expires)
+const TOKEN_REFRESH_INTERVAL = 10 * 60 * 1000;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const refreshTokens = useCallback(async () => {
+    try {
+      const { user } = await api.refresh();
+      setUser(user);
+      return true;
+    } catch {
+      setUser(null);
+      return false;
+    }
+  }, []);
+
+  const initializeAuth = useCallback(async () => {
+    try {
+      // First, try to refresh the access token using the refresh token
+      const success = await refreshTokens();
+      if (!success) {
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [refreshTokens]);
+
+  const logout = useCallback(async () => {
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+      refreshIntervalRef.current = null;
+    }
+    await api.logout().catch(() => {});
+    setUser(null);
+  }, []);
+
+  useEffect(() => {
+    if (!API_CONFIGURED) {
+      setLoading(false);
+      return;
+    }
+    void initializeAuth();
+  }, [initializeAuth]);
+
+  // Set up periodic token refresh
+  useEffect(() => {
+    if (!API_CONFIGURED || !user) return;
+
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+    }
+
+    refreshIntervalRef.current = setInterval(() => {
+      void refreshTokens().catch(() => {});
+    }, TOKEN_REFRESH_INTERVAL);
+
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+    };
+  }, [user, refreshTokens]);
 
   const refresh = useCallback(async () => {
     try {
@@ -24,26 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(user);
     } catch {
       setUser(null);
-    } finally {
-      setLoading(false);
     }
   }, []);
-
-  const logout = useCallback(async () => {
-    await api.logout().catch(() => {});
-    setUser(null);
-  }, []);
-
-  useEffect(() => {
-    // No production API is deployed yet; without NEXT_PUBLIC_API_URL set,
-    // skip the credentialed fetch entirely instead of hitting localhost from
-    // a public page.
-    if (!API_CONFIGURED) {
-      setLoading(false);
-      return;
-    }
-    void refresh();
-  }, [refresh]);
 
   return (
     <AuthContext.Provider value={{ user, loading, refresh, logout, setUser }}>
