@@ -49,6 +49,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared package
+        run: pnpm --filter @gamer/shared build
+
       - name: Build
         run: pnpm --filter @gamer/web build
         env:
@@ -157,6 +160,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --filter @gamer/shared build
 
       - name: Build for deployment
         run: pnpm --filter @gamer/web pages:build
