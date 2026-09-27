@@ -27,33 +27,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshTokens = useCallback(async () => {
     try {
-      const cookies = document.cookie;
-      const hasRefreshToken = cookies.includes("refresh_token");
-
       await reportError({
         message: "Token refresh attempt",
         context: "tokenRefresh",
         metadata: {
           event: "refresh_attempt",
-          hasRefreshTokenCookie: hasRefreshToken,
           timestamp: new Date().toISOString(),
         },
       }).catch(() => {});
-
-      if (!hasRefreshToken) {
-        await reportError({
-          message: "Token refresh failed: refresh_token cookie not found",
-          context: "tokenRefresh",
-          metadata: {
-            event: "refresh_failed",
-            reason: "no_refresh_token_cookie",
-            failureCount: failedRefreshCountRef.current + 1,
-          },
-        }).catch(() => {});
-        failedRefreshCountRef.current = MAX_REFRESH_FAILURES;
-        setUser(null);
-        return false;
-      }
 
       const { user } = await api.refresh();
       if (!user) {
@@ -117,6 +98,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const initializeAuth = useCallback(async () => {
     if (!API_CONFIGURED) {
+      await reportError({
+        message: "Auth initialization skipped: API not configured",
+        context: "authInit",
+        metadata: {
+          event: "api_not_configured",
+          apiUrl: typeof window !== "undefined" ? new URL(window.location.href).origin : "unknown",
+        },
+      }).catch(() => {});
       setLoading(false);
       return;
     }
