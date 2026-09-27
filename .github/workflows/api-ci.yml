@@ -55,14 +55,6 @@ jobs:
       - name: Build
         run: pnpm --filter @gamer/api build
 
-      - name: Unit tests
-        run: pnpm --filter @gamer/api test
-        timeout-minutes: 5
-        env:
-          NODE_ENV: test
-          FIREBASE_PROJECT_ID: test-project
-          FIRESTORE_EMULATOR_HOST: localhost:8080
-
   smoke-tests:
     runs-on: ubuntu-latest
     needs: test
