@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "GamER Hub — Entre Ríos Gamers",
   description:
     "El hub de la comunidad gamer de Entre Ríos. Torneos, eventos y comunidad en un solo lugar.",
+  icons: {
+    icon: "/icon.png",
+  },
   openGraph: {
     title: "GamER Hub — Entre Ríos Gamers",
     description: "El hub de la comunidad gamer de Entre Ríos.",
