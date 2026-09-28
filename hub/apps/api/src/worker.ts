@@ -131,7 +131,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.use("*", logger());
 app.use("*", cors({
   origin: (origin, c) => {
-    const allowed = (c.env.WEB_ORIGIN ?? "").split(",").map((o) => o.trim()).filter(Boolean);
+    const allowed = (c.env.WEB_ORIGIN ?? "").split(",").map((o: string) => o.trim()).filter(Boolean);
     return origin && allowed.includes(origin) ? origin : allowed[0] || "*";
   },
   credentials: true,
