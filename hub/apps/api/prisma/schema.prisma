@@ -8,19 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  EDITOR
-  MEMBER
-}
-
 model User {
   id                String            @id @default(cuid())
   email             String            @unique
   displayName       String
   // Null for accounts created purely via OAuth (no local password).
   passwordHash      String?
-  role              Role              @default(MEMBER)
+  role              String            @default("MEMBER") // ADMIN, EDITOR, MEMBER
   avatarUrl         String?
   accounts          Account[]
   gameProfiles      GameProfile[]
@@ -44,14 +38,6 @@ model Account {
   @@unique([provider, providerAccountId])
   @@index([userId])
   @@map("accounts")
-}
-
-// FACEIT and RIOT can supply a verified rank; EPIC (Rocket League) is
-// identity-only today since Psyonix has no public rank API.
-enum PlatformProvider {
-  FACEIT
-  RIOT
-  EPIC
 }
 
 model Game {
@@ -94,23 +80,18 @@ model PlatformLink {
   id             String           @id @default(cuid())
   gameProfile    GameProfile      @relation(fields: [gameProfileId], references: [id], onDelete: Cascade)
   gameProfileId  String           @unique
-  provider       PlatformProvider
+  provider       String           // FACEIT, RIOT, or EPIC
   externalId     String
   externalHandle String
   hasRankData    Boolean          @default(false)
   accessToken    String?
   refreshToken   String?
-  cachedStats    Json?
+  cachedStats    String?          // JSON stringified
   statsFetchedAt DateTime?
   createdAt      DateTime         @default(now())
 
   @@unique([provider, externalId])
   @@map("platform_links")
-}
-
-enum TeamRole {
-  CAPTAIN
-  MEMBER
 }
 
 model Team {
@@ -136,21 +117,16 @@ model TeamMember {
   teamId   String
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String
-  role     TeamRole @default(MEMBER)
+  role     String   @default("MEMBER") // CAPTAIN or MEMBER
   joinedAt DateTime @default(now())
 
   @@unique([teamId, userId])
   @@map("team_members")
 }
 
-enum RecruitmentPostType {
-  LOOKING_FOR_TEAM
-  LOOKING_FOR_PLAYERS
-}
-
 model RecruitmentPost {
   id        String              @id @default(cuid())
-  type      RecruitmentPostType
+  type      String              // LOOKING_FOR_TEAM or LOOKING_FOR_PLAYERS
   author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
   game      Game                @relation(fields: [gameId], references: [id])

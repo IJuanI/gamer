@@ -1,32 +1,29 @@
 import { Injectable } from "@nestjs/common";
 import type { PublicGame } from "@gamer/shared";
-import { FirestoreService } from "../firestore/firestore.service";
-
-interface Game {
-  id: string;
-  slug: string;
-  name: string;
-  iconUrl?: string;
-  rankVerifiable: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { PrismaService } from "../prisma/prisma.service";
+import { Game } from "@prisma/client";
 
 @Injectable()
 export class GamesService {
-  constructor(private readonly firestore: FirestoreService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async list(): Promise<Game[]> {
-    const games = await this.firestore.findAll<Game>("games");
-    return games.sort((a, b) => a.name.localeCompare(b.name));
+    const games = await this.prisma.game.findMany({
+      orderBy: { name: "asc" },
+    });
+    return games;
   }
 
   async findById(id: string): Promise<Game | null> {
-    return this.firestore.findUnique<Game>("games", id);
+    return this.prisma.game.findUnique({
+      where: { id },
+    });
   }
 
   async findBySlug(slug: string): Promise<Game | null> {
-    return this.firestore.findByField<Game>("games", "slug", slug);
+    return this.prisma.game.findUnique({
+      where: { slug },
+    });
   }
 
   static toPublic(game: Game): PublicGame {

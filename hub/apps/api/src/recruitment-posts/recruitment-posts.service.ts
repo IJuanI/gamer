@@ -1,50 +1,41 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import type { PublicRecruitmentPost } from "@gamer/shared";
-import { FirestoreService } from "../firestore/firestore.service";
-import { GamesService } from "../games/games.service";
-
-type RecruitmentPostType = "LOOKING_FOR_TEAM" | "LOOKING_FOR_PLAYERS";
-
-interface RecruitmentPost {
-  id: string;
-  type: RecruitmentPostType;
-  authorId: string;
-  gameId: string;
-  teamId?: string;
-  title: string;
-  body: string;
-  isOpen: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { PrismaService } from "../prisma/prisma.service";
+import { RecruitmentPost } from "@prisma/client";
 
 @Injectable()
 export class RecruitmentPostsService {
-  constructor(private readonly firestore: FirestoreService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async list(filters: { gameId?: string; type?: RecruitmentPostType; isOpen?: boolean }): Promise<RecruitmentPost[]> {
-    let query: Array<[string, string, any]> = [];
-    if (filters.gameId) query.push(["gameId", "==", filters.gameId]);
-    if (filters.type) query.push(["type", "==", filters.type]);
-    if (filters.isOpen !== undefined) query.push(["isOpen", "==", filters.isOpen]);
+  async list(filters: { gameId?: string; type?: string; isOpen?: boolean }): Promise<RecruitmentPost[]> {
+    const where: any = {};
+    if (filters.gameId) where.gameId = filters.gameId;
+    if (filters.type) where.type = filters.type;
+    if (filters.isOpen !== undefined) where.isOpen = filters.isOpen;
 
-    return query.length > 0 ? this.firestore.query<RecruitmentPost>("recruitmentPosts", query) : this.firestore.findAll<RecruitmentPost>("recruitmentPosts");
+    return this.prisma.recruitmentPost.findMany({
+      where: Object.keys(where).length > 0 ? where : undefined,
+    });
   }
 
   async findById(id: string): Promise<RecruitmentPost> {
-    const post = await this.firestore.findUnique<RecruitmentPost>("recruitmentPosts", id);
+    const post = await this.prisma.recruitmentPost.findUnique({
+      where: { id },
+    });
     if (!post) throw new NotFoundException("Publicación no encontrada");
     return post;
   }
 
   async create(
     authorId: string,
-    data: { type: RecruitmentPostType; gameId: string; teamId?: string; title: string; body: string },
+    data: { type: string; gameId: string; teamId?: string; title: string; body: string },
   ): Promise<RecruitmentPost> {
-    return this.firestore.create<RecruitmentPost>("recruitmentPosts", {
-      ...data,
-      authorId,
-      isOpen: true,
+    return this.prisma.recruitmentPost.create({
+      data: {
+        ...data,
+        authorId,
+        isOpen: true,
+      },
     });
   }
 
@@ -55,11 +46,16 @@ export class RecruitmentPostsService {
   }
 
   async update(id: string, data: { title?: string; body?: string; isOpen?: boolean }): Promise<RecruitmentPost> {
-    return this.firestore.set<RecruitmentPost>("recruitmentPosts", id, data);
+    return this.prisma.recruitmentPost.update({
+      where: { id },
+      data,
+    });
   }
 
   async delete(id: string): Promise<void> {
-    await this.firestore.delete("recruitmentPosts", id);
+    await this.prisma.recruitmentPost.delete({
+      where: { id },
+    });
   }
 
   static toPublic(post: RecruitmentPost): PublicRecruitmentPost {
@@ -72,7 +68,7 @@ export class RecruitmentPostsService {
       title: post.title,
       body: post.body,
       isOpen: post.isOpen,
-      createdAt: post.createdAt,
+      createdAt: post.createdAt.toISOString(),
     };
   }
 }

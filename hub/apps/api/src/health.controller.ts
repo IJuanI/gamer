@@ -1,6 +1,6 @@
-import { Controller, Get, Inject } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { FirestoreService } from "./firestore/firestore.service";
+import { PrismaService } from "./prisma/prisma.service";
 
 interface HealthResponse {
   status: "healthy" | "degraded" | "unhealthy";
@@ -8,7 +8,7 @@ interface HealthResponse {
   environment: string;
   uptime: number;
   checks: {
-    firestore: "ok" | "error";
+    database: "ok" | "error";
   };
 }
 
@@ -17,21 +17,21 @@ interface HealthResponse {
 export class HealthController {
   private startTime = Date.now();
 
-  constructor(@Inject(FirestoreService) private readonly firestore: FirestoreService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @Get()
   @ApiOperation({ summary: "Get comprehensive health status" })
   @ApiResponse({ status: 200, description: "Detailed health check results" })
   async check(): Promise<HealthResponse> {
     const uptime = Date.now() - this.startTime;
-    let firestoreStatus: "ok" | "error" = "ok";
+    let databaseStatus: "ok" | "error" = "ok";
     try {
-      await this.firestore.getFirestore();
+      await this.prisma.$queryRaw`SELECT 1`;
     } catch {
-      firestoreStatus = "error";
+      databaseStatus = "error";
     }
 
-    const status = firestoreStatus === "error" ? "degraded" : "healthy";
+    const status = databaseStatus === "error" ? "degraded" : "healthy";
 
     return {
       status,
@@ -39,7 +39,7 @@ export class HealthController {
       environment: process.env.NODE_ENV || "development",
       uptime,
       checks: {
-        firestore: firestoreStatus,
+        database: databaseStatus,
       },
     };
   }
@@ -57,7 +57,7 @@ export class HealthController {
   @ApiResponse({ status: 503, description: "API is not ready" })
   async ready() {
     try {
-      await this.firestore.getFirestore();
+      await this.prisma.$queryRaw`SELECT 1`;
       return { ok: true };
     } catch {
       return { ok: false };

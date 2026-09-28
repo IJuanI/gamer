@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
-import { FirestoreModule } from "../firestore/firestore.module";
+import { PrismaModule } from "../prisma/prisma.module";
 import { GamesService } from "./games.service";
 import { GamesController } from "./games.controller";
 
 @Module({
-  imports: [FirestoreModule],
+  imports: [PrismaModule],
   controllers: [GamesController],
   providers: [GamesService],
   exports: [GamesService],

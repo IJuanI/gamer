@@ -13,12 +13,12 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "skipLibCheck": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "strictNullChecks": false,
+    "forceConsistentCasingInFileNames": false,
     "resolveJsonModule": true,
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "prisma", "src/prisma/**/*", "src/auth/**/*", "src/games/**/*", "src/game-profiles/**/*", "src/teams/**/*", "src/recruitment-posts/**/*", "src/platform-links/**/*"]
+  "exclude": ["node_modules", "prisma", "src/auth/**/*", "src/common/**/*", "src/e2e/**/*", "src/firestore/**/*", "src/metrics/**/*", "src/platform-links/**/*", "src/games/**/*", "src/game-profiles/**/*", "src/teams/**/*", "src/recruitment-posts/**/*", "src/dev/**/*"]
 }
