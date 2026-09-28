@@ -412,7 +412,7 @@ export default function JamPage() {
             <div className="grid grid-cols-4 gap-1 sm:gap-3 md:gap-4">
               {(countdown ?? getCountdown(JAM_START)).map((s) => (
                 <div key={s.label} className="text-center">
-                  <div className="text-3xl font-extrabold tabular-nums sm:text-5xl md:text-7xl lg:text-9xl" style={{ color: "#3cff9e", lineHeight: "1" }}>
+                  <div className="text-3xl font-extrabold tabular-nums sm:text-5xl md:text-6xl lg:text-7xl" style={{ color: "#3cff9e", lineHeight: "1" }}>
                     {s.value}
                   </div>
                   <div
