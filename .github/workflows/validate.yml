@@ -63,6 +63,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: pnpm --filter @gamer/api exec prisma generate
+
+      - name: Build shared package
+        run: pnpm --filter @gamer/shared build
+
       - name: Type check
         run: pnpm -r type-check
 
