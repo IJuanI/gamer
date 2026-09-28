@@ -8,13 +8,6 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "gamer"
-
-    workspaces {
-      name = "production"
-    }
-  }
 }
 
 provider "cloudflare" {

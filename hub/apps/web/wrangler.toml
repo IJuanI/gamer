@@ -24,12 +24,10 @@ NODE_ENV = "production"
 WEB_ORIGIN = "https://gameer.com.ar,https://paranagamejam.com.ar"
 OAUTH_CALLBACK_BASE = "https://gameer.com.ar"
 
-# D1 binding — fill in database_id after running `terraform apply` manually
-# (see terraform/), then set via `cf d1` or by uncommenting below and redeploying.
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "gamer-hub-prod"
-# database_id = "from-terraform-output"
+[[d1_databases]]
+binding = "DB"
+database_name = "gamer-hub-prod"
+database_id = "001ab94c-89cd-473f-9dc4-ef7b39cab23b"
 
 # Secrets (JWT_SECRET, DISCORD_CLIENT_ID/SECRET, GOOGLE_CLIENT_ID/SECRET,
 # FACEIT_API_KEY, RIOT_API_KEY) are set manually, not via wrangler.toml:

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import * as bcrypt from "bcryptjs";
@@ -16,6 +17,7 @@ interface Env {
   FACEIT_API_KEY?: string;
   RIOT_API_KEY?: string;
   WEB_ORIGIN?: string;
+  OAUTH_CALLBACK_BASE?: string;
   NODE_ENV?: string;
 }
 
@@ -29,10 +31,111 @@ function getPrismaClient(env: Env): PrismaClient {
   return prismaInstance;
 }
 
+const ACCESS_TOKEN_EXPIRES_IN = "15m";
+const REFRESH_TOKEN_EXPIRES_IN = "90d";
+const ACCESS_TOKEN_MAX_AGE = 15 * 60;
+const REFRESH_TOKEN_MAX_AGE = 90 * 24 * 60 * 60;
+
+function signTokens(userId: string, secret: string) {
+  return {
+    accessToken: jwt.sign({ sub: userId, type: "access" }, secret, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
+    refreshToken: jwt.sign({ sub: userId, type: "refresh" }, secret, { expiresIn: REFRESH_TOKEN_EXPIRES_IN }),
+  };
+}
+
+function setSessionCookies(c: any, tokens: { accessToken: string; refreshToken: string }) {
+  const isProduction = c.env.NODE_ENV === "production";
+  setCookie(c, "access_token", tokens.accessToken, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: isProduction,
+    maxAge: ACCESS_TOKEN_MAX_AGE,
+    path: "/",
+  });
+  setCookie(c, "refresh_token", tokens.refreshToken, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: isProduction,
+    maxAge: REFRESH_TOKEN_MAX_AGE,
+    path: "/",
+  });
+}
+
+function clearSessionCookies(c: any) {
+  deleteCookie(c, "access_token", { path: "/" });
+  deleteCookie(c, "refresh_token", { path: "/" });
+}
+
+function requireUserId(c: any, type: "access" | "refresh" = "access"): string | null {
+  const token = getCookie(c, type === "access" ? "access_token" : "refresh_token");
+  if (!token) return null;
+  try {
+    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
+    if (decoded.type !== type) return null;
+    return decoded.sub;
+  } catch {
+    return null;
+  }
+}
+
+function toPublicUser(user: any) {
+  return {
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    role: user.role,
+    avatarUrl: user.avatarUrl,
+    createdAt: user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt,
+  };
+}
+
+async function findOrCreateOAuthUser(
+  prisma: PrismaClient,
+  params: { provider: string; providerAccountId: string; email: string; displayName: string; avatarUrl?: string | null },
+) {
+  const existing = await prisma.account.findUnique({
+    where: { provider_providerAccountId: { provider: params.provider, providerAccountId: params.providerAccountId } },
+    include: { user: true },
+  });
+  if (existing) return existing.user;
+
+  const email = params.email.toLowerCase();
+  let user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    user = await prisma.user.create({
+      data: { email, displayName: params.displayName, avatarUrl: params.avatarUrl ?? null, role: "MEMBER" },
+    });
+  }
+
+  await prisma.account.create({
+    data: { provider: params.provider, providerAccountId: params.providerAccountId, userId: user.id },
+  });
+
+  return user;
+}
+
+function webOrigin(env: Env): string {
+  return (env.WEB_ORIGIN ?? "http://localhost:3000").split(",")[0].trim();
+}
+
+function callbackBase(env: Env): string {
+  return env.OAUTH_CALLBACK_BASE ?? "http://localhost:4000";
+}
+
+function randomState(): string {
+  return crypto.randomUUID();
+}
+
 const app = new Hono<{ Bindings: Env }>();
 
 app.use("*", logger());
-app.use("*", cors({ origin: (origin) => origin || "*", credentials: true }));
+app.use("*", cors({
+  origin: (origin, c) => {
+    const allowed = (c.env.WEB_ORIGIN ?? "").split(",").map((o) => o.trim()).filter(Boolean);
+    return origin && allowed.includes(origin) ? origin : allowed[0] || "*";
+  },
+  credentials: true,
+}));
 
 // Health check
 app.get("/api/health", (c) => {
@@ -44,16 +147,29 @@ app.get("/api/health", (c) => {
 });
 
 // Telemetry: Error logging from frontend
-app.post("/api/telemetry/errors", async (c) => {
+const handleClientErrorReport = async (c: any) => {
   try {
-    const { message, context, metadata, userAgent } = await c.req.json();
-    console.error("Frontend error:", { message, context, metadata, userAgent, timestamp: new Date().toISOString() });
+    const { message, stack, url, context, userId, metadata } = await c.req.json();
+    console.error("[client]", JSON.stringify({
+      severity: "ERROR",
+      message,
+      stack,
+      url,
+      context,
+      userId,
+      metadata,
+      userAgent: c.req.header("user-agent"),
+      timestamp: new Date().toISOString(),
+    }));
     return c.json({ statusCode: 200, message: "Error logged" });
   } catch (error) {
-    console.error("Telemetry error:", error);
+    console.error("[client] telemetry endpoint failure:", error);
     return c.json({ statusCode: 500, message: "Failed to log error" }, 500);
   }
-});
+};
+app.post("/api/telemetry/error", handleClientErrorReport);
+// Older frontend builds may still post to the plural path; keep it working.
+app.post("/api/telemetry/errors", handleClientErrorReport);
 
 // Auth: Register
 app.post("/api/auth/register", async (c) => {
@@ -67,23 +183,16 @@ app.post("/api/auth/register", async (c) => {
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existing) {
-      return c.json({ statusCode: 409, message: "Email already registered" }, 409);
+      return c.json({ statusCode: 409, message: "Ya existe una cuenta con ese email" }, 409);
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
-      data: {
-        email: email.toLowerCase(),
-        displayName,
-        passwordHash,
-        role: "MEMBER",
-      },
+      data: { email: email.toLowerCase(), displayName, passwordHash, role: "MEMBER" },
     });
 
-    const accessToken = jwt.sign({ sub: user.id, type: "access" }, c.env.JWT_SECRET, { expiresIn: "15m" });
-    const refreshToken = jwt.sign({ sub: user.id, type: "refresh" }, c.env.JWT_SECRET, { expiresIn: "90d" });
-
-    return c.json({ user: { id: user.id, email: user.email, displayName: user.displayName }, accessToken, refreshToken });
+    setSessionCookies(c, signTokens(user.id, c.env.JWT_SECRET));
+    return c.json({ user: toPublicUser(user) });
   } catch (error) {
     console.error("Register error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -102,21 +211,214 @@ app.post("/api/auth/login", async (c) => {
 
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (!user || !user.passwordHash) {
-      return c.json({ statusCode: 401, message: "Invalid credentials" }, 401);
+      return c.json({ statusCode: 401, message: "Credenciales inválidas" }, 401);
     }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
-      return c.json({ statusCode: 401, message: "Invalid credentials" }, 401);
+      return c.json({ statusCode: 401, message: "Credenciales inválidas" }, 401);
     }
 
-    const accessToken = jwt.sign({ sub: user.id, type: "access" }, c.env.JWT_SECRET, { expiresIn: "15m" });
-    const refreshToken = jwt.sign({ sub: user.id, type: "refresh" }, c.env.JWT_SECRET, { expiresIn: "90d" });
-
-    return c.json({ user: { id: user.id, email: user.email, displayName: user.displayName }, accessToken, refreshToken });
+    setSessionCookies(c, signTokens(user.id, c.env.JWT_SECRET));
+    return c.json({ user: toPublicUser(user) });
   } catch (error) {
     console.error("Login error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Auth: Refresh
+app.post("/api/auth/refresh", async (c) => {
+  try {
+    const userId = requireUserId(c, "refresh");
+    if (!userId) return c.json({ statusCode: 401, message: "Invalid refresh token" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return c.json({ statusCode: 401, message: "Invalid refresh token" }, 401);
+
+    setSessionCookies(c, signTokens(user.id, c.env.JWT_SECRET));
+    return c.json({ user: toPublicUser(user) });
+  } catch (error) {
+    console.error("Refresh error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Auth: Logout
+app.post("/api/auth/logout", (c) => {
+  clearSessionCookies(c);
+  return c.json({ ok: true });
+});
+
+// Auth: Me
+app.get("/api/auth/me", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    return c.json({ user: toPublicUser(user) });
+  } catch (error) {
+    console.error("Me error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Auth: Discord OAuth — initiate
+app.get("/api/auth/discord", (c) => {
+  if (!c.env.DISCORD_CLIENT_ID || !c.env.DISCORD_CLIENT_SECRET) {
+    return c.json({ statusCode: 404, message: "Not found" }, 404);
+  }
+  const state = randomState();
+  setCookie(c, "oauth_state", state, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: c.env.NODE_ENV === "production",
+    maxAge: 300,
+    path: "/",
+  });
+
+  const url = new URL("https://discord.com/api/oauth2/authorize");
+  url.searchParams.set("client_id", c.env.DISCORD_CLIENT_ID);
+  url.searchParams.set("redirect_uri", `${callbackBase(c.env)}/api/auth/discord/callback`);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", "identify email");
+  url.searchParams.set("state", state);
+  return c.redirect(url.toString());
+});
+
+// Auth: Discord OAuth — callback
+app.get("/api/auth/discord/callback", async (c) => {
+  try {
+    if (!c.env.DISCORD_CLIENT_ID || !c.env.DISCORD_CLIENT_SECRET) {
+      return c.json({ statusCode: 404, message: "Not found" }, 404);
+    }
+    const code = c.req.query("code");
+    const state = c.req.query("state");
+    const expectedState = getCookie(c, "oauth_state");
+    deleteCookie(c, "oauth_state", { path: "/" });
+
+    if (!code || !state || state !== expectedState) {
+      return c.json({ statusCode: 400, message: "Invalid OAuth state" }, 400);
+    }
+
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: c.env.DISCORD_CLIENT_ID,
+        client_secret: c.env.DISCORD_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: `${callbackBase(c.env)}/api/auth/discord/callback`,
+      }),
+    });
+    if (!tokenRes.ok) throw new Error(`Discord token exchange failed: ${tokenRes.status}`);
+    const { access_token } = (await tokenRes.json()) as { access_token: string };
+
+    const profileRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    if (!profileRes.ok) throw new Error(`Discord profile fetch failed: ${profileRes.status}`);
+    const profile = (await profileRes.json()) as any;
+
+    const avatarUrl = profile.avatar
+      ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+      : null;
+
+    const prisma = getPrismaClient(c.env);
+    const user = await findOrCreateOAuthUser(prisma, {
+      provider: "discord",
+      providerAccountId: profile.id,
+      email: profile.email ?? `${profile.id}@discord.local`,
+      displayName: profile.global_name ?? profile.username ?? "GamER",
+      avatarUrl,
+    });
+
+    setSessionCookies(c, signTokens(user.id, c.env.JWT_SECRET));
+    return c.redirect(`${webOrigin(c.env)}/dashboard`);
+  } catch (error) {
+    console.error("Discord OAuth error:", error);
+    return c.redirect(`${webOrigin(c.env)}/login?error=oauth_failed`);
+  }
+});
+
+// Auth: Google OAuth — initiate
+app.get("/api/auth/google", (c) => {
+  if (!c.env.GOOGLE_CLIENT_ID || !c.env.GOOGLE_CLIENT_SECRET) {
+    return c.json({ statusCode: 404, message: "Not found" }, 404);
+  }
+  const state = randomState();
+  setCookie(c, "oauth_state", state, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: c.env.NODE_ENV === "production",
+    maxAge: 300,
+    path: "/",
+  });
+
+  const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  url.searchParams.set("client_id", c.env.GOOGLE_CLIENT_ID);
+  url.searchParams.set("redirect_uri", `${callbackBase(c.env)}/api/auth/google/callback`);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", "email profile");
+  url.searchParams.set("state", state);
+  return c.redirect(url.toString());
+});
+
+// Auth: Google OAuth — callback
+app.get("/api/auth/google/callback", async (c) => {
+  try {
+    if (!c.env.GOOGLE_CLIENT_ID || !c.env.GOOGLE_CLIENT_SECRET) {
+      return c.json({ statusCode: 404, message: "Not found" }, 404);
+    }
+    const code = c.req.query("code");
+    const state = c.req.query("state");
+    const expectedState = getCookie(c, "oauth_state");
+    deleteCookie(c, "oauth_state", { path: "/" });
+
+    if (!code || !state || state !== expectedState) {
+      return c.json({ statusCode: 400, message: "Invalid OAuth state" }, 400);
+    }
+
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: c.env.GOOGLE_CLIENT_ID,
+        client_secret: c.env.GOOGLE_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: `${callbackBase(c.env)}/api/auth/google/callback`,
+      }),
+    });
+    if (!tokenRes.ok) throw new Error(`Google token exchange failed: ${tokenRes.status}`);
+    const { access_token } = (await tokenRes.json()) as { access_token: string };
+
+    const profileRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    if (!profileRes.ok) throw new Error(`Google profile fetch failed: ${profileRes.status}`);
+    const profile = (await profileRes.json()) as any;
+
+    const prisma = getPrismaClient(c.env);
+    const user = await findOrCreateOAuthUser(prisma, {
+      provider: "google",
+      providerAccountId: profile.id,
+      email: profile.email ?? `${profile.id}@google.local`,
+      displayName: profile.name ?? "GamER",
+      avatarUrl: profile.picture ?? null,
+    });
+
+    setSessionCookies(c, signTokens(user.id, c.env.JWT_SECRET));
+    return c.redirect(`${webOrigin(c.env)}/dashboard`);
+  } catch (error) {
+    console.error("Google OAuth error:", error);
+    return c.redirect(`${webOrigin(c.env)}/login?error=oauth_failed`);
   }
 });
 
@@ -164,7 +466,7 @@ app.get("/api/users/:id", async (c) => {
     const prisma = getPrismaClient(c.env);
     const user = await prisma.user.findUnique({ where: { id: c.req.param("id") } });
     if (!user) return c.json({ statusCode: 404, message: "Not found" }, 404);
-    return c.json({ id: user.id, email: user.email, displayName: user.displayName, role: user.role, avatarUrl: user.avatarUrl, createdAt: user.createdAt.toISOString() });
+    return c.json(toPublicUser(user));
   } catch (error) {
     console.error("Get user error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -174,24 +476,20 @@ app.get("/api/users/:id", async (c) => {
 // Users: Update
 app.patch("/api/users/:id", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
-    const prisma = getPrismaClient(c.env);
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
     const targetId = c.req.param("id");
-
     if (userId !== targetId) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
 
+    const prisma = getPrismaClient(c.env);
     const { displayName, avatarUrl } = await c.req.json();
     const user = await prisma.user.update({
       where: { id: targetId },
       data: { ...(displayName && { displayName }), ...(avatarUrl !== undefined && { avatarUrl }) },
     });
 
-    return c.json({ id: user.id, email: user.email, displayName: user.displayName, role: user.role, avatarUrl: user.avatarUrl, createdAt: user.createdAt.toISOString() });
+    return c.json(toPublicUser(user));
   } catch (error) {
     console.error("Update user error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -227,14 +525,11 @@ app.get("/api/teams/:id", async (c) => {
 // Teams: Create
 app.post("/api/teams", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
     const { gameId, name, tag, bio } = await c.req.json();
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
 
     const existing = await prisma.team.findFirst({ where: { gameId, name } });
     if (existing) return c.json({ statusCode: 409, message: "Team already exists" }, 409);
@@ -272,14 +567,11 @@ app.get("/api/recruitment-posts", async (c) => {
 // Recruitment Posts: Create
 app.post("/api/recruitment-posts", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
     const { type, gameId, title, body } = await c.req.json();
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
 
     const post = await prisma.recruitmentPost.create({
       data: { type, gameId, title, body, authorId: userId, isOpen: true },
@@ -296,13 +588,10 @@ app.post("/api/recruitment-posts", async (c) => {
 // Recruitment Posts: Update
 app.patch("/api/recruitment-posts/:id", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
     const postId = c.req.param("id");
 
     const post = await prisma.recruitmentPost.findUnique({ where: { id: postId } });
@@ -326,13 +615,10 @@ app.patch("/api/recruitment-posts/:id", async (c) => {
 // Recruitment Posts: Delete
 app.delete("/api/recruitment-posts/:id", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
     const postId = c.req.param("id");
 
     const post = await prisma.recruitmentPost.findUnique({ where: { id: postId } });
@@ -350,14 +636,10 @@ app.delete("/api/recruitment-posts/:id", async (c) => {
 // Game Profiles: List
 app.get("/api/game-profiles", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
-
     const profiles = await prisma.gameProfile.findMany({ where: { userId }, include: { game: true } });
     return c.json(profiles.map((p) => ({ id: p.id, gameId: p.gameId, gameName: p.game.name, inGameHandle: p.inGameHandle, createdAt: p.createdAt.toISOString() })));
   } catch (error) {
@@ -369,14 +651,11 @@ app.get("/api/game-profiles", async (c) => {
 // Game Profiles: Create
 app.post("/api/game-profiles", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
     const { gameId, inGameHandle } = await c.req.json();
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
 
     const existing = await prisma.gameProfile.findUnique({ where: { userId_gameId: { userId, gameId } } });
     if (existing) return c.json({ statusCode: 409, message: "Profile already exists" }, 409);
@@ -396,17 +675,13 @@ app.post("/api/game-profiles", async (c) => {
 // Platform Links: List
 app.get("/api/platform-links", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
-
     const links = await prisma.platformLink.findMany({
       where: { gameProfile: { userId } },
-      include: { gameProfile: { include: { game: true } } }
+      include: { gameProfile: { include: { game: true } } },
     });
     return c.json(links.map((l) => ({ id: l.id, provider: l.provider, externalHandle: l.externalHandle, gameId: l.gameProfile.gameId, hasRankData: l.hasRankData })));
   } catch (error) {
@@ -418,14 +693,11 @@ app.get("/api/platform-links", async (c) => {
 // Platform Links: Create
 app.post("/api/platform-links", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
     const { gameProfileId, provider, externalId, externalHandle, hasRankData, accessToken, refreshToken } = await c.req.json();
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
 
     const profile = await prisma.gameProfile.findUnique({ where: { id: gameProfileId } });
     if (!profile || profile.userId !== userId) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
@@ -445,13 +717,10 @@ app.post("/api/platform-links", async (c) => {
 // Platform Links: Delete
 app.delete("/api/platform-links/:id", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, c.env.JWT_SECRET) as any;
-    const userId = decoded.sub;
     const linkId = c.req.param("id");
 
     const link = await prisma.platformLink.findUnique({ where: { id: linkId }, include: { gameProfile: true } });
@@ -469,6 +738,20 @@ app.delete("/api/platform-links/:id", async (c) => {
 // Catch-all
 app.all("*", (c) => {
   return c.json({ statusCode: 404, message: "Not found" }, 404);
+});
+
+// Structured logging for any exception not already caught by a route handler,
+// so server-side errors land in Workers Logs the same shape as client reports.
+app.onError((err, c) => {
+  console.error("[server]", JSON.stringify({
+    severity: "ERROR",
+    message: err.message,
+    stack: err.stack,
+    url: c.req.url,
+    method: c.req.method,
+    timestamp: new Date().toISOString(),
+  }));
+  return c.json({ statusCode: 500, message: "Server error" }, 500);
 });
 
 export default app;
