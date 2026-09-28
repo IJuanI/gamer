@@ -568,6 +568,35 @@ app.post("/api/teams", async (c) => {
   }
 });
 
+// Teams: Update
+app.patch("/api/teams/:id", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const teamId = c.req.param("id");
+
+    const team = await prisma.team.findUnique({ where: { id: teamId }, include: { members: true } });
+    if (!team) return c.json({ statusCode: 404, message: "Not found" }, 404);
+
+    const isCaptain = team.members.some((m) => m.userId === userId && m.role === "CAPTAIN");
+    if (!isCaptain) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    const { name, tag, bio } = await c.req.json();
+    const updated = await prisma.team.update({
+      where: { id: teamId },
+      data: { ...(name && { name }), ...(tag !== undefined && { tag }), ...(bio !== undefined && { bio }) },
+      include: { members: true },
+    });
+
+    return c.json({ id: updated.id, name: updated.name, gameId: updated.gameId, members: updated.members.length, createdAt: updated.createdAt.toISOString() });
+  } catch (error) {
+    console.error("Update team error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
 // Recruitment Posts: List
 app.get("/api/recruitment-posts", async (c) => {
   try {
@@ -582,6 +611,22 @@ app.get("/api/recruitment-posts", async (c) => {
     return c.json(posts.map((p) => ({ id: p.id, type: p.type, title: p.title, author: { id: p.author.id, displayName: p.author.displayName }, gameId: p.gameId, createdAt: p.createdAt.toISOString() })));
   } catch (error) {
     console.error("List posts error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Recruitment Posts: Get by ID
+app.get("/api/recruitment-posts/:id", async (c) => {
+  try {
+    const prisma = getPrismaClient(c.env);
+    const post = await prisma.recruitmentPost.findUnique({
+      where: { id: c.req.param("id") },
+      include: { author: true },
+    });
+    if (!post) return c.json({ statusCode: 404, message: "Not found" }, 404);
+    return c.json({ id: post.id, type: post.type, title: post.title, body: post.body, author: { id: post.author.id, displayName: post.author.displayName }, gameId: post.gameId, isOpen: post.isOpen, createdAt: post.createdAt.toISOString() });
+  } catch (error) {
+    console.error("Get post error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
   }
 });
@@ -694,6 +739,85 @@ app.post("/api/game-profiles", async (c) => {
   }
 });
 
+// Game Profiles: Aliases for /me/game-profiles paths (more specific, so listed first)
+app.get("/api/me/game-profiles", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const profiles = await prisma.gameProfile.findMany({ where: { userId }, include: { game: true } });
+    return c.json({ gameProfiles: profiles.map((p) => ({ id: p.id, gameId: p.gameId, gameName: p.game.name, inGameHandle: p.inGameHandle, createdAt: p.createdAt.toISOString() })) });
+  } catch (error) {
+    console.error("List me profiles error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+app.post("/api/me/game-profiles", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const { gameId, inGameHandle } = await c.req.json();
+
+    const existing = await prisma.gameProfile.findUnique({ where: { userId_gameId: { userId, gameId } } });
+    if (existing) return c.json({ statusCode: 409, message: "Profile already exists" }, 409);
+
+    const profile = await prisma.gameProfile.create({
+      data: { userId, gameId, inGameHandle },
+      include: { game: true },
+    });
+
+    return c.json({ id: profile.id, gameId: profile.gameId, gameName: profile.game.name, inGameHandle: profile.inGameHandle, createdAt: profile.createdAt.toISOString() });
+  } catch (error) {
+    console.error("Create me profile error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+app.delete("/api/me/game-profiles/:id", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const profileId = c.req.param("id");
+
+    const profile = await prisma.gameProfile.findUnique({ where: { id: profileId } });
+    if (!profile) return c.json({ statusCode: 404, message: "Not found" }, 404);
+    if (profile.userId !== userId) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    await prisma.gameProfile.delete({ where: { id: profileId } });
+    return c.json({ ok: true });
+  } catch (error) {
+    console.error("Delete me profile error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Game Profiles: Delete
+app.delete("/api/game-profiles/:id", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const profileId = c.req.param("id");
+
+    const profile = await prisma.gameProfile.findUnique({ where: { id: profileId } });
+    if (!profile) return c.json({ statusCode: 404, message: "Not found" }, 404);
+    if (profile.userId !== userId) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    await prisma.gameProfile.delete({ where: { id: profileId } });
+    return c.json({ statusCode: 204 });
+  } catch (error) {
+    console.error("Delete profile error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
 // Platform Links: List
 app.get("/api/platform-links", async (c) => {
   try {
@@ -736,6 +860,28 @@ app.post("/api/platform-links", async (c) => {
   }
 });
 
+// Platform Links: Refresh
+app.post("/api/platform-links/:id/refresh", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const linkId = c.req.param("id");
+
+    const link = await prisma.platformLink.findUnique({ where: { id: linkId }, include: { gameProfile: true } });
+    if (!link) return c.json({ statusCode: 404, message: "Not found" }, 404);
+    if (link.gameProfile.userId !== userId) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    // TODO: Implement actual rank data refresh from external platform APIs
+    // For now, just return success
+    return c.json({ ok: true });
+  } catch (error) {
+    console.error("Refresh link error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
 // Platform Links: Delete
 app.delete("/api/platform-links/:id", async (c) => {
   try {
@@ -754,6 +900,131 @@ app.delete("/api/platform-links/:id", async (c) => {
   } catch (error) {
     console.error("Delete link error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Platform Links: FaceIT OAuth — initiate (more specific routes first)
+app.get("/api/platform-links/faceit/connect", (c) => {
+  if (!c.env.FACEIT_API_KEY) {
+    return c.json({ statusCode: 404, message: "Not found" }, 404);
+  }
+  const state = randomState();
+  setCookie(c, "oauth_state", state, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: c.env.NODE_ENV === "production",
+    maxAge: 300,
+    path: "/",
+  });
+
+  const gameId = c.req.query("game");
+  if (gameId) {
+    setCookie(c, "oauth_game", gameId, {
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: c.env.NODE_ENV === "production",
+      maxAge: 300,
+      path: "/",
+    });
+  }
+
+  const url = new URL("https://api.faceit.com/oauth/authorize");
+  url.searchParams.set("client_id", c.env.FACEIT_API_KEY);
+  url.searchParams.set("redirect_uri", `${callbackBase(c.env)}/api/platform-links/faceit/callback`);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("state", state);
+  return c.redirect(url.toString());
+});
+
+// Platform Links: FaceIT OAuth — callback
+app.get("/api/platform-links/faceit/callback", async (c) => {
+  try {
+    if (!c.env.FACEIT_API_KEY) {
+      return c.json({ statusCode: 404, message: "Not found" }, 404);
+    }
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const code = c.req.query("code");
+    const state = c.req.query("state");
+    const expectedState = getCookie(c, "oauth_state");
+    const gameId = getCookie(c, "oauth_game");
+    deleteCookie(c, "oauth_state", { path: "/" });
+    deleteCookie(c, "oauth_game", { path: "/" });
+
+    if (!code || !state || state !== expectedState) {
+      return c.json({ statusCode: 400, message: "Invalid OAuth state" }, 400);
+    }
+
+    // TODO: Exchange code for FaceIT access token and fetch player data
+    // For now, return to dashboard with success
+    return c.redirect(`${webOrigin(c.env)}/dashboard${gameId ? `?game=${gameId}` : ""}`);
+  } catch (error) {
+    console.error("FaceIT OAuth error:", error);
+    return c.redirect(`${webOrigin(c.env)}/dashboard?error=platform_link_failed`);
+  }
+});
+
+// Platform Links: Riot OAuth — initiate
+app.get("/api/platform-links/riot/connect", (c) => {
+  if (!c.env.RIOT_API_KEY) {
+    return c.json({ statusCode: 404, message: "Not found" }, 404);
+  }
+  const state = randomState();
+  setCookie(c, "oauth_state", state, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: c.env.NODE_ENV === "production",
+    maxAge: 300,
+    path: "/",
+  });
+
+  const gameId = c.req.query("game");
+  if (gameId) {
+    setCookie(c, "oauth_game", gameId, {
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: c.env.NODE_ENV === "production",
+      maxAge: 300,
+      path: "/",
+    });
+  }
+
+  const url = new URL("https://auth.riotgames.com/authorize");
+  url.searchParams.set("client_id", c.env.RIOT_API_KEY);
+  url.searchParams.set("redirect_uri", `${callbackBase(c.env)}/api/platform-links/riot/callback`);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", "openid offline_access");
+  url.searchParams.set("state", state);
+  return c.redirect(url.toString());
+});
+
+// Platform Links: Riot OAuth — callback
+app.get("/api/platform-links/riot/callback", async (c) => {
+  try {
+    if (!c.env.RIOT_API_KEY) {
+      return c.json({ statusCode: 404, message: "Not found" }, 404);
+    }
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const code = c.req.query("code");
+    const state = c.req.query("state");
+    const expectedState = getCookie(c, "oauth_state");
+    const gameId = getCookie(c, "oauth_game");
+    deleteCookie(c, "oauth_state", { path: "/" });
+    deleteCookie(c, "oauth_game", { path: "/" });
+
+    if (!code || !state || state !== expectedState) {
+      return c.json({ statusCode: 400, message: "Invalid OAuth state" }, 400);
+    }
+
+    // TODO: Exchange code for Riot access token and fetch player data
+    // For now, return to dashboard with success
+    return c.redirect(`${webOrigin(c.env)}/dashboard${gameId ? `?game=${gameId}` : ""}`);
+  } catch (error) {
+    console.error("Riot OAuth error:", error);
+    return c.redirect(`${webOrigin(c.env)}/dashboard?error=platform_link_failed`);
   }
 });
 
