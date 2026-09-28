@@ -1,0 +1,21 @@
+# Cloudflare Configuration
+cloudflare_api_token       = "your-cloudflare-api-token-here"
+cloudflare_account_id      = "your-account-id-here"
+gameer_zone_id             = "3da753fd4dce5b24bd2aa3efeaf5bfdf"
+paranagamejam_zone_id      = "7add1ceab6c4ce00f4f30ff69c470896"
+
+# Environment
+environment = "prod"
+
+# Secrets (from .env.production.example)
+jwt_secret              = "a8afe0b022dde40a5c129bf335f0ef1c27b9c874f19e94e5d48a373897ab4836"
+discord_client_id       = "1553032775924187256"
+discord_client_secret   = "2ztYlziDO5y2yJcOxvFTrOuDB9SoMzlb"
+google_client_id        = "your-google-client-id"
+google_client_secret    = "your-google-client-secret"
+faceit_api_key          = ""
+riot_api_key            = ""
+
+# URLs
+web_origin = "https://gameer.com.ar,https://paranagamejam.com.ar"
+api_url    = "https://api.gameer.com.ar"
