@@ -523,8 +523,20 @@ app.get("/api/teams", async (c) => {
   try {
     const prisma = getPrismaClient(c.env);
     const gameId = c.req.query("gameId");
-    const teams = await prisma.team.findMany({ where: gameId ? { gameId } : undefined, include: { members: true } });
-    return c.json(teams.map((t) => ({ id: t.id, name: t.name, gameId: t.gameId, members: t.members.length, createdAt: t.createdAt.toISOString() })));
+    const teams = await prisma.team.findMany({
+      where: gameId ? { gameId } : undefined,
+      include: { game: true, members: { include: { user: true } } }
+    });
+    return c.json(teams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      tag: t.tag,
+      logoUrl: t.logoUrl,
+      bio: t.bio,
+      game: { id: t.game.id, slug: t.game.slug, name: t.game.name, iconUrl: t.game.iconUrl, rankVerifiable: t.game.rankVerifiable },
+      members: t.members.map((m) => ({ id: m.id, userId: m.userId, displayName: m.user.displayName, avatarUrl: m.user.avatarUrl, role: m.role, joinedAt: m.joinedAt.toISOString() })),
+      createdAt: t.createdAt.toISOString()
+    })));
   } catch (error) {
     console.error("List teams error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -535,9 +547,21 @@ app.get("/api/teams", async (c) => {
 app.get("/api/teams/:id", async (c) => {
   try {
     const prisma = getPrismaClient(c.env);
-    const team = await prisma.team.findUnique({ where: { id: c.req.param("id") }, include: { members: { include: { user: true } } } });
+    const team = await prisma.team.findUnique({
+      where: { id: c.req.param("id") },
+      include: { game: true, members: { include: { user: true } } }
+    });
     if (!team) return c.json({ statusCode: 404, message: "Not found" }, 404);
-    return c.json({ id: team.id, name: team.name, gameId: team.gameId, members: team.members.map((m) => ({ userId: m.userId, displayName: m.user.displayName, role: m.role })), createdAt: team.createdAt.toISOString() });
+    return c.json({
+      id: team.id,
+      name: team.name,
+      tag: team.tag,
+      logoUrl: team.logoUrl,
+      bio: team.bio,
+      game: { id: team.game.id, slug: team.game.slug, name: team.game.name, iconUrl: team.game.iconUrl, rankVerifiable: team.game.rankVerifiable },
+      members: team.members.map((m) => ({ id: m.id, userId: m.userId, displayName: m.user.displayName, avatarUrl: m.user.avatarUrl, role: m.role, joinedAt: m.joinedAt.toISOString() })),
+      createdAt: team.createdAt.toISOString()
+    });
   } catch (error) {
     console.error("Get team error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -607,8 +631,23 @@ app.get("/api/recruitment-posts", async (c) => {
     if (gameId) where.gameId = gameId;
     if (type) where.type = type;
 
-    const posts = await prisma.recruitmentPost.findMany({ where, include: { author: true }, orderBy: { createdAt: "desc" }, take: 50 });
-    return c.json(posts.map((p) => ({ id: p.id, type: p.type, title: p.title, author: { id: p.author.id, displayName: p.author.displayName }, gameId: p.gameId, createdAt: p.createdAt.toISOString() })));
+    const posts = await prisma.recruitmentPost.findMany({
+      where,
+      include: { author: true, game: true, team: true },
+      orderBy: { createdAt: "desc" },
+      take: 50
+    });
+    return c.json(posts.map((p) => ({
+      id: p.id,
+      type: p.type,
+      author: { id: p.author.id, displayName: p.author.displayName, avatarUrl: p.author.avatarUrl },
+      game: { id: p.game.id, slug: p.game.slug, name: p.game.name, iconUrl: p.game.iconUrl, rankVerifiable: p.game.rankVerifiable },
+      team: p.team ? { id: p.team.id, name: p.team.name, tag: p.team.tag } : null,
+      title: p.title,
+      body: p.body,
+      isOpen: p.isOpen,
+      createdAt: p.createdAt.toISOString()
+    })));
   } catch (error) {
     console.error("List posts error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -621,10 +660,20 @@ app.get("/api/recruitment-posts/:id", async (c) => {
     const prisma = getPrismaClient(c.env);
     const post = await prisma.recruitmentPost.findUnique({
       where: { id: c.req.param("id") },
-      include: { author: true },
+      include: { author: true, game: true, team: true },
     });
     if (!post) return c.json({ statusCode: 404, message: "Not found" }, 404);
-    return c.json({ id: post.id, type: post.type, title: post.title, body: post.body, author: { id: post.author.id, displayName: post.author.displayName }, gameId: post.gameId, isOpen: post.isOpen, createdAt: post.createdAt.toISOString() });
+    return c.json({
+      id: post.id,
+      type: post.type,
+      author: { id: post.author.id, displayName: post.author.displayName, avatarUrl: post.author.avatarUrl },
+      game: { id: post.game.id, slug: post.game.slug, name: post.game.name, iconUrl: post.game.iconUrl, rankVerifiable: post.game.rankVerifiable },
+      team: post.team ? { id: post.team.id, name: post.team.name, tag: post.team.tag } : null,
+      title: post.title,
+      body: post.body,
+      isOpen: post.isOpen,
+      createdAt: post.createdAt.toISOString()
+    });
   } catch (error) {
     console.error("Get post error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -638,14 +687,24 @@ app.post("/api/recruitment-posts", async (c) => {
     if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const { type, gameId, title, body } = await c.req.json();
+    const { type, gameId, teamId, title, body } = await c.req.json();
 
     const post = await prisma.recruitmentPost.create({
-      data: { type, gameId, title, body, authorId: userId, isOpen: true },
-      include: { author: true },
+      data: { type, gameId, teamId: teamId || null, title, body, authorId: userId, isOpen: true },
+      include: { author: true, game: true, team: true },
     });
 
-    return c.json({ id: post.id, type: post.type, title: post.title, author: { id: post.author.id, displayName: post.author.displayName }, gameId: post.gameId, createdAt: post.createdAt.toISOString() });
+    return c.json({
+      id: post.id,
+      type: post.type,
+      author: { id: post.author.id, displayName: post.author.displayName, avatarUrl: post.author.avatarUrl },
+      game: { id: post.game.id, slug: post.game.slug, name: post.game.name, iconUrl: post.game.iconUrl, rankVerifiable: post.game.rankVerifiable },
+      team: post.team ? { id: post.team.id, name: post.team.name, tag: post.team.tag } : null,
+      title: post.title,
+      body: post.body,
+      isOpen: post.isOpen,
+      createdAt: post.createdAt.toISOString()
+    });
   } catch (error) {
     console.error("Create post error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -669,10 +728,20 @@ app.patch("/api/recruitment-posts/:id", async (c) => {
     const updated = await prisma.recruitmentPost.update({
       where: { id: postId },
       data: { ...(title && { title }), ...(body && { body }), ...(isOpen !== undefined && { isOpen }) },
-      include: { author: true },
+      include: { author: true, game: true, team: true },
     });
 
-    return c.json({ id: updated.id, type: updated.type, title: updated.title, author: { id: updated.author.id, displayName: updated.author.displayName }, gameId: updated.gameId, createdAt: updated.createdAt.toISOString() });
+    return c.json({
+      id: updated.id,
+      type: updated.type,
+      author: { id: updated.author.id, displayName: updated.author.displayName, avatarUrl: updated.author.avatarUrl },
+      game: { id: updated.game.id, slug: updated.game.slug, name: updated.game.name, iconUrl: updated.game.iconUrl, rankVerifiable: updated.game.rankVerifiable },
+      team: updated.team ? { id: updated.team.id, name: updated.team.name, tag: updated.team.tag } : null,
+      title: updated.title,
+      body: updated.body,
+      isOpen: updated.isOpen,
+      createdAt: updated.createdAt.toISOString()
+    });
   } catch (error) {
     console.error("Update post error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -707,8 +776,18 @@ app.get("/api/game-profiles", async (c) => {
     if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const profiles = await prisma.gameProfile.findMany({ where: { userId }, include: { game: true } });
-    return c.json(profiles.map((p) => ({ id: p.id, gameId: p.gameId, gameName: p.game.name, inGameHandle: p.inGameHandle, createdAt: p.createdAt.toISOString() })));
+    const profiles = await prisma.gameProfile.findMany({
+      where: { userId },
+      include: { game: true, platformLink: true }
+    });
+    return c.json(profiles.map((p) => ({
+      id: p.id,
+      userId: p.userId,
+      game: { id: p.game.id, slug: p.game.slug, name: p.game.name, iconUrl: p.game.iconUrl, rankVerifiable: p.game.rankVerifiable },
+      inGameHandle: p.inGameHandle,
+      platformLink: p.platformLink,
+      createdAt: p.createdAt.toISOString()
+    })));
   } catch (error) {
     console.error("List profiles error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -729,10 +808,17 @@ app.post("/api/game-profiles", async (c) => {
 
     const profile = await prisma.gameProfile.create({
       data: { userId, gameId, inGameHandle },
-      include: { game: true },
+      include: { game: true, platformLink: true },
     });
 
-    return c.json({ id: profile.id, gameId: profile.gameId, gameName: profile.game.name, inGameHandle: profile.inGameHandle, createdAt: profile.createdAt.toISOString() });
+    return c.json({
+      id: profile.id,
+      userId: profile.userId,
+      game: { id: profile.game.id, slug: profile.game.slug, name: profile.game.name, iconUrl: profile.game.iconUrl, rankVerifiable: profile.game.rankVerifiable },
+      inGameHandle: profile.inGameHandle,
+      platformLink: profile.platformLink,
+      createdAt: profile.createdAt.toISOString()
+    });
   } catch (error) {
     console.error("Create profile error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -746,8 +832,20 @@ app.get("/api/me/game-profiles", async (c) => {
     if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
     const prisma = getPrismaClient(c.env);
-    const profiles = await prisma.gameProfile.findMany({ where: { userId }, include: { game: true } });
-    return c.json({ gameProfiles: profiles.map((p) => ({ id: p.id, gameId: p.gameId, gameName: p.game.name, inGameHandle: p.inGameHandle, createdAt: p.createdAt.toISOString() })) });
+    const profiles = await prisma.gameProfile.findMany({
+      where: { userId },
+      include: { game: true, platformLink: true }
+    });
+    return c.json({
+      gameProfiles: profiles.map((p) => ({
+        id: p.id,
+        userId: p.userId,
+        game: { id: p.game.id, slug: p.game.slug, name: p.game.name, iconUrl: p.game.iconUrl, rankVerifiable: p.game.rankVerifiable },
+        inGameHandle: p.inGameHandle,
+        platformLink: p.platformLink,
+        createdAt: p.createdAt.toISOString()
+      }))
+    });
   } catch (error) {
     console.error("List me profiles error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -767,10 +865,17 @@ app.post("/api/me/game-profiles", async (c) => {
 
     const profile = await prisma.gameProfile.create({
       data: { userId, gameId, inGameHandle },
-      include: { game: true },
+      include: { game: true, platformLink: true },
     });
 
-    return c.json({ id: profile.id, gameId: profile.gameId, gameName: profile.game.name, inGameHandle: profile.inGameHandle, createdAt: profile.createdAt.toISOString() });
+    return c.json({
+      id: profile.id,
+      userId: profile.userId,
+      game: { id: profile.game.id, slug: profile.game.slug, name: profile.game.name, iconUrl: profile.game.iconUrl, rankVerifiable: profile.game.rankVerifiable },
+      inGameHandle: profile.inGameHandle,
+      platformLink: profile.platformLink,
+      createdAt: profile.createdAt.toISOString()
+    });
   } catch (error) {
     console.error("Create me profile error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
@@ -790,7 +895,7 @@ app.delete("/api/me/game-profiles/:id", async (c) => {
     if (profile.userId !== userId) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
 
     await prisma.gameProfile.delete({ where: { id: profileId } });
-    return c.json({ ok: true });
+    return c.json({ statusCode: 204 });
   } catch (error) {
     console.error("Delete me profile error:", error);
     return c.json({ statusCode: 500, message: "Server error" }, 500);
