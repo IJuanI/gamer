@@ -1,0 +1,45 @@
+name = "gamer-hub-api"
+type = "service"
+main = "dist/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[env.development]
+# Local development configuration
+[env.development.vars]
+NODE_ENV = "development"
+WEB_ORIGIN = "http://localhost:3000"
+OAUTH_CALLBACK_BASE = "http://localhost:4000"
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "gamer-hub-dev"
+database_id = "local-dev"
+
+[env.production]
+# Production configuration
+[env.production.vars]
+NODE_ENV = "production"
+WEB_ORIGIN = "https://gameer.com.ar,https://paranagamejam.com.ar"
+OAUTH_CALLBACK_BASE = "https://api.gameer.com.ar"
+
+# D1 binding injected via Terraform
+# [[env.production.d1_databases]]
+# binding = "DB"
+# database_name = "gamer-hub-prod"
+# database_id = "from-terraform"
+
+# Secrets injected via Terraform
+# env.production.vars will include:
+# - JWT_SECRET
+# - DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET
+# - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+# - FACEIT_API_KEY, RIOT_API_KEY
+
+[build]
+command = "pnpm install --frozen-lockfile && pnpm --filter @gamer/api build"
+cwd = "../../"
+watch_paths = ["apps/api/src/**/*.ts", "packages/shared/src/**/*.ts"]
+
+[triggers]
+crons = []
