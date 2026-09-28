@@ -190,13 +190,6 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.API_URL }}
 
-      - name: Deploy to Cloudflare
-        run: pnpm --filter @gamer/web exec wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        continue-on-error: true # Non-blocking until Cloudflare secrets are configured
-
       - name: Summary
         run: |
           echo "### Frontend Build Successful ✅" >> $GITHUB_STEP_SUMMARY
@@ -204,4 +197,4 @@ jobs:
           echo "- Linting: Checked (non-blocking, pre-existing issues)" >> $GITHUB_STEP_SUMMARY
           echo "- Build: Passed" >> $GITHUB_STEP_SUMMARY
           echo "- E2E Smoke Tests: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- Deployed to Cloudflare: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Ready for Cloudflare Pages auto-deploy" >> $GITHUB_STEP_SUMMARY
