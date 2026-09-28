@@ -56,11 +56,11 @@ jobs:
         run: pnpm --filter @gamer/web lint
         continue-on-error: true # 600+ pre-existing lint errors; not blocking until cleaned up
 
-      - name: Type check
-        run: pnpm --filter @gamer/web type-check
-
       - name: Build shared package
         run: pnpm --filter @gamer/shared build
+
+      - name: Type check
+        run: pnpm --filter @gamer/web type-check
 
       - name: Restore Next.js build cache
         uses: actions/cache@v4
