@@ -102,7 +102,7 @@ jobs:
         run: pnpm build
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm --filter @gamer/web exec playwright install --with-deps
 
       - name: Run smoke tests
         run: pnpm --filter @gamer/web test
