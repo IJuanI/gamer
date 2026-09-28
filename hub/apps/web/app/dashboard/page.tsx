@@ -95,7 +95,9 @@ export default function DashboardPage() {
           Tu acceso
         </h2>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <Tile icon={Gamepad2} title="Eventos" body="Inscribite a torneos y eventos de la comunidad." accent="green" />
+          <Link href="/eventos">
+            <Tile icon={Gamepad2} title="Eventos" body="Inscribite a torneos y eventos de la comunidad." accent="green" />
+          </Link>
           <Link href="/profile">
             <Tile icon={Gamepad2} title="Perfil de gamer" body="Cargá tus juegos y conectá tus cuentas verificadas." accent="purple" />
           </Link>
@@ -111,7 +113,9 @@ export default function DashboardPage() {
             </Link>
           )}
           {user.role === Role.ADMIN && (
-            <Tile icon={UsersIcon} title="Administración" body="Gestionar miembros y roles de la comunidad." accent="purple" />
+            <Link href="/admin">
+              <Tile icon={UsersIcon} title="Administración" body="Gestionar miembros y roles de la comunidad." accent="purple" />
+            </Link>
           )}
         </div>
 
