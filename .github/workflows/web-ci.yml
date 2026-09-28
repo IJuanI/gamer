@@ -182,3 +182,11 @@ jobs:
         run: pnpm --filter @gamer/web pages:build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.API_URL }}
+
+      - name: Summary
+        run: |
+          echo "### Frontend Build Successful ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- Type checking: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Linting: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- E2E Smoke Tests: Passed" >> $GITHUB_STEP_SUMMARY
