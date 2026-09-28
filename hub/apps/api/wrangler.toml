@@ -44,5 +44,8 @@ command = "pnpm install --frozen-lockfile && pnpm --filter @gamer/api build"
 cwd = "../../"
 watch_paths = ["apps/api/src/**/*.ts", "packages/shared/src/**/*.ts"]
 
+[previews]
+enabled = true
+
 [triggers]
 crons = []
