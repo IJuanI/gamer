@@ -27,19 +27,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshTokens = useCallback(async () => {
     try {
-      await reportError({
-        message: "Token refresh attempt",
-        context: "tokenRefresh",
-        metadata: {
-          event: "refresh_attempt",
-          timestamp: new Date().toISOString(),
-        },
-      }).catch(() => {});
-
       const { user } = await api.refresh();
       if (!user) {
         await reportError({
           message: "Token refresh failed: no user in response",
+          severity: "ERROR",
           context: "tokenRefresh",
           metadata: {
             event: "refresh_failed",
@@ -52,16 +44,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      await reportError({
-        message: "Token refresh successful",
-        context: "tokenRefresh",
-        metadata: {
-          event: "refresh_success",
-          userId: user.id,
-          timestamp: new Date().toISOString(),
-        },
-      }).catch(() => {});
-
       setUser(user);
       failedRefreshCountRef.current = 0;
       return true;
@@ -71,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       await reportError({
         message: `Token refresh failed: ${errMsg}`,
+        severity: "ERROR",
         context: "tokenRefresh",
         metadata: {
           event: "refresh_failed",
@@ -84,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (failedRefreshCountRef.current >= MAX_REFRESH_FAILURES) {
         await reportError({
           message: "Max token refresh failures reached, logging out user",
+          severity: "WARNING",
           context: "tokenRefresh",
           metadata: {
             event: "max_failures_reached",
@@ -98,14 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const initializeAuth = useCallback(async () => {
     if (!API_CONFIGURED) {
-      await reportError({
-        message: "Auth initialization skipped: API not configured",
-        context: "authInit",
-        metadata: {
-          event: "api_not_configured",
-          apiUrl: typeof window !== "undefined" ? new URL(window.location.href).origin : "unknown",
-        },
-      }).catch(() => {});
       setLoading(false);
       return;
     }
@@ -114,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       await reportError({
         message: `Auth initialization error: ${err instanceof Error ? err.message : String(err)}`,
+        severity: "ERROR",
         context: "authInit",
         metadata: {
           event: "init_error",

@@ -1,7 +1,10 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
+export type TelemetrySeverity = "INFO" | "WARNING" | "ERROR";
+
 export interface TelemetryError {
   message: string;
+  severity?: TelemetrySeverity;
   stack?: string;
   url?: string;
   context?: string;
@@ -16,11 +19,13 @@ export async function reportError(error: TelemetryError): Promise<void> {
   }
 
   try {
-    await fetch(`${API_URL}/api/telemetry/error`, {
+    const severity = error.severity ?? "ERROR";
+    await fetch(`${API_URL}/api/telemetry`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        severity,
         message: error.message,
         stack: error.stack,
         url: error.url || typeof window !== "undefined" ? window.location.href : undefined,

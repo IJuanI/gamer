@@ -56,10 +56,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
           continue;
         }
 
-        // Report API errors to telemetry
-        if (res.status >= 500 || isRefreshPath) {
+        // Report API errors to telemetry (all non-2xx responses)
+        const severity = res.status >= 500 ? "ERROR" : "WARNING";
+        if (res.status >= 400) {
           reportError({
-            message: `API error: ${path}`,
+            message: `API ${res.status}: ${path}`,
+            severity,
             context: "apiError",
             metadata: {
               path,

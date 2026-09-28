@@ -26,6 +26,7 @@ class ErrorBoundaryClass extends React.Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     reportError({
       message: `React Error: ${error.message}`,
+      severity: "ERROR",
       stack: error.stack,
       context: "reactErrorBoundary",
       userId: this.props.userId,

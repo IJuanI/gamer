@@ -147,11 +147,12 @@ app.get("/api/health", (c) => {
 });
 
 // Telemetry: Error logging from frontend
-const handleClientErrorReport = async (c: any) => {
+const handleClientTelemetry = async (c: any) => {
   try {
-    const { message, stack, url, context, userId, metadata } = await c.req.json();
-    console.error("[client]", JSON.stringify({
-      severity: "ERROR",
+    const { severity = "ERROR", message, stack, url, context, userId, metadata } = await c.req.json();
+    const logLevel = severity === "INFO" ? "log" : severity === "WARNING" ? "warn" : "error";
+    console[logLevel]("[client]", JSON.stringify({
+      severity,
       message,
       stack,
       url,
@@ -161,15 +162,16 @@ const handleClientErrorReport = async (c: any) => {
       userAgent: c.req.header("user-agent"),
       timestamp: new Date().toISOString(),
     }));
-    return c.json({ statusCode: 200, message: "Error logged" });
+    return c.json({ statusCode: 200, message: "Telemetry logged" });
   } catch (error) {
     console.error("[client] telemetry endpoint failure:", error);
-    return c.json({ statusCode: 500, message: "Failed to log error" }, 500);
+    return c.json({ statusCode: 500, message: "Failed to log telemetry" }, 500);
   }
 };
-app.post("/api/telemetry/error", handleClientErrorReport);
-// Older frontend builds may still post to the plural path; keep it working.
-app.post("/api/telemetry/errors", handleClientErrorReport);
+app.post("/api/telemetry", handleClientTelemetry);
+// Backwards compatibility for old endpoints
+app.post("/api/telemetry/error", handleClientTelemetry);
+app.post("/api/telemetry/errors", handleClientTelemetry);
 
 // Auth: Register
 app.post("/api/auth/register", async (c) => {
