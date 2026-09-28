@@ -75,6 +75,8 @@ jobs:
 
   smoke-tests:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.48-jammy
     defaults:
       run:
         working-directory: hub
@@ -108,9 +110,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --filter @gamer/web --filter @gamer/shared
 
-      - name: Install Playwright browsers
-        run: pnpm --filter @gamer/web exec playwright install --with-deps
-
       - name: Run E2E smoke tests
         run: pnpm --filter @gamer/web test
         timeout-minutes: 10
@@ -119,7 +118,7 @@ jobs:
           NEXT_PUBLIC_API_URL: 'http://localhost:4000'
 
       - name: Upload test results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
