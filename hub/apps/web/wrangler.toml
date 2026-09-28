@@ -32,3 +32,6 @@ database_id = "001ab94c-89cd-473f-9dc4-ef7b39cab23b"
 # Secrets (JWT_SECRET, DISCORD_CLIENT_ID/SECRET, GOOGLE_CLIENT_ID/SECRET,
 # FACEIT_API_KEY, RIOT_API_KEY) are set manually, not via wrangler.toml:
 #   cf workers secrets put <NAME> --worker gamer-hub
+
+[previews]
+enabled = true
