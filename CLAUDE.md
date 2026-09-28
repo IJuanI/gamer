@@ -60,6 +60,12 @@ When documentation conflicts, defer to `GamER branding RAW.pdf`.
 - Register it in `banners/app/page.tsx`
 - Update `docs/formats.md`
 
+## Git workflow
+
+- Never push commits directly to `main`. Always create a feature branch and
+  open a pull request, even for small fixes — `main` should only receive
+  merges from reviewed PRs.
+
 ## Hard rules
 
 - Do not introduce off-palette colors without explicit approval

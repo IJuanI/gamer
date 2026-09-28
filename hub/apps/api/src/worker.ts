@@ -735,6 +735,32 @@ app.delete("/api/platform-links/:id", async (c) => {
   }
 });
 
+// Seed database (dev only, no auth required)
+app.post("/api/seed", async (c) => {
+  try {
+    const prisma = getPrismaClient(c.env);
+    const seedUsers = [
+      { email: "admin@local", displayName: "Admin GamER", role: "ADMIN", password: "admin1234" },
+      { email: "editor@local", displayName: "Editor GamER", role: "EDITOR", password: "editor1234" },
+      { email: "member@local", displayName: "Miembro GamER", role: "MEMBER", password: "member1234" },
+    ];
+
+    for (const u of seedUsers) {
+      const passwordHash = await bcrypt.hash(u.password, 12);
+      await prisma.user.upsert({
+        where: { email: u.email },
+        update: { role: u.role, displayName: u.displayName },
+        create: { email: u.email, displayName: u.displayName, role: u.role, passwordHash },
+      });
+    }
+
+    return c.json({ message: "Seed complete" });
+  } catch (error) {
+    console.error("Seed error:", error);
+    return c.json({ statusCode: 500, message: "Seed failed" }, 500);
+  }
+});
+
 // Catch-all
 app.all("*", (c) => {
   return c.json({ statusCode: 404, message: "Not found" }, 404);

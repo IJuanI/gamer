@@ -8,6 +8,14 @@ why Prisma/Postgres was replaced by Firestore in production.
 
 Also read the root [../CLAUDE.md](../CLAUDE.md) — brand rules there still apply here.
 
+## Git workflow
+
+- Never push directly to `main`. Always create a feature branch and open a
+  pull request, then merge. This matters here specifically because
+  `gamer-hub`'s Cloudflare Workers Build trigger auto-builds and deploys on
+  every push to `main` — pushing straight to `main` means a broken commit
+  (e.g. a typecheck error) goes live before anyone reviews it.
+
 ## Scope discipline
 
 - Do exactly what was asked. Don't fix unrelated issues you notice in passing —
