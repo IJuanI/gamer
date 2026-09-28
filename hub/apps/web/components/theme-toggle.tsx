@@ -2,7 +2,6 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme-context";
-import { captureEvent } from "@/lib/telemetry";
 import { useEffect, useRef } from "react";
 
 export function ThemeToggle() {
@@ -10,25 +9,14 @@ export function ThemeToggle() {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    captureEvent("event", "ThemeToggle component mounted", "info", { theme });
-  }, []);
-
-  useEffect(() => {
     const button = buttonRef.current;
-    if (!button) {
-      captureEvent("event", "Button ref not found", "error");
-      return;
-    }
+    if (!button) return;
 
     const handleClick = () => {
-      console.log("✅ Native click handler fired!");
-      captureEvent("event", "Button clicked (native)", "warning");
       toggleTheme();
     };
 
     button.addEventListener("click", handleClick);
-    captureEvent("event", "Native click listener attached", "info");
-
     return () => {
       button.removeEventListener("click", handleClick);
     };

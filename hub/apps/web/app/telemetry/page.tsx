@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { captureEvent } from "@/lib/telemetry";
 
 interface TelemetryEvent {
   id: string;
@@ -26,7 +25,6 @@ export default function TelemetryDashboard() {
     setTimeout(() => setClickFeedback(false), 500);
 
     setStatus("loading...");
-    captureEvent("event", "LoadEvents triggered", "info");
     try {
       const response = await fetch(`/api/telemetry?limit=200`);
       const data = await response.json();
@@ -35,21 +33,14 @@ export default function TelemetryDashboard() {
         setEvents(data.events.reverse());
         setTotal(data.total || data.events.length);
         setStatus("ok");
-        captureEvent("event", "Events loaded successfully", "info", { count: data.events.length });
       } else {
         setStatus("no events");
-        captureEvent("event", "No events in response", "warning");
       }
     } catch (e) {
       const errorMsg = String(e);
       setStatus(`error: ${errorMsg}`);
-      captureEvent("event", "LoadEvents error", "error", { error: errorMsg });
     }
   };
-
-  useEffect(() => {
-    captureEvent("event", "TelemetryDashboard mounted", "info");
-  }, []);
 
   useEffect(() => {
     // Auto-load events on first mount for better UX
@@ -72,7 +63,6 @@ export default function TelemetryDashboard() {
           newButton.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
-            captureEvent("event", "Load button clicked", "info");
             loadEvents();
           });
         }

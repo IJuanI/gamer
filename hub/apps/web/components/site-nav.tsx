@@ -5,19 +5,12 @@ import { usePathname } from "next/navigation";
 import { Logo } from "./logo";
 import { useAuth } from "./auth-provider";
 import { ThemeToggle } from "./theme-toggle";
-import { RenderTelemetry } from "./render-telemetry";
-import { useEffect } from "react";
-import { captureEvent } from "@/lib/telemetry";
 
 export function SiteNav({ section }: { section?: "jam" | "gamedevs" | "gamer" } = {}) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const isGameDevsRoute = section ? section === "gamedevs" : pathname.startsWith("/devs");
   const isJamRoute = section ? section === "jam" : pathname.startsWith("/jam");
-
-  useEffect(() => {
-    captureEvent("event", "SiteNav mounted", "info", { pathname, isGameDevsRoute });
-  }, [pathname, isGameDevsRoute]);
 
   const brand = isJamRoute ? "jam" : isGameDevsRoute ? "gamedevs" : "gamer";
   const navStyle = isJamRoute
@@ -27,7 +20,6 @@ export function SiteNav({ section }: { section?: "jam" | "gamedevs" | "gamer" } 
 
   return (
     <>
-      <RenderTelemetry component="SiteNav" />
       <header className="sticky top-0 z-50 border-b transition-colors" style={navStyle}>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Logo brand={brand} />

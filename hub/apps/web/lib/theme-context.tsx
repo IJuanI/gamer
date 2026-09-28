@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useLayoutEffect, useState, useCallback } from "react";
-import { captureEvent, captureError } from "./telemetry";
 
 type Theme = "light" | "dark";
 
@@ -15,19 +14,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 function applyTheme(newTheme: Theme) {
   try {
     const root = document.documentElement;
-    const before = root.className;
     root.classList.remove("light", "dark");
     root.classList.add(newTheme);
-    const after = root.className;
-
-    captureEvent("event", `Theme changed to ${newTheme}`, "info", {
-      theme: newTheme,
-      before,
-      after,
-      classList: Array.from(root.classList),
-    });
   } catch (e) {
-    captureError(e, { context: "applyTheme", theme: newTheme });
+    console.error("Failed to apply theme:", e);
   }
 }
 
@@ -42,13 +32,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    console.log("📍 toggleTheme called, current theme:", theme);
-    captureEvent("event", "toggleTheme function invoked", "warning");
-
     setTheme((prev) => {
       const newTheme = prev === "dark" ? "light" : "dark";
-      console.log(`🔄 State update: ${prev} -> ${newTheme}`);
-      captureEvent("event", `Theme state update: ${prev} -> ${newTheme}`, "warning", { previousTheme: prev, newTheme });
       localStorage.setItem("theme", newTheme);
       applyTheme(newTheme);
       return newTheme;
