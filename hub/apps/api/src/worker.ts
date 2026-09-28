@@ -270,6 +270,26 @@ app.get("/api/auth/me", async (c) => {
   }
 });
 
+// Users: List (admin only)
+app.get("/api/users", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.role !== "ADMIN") {
+      return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+    }
+
+    const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+    return c.json({ users: users.map(toPublicUser) });
+  } catch (error) {
+    console.error("List users error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
 // Auth: Discord OAuth — initiate
 app.get("/api/auth/discord", (c) => {
   if (!c.env.DISCORD_CLIENT_ID || !c.env.DISCORD_CLIENT_SECRET) {
