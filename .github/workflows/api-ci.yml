@@ -50,7 +50,7 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter @gamer/api --filter @gamer/shared
 
       - name: Build shared package
         run: pnpm --filter @gamer/shared build
@@ -105,7 +105,7 @@ jobs:
         timeout-minutes: 2
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter @gamer/api --filter @gamer/shared
 
       - name: Build shared package
         run: pnpm --filter @gamer/shared build
@@ -169,7 +169,7 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter @gamer/api --filter @gamer/shared
 
       - name: Build shared package
         run: pnpm --filter @gamer/shared build
