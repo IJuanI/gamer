@@ -19,6 +19,6 @@
     "resolveJsonModule": true,
     "rootDir": "./src"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "prisma", "src/auth/**/*", "src/common/**/*", "src/e2e/**/*", "src/firestore/**/*", "src/metrics/**/*", "src/platform-links/**/*", "src/games/**/*", "src/game-profiles/**/*", "src/teams/**/*", "src/recruitment-posts/**/*", "src/dev/**/*"]
+  "include": ["src/worker.ts", "src/prisma/**/*", "src/main.ts"],
+  "exclude": ["node_modules", "prisma", "**/*.spec.ts"]
 }
