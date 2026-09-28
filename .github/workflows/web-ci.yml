@@ -107,12 +107,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('hub/apps/web/package.json') }}
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('hub/apps/web/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-playwright-
+            ${{ runner.os }}-playwright-chromium-
 
       - name: Install Playwright browsers
-        run: pnpm --filter @gamer/web exec playwright install
+        run: pnpm --filter @gamer/web exec playwright install chromium
 
       - name: Run E2E smoke tests
         run: pnpm --filter @gamer/web test
