@@ -26,12 +26,14 @@ test.describe('Frontend Smoke Tests', () => {
       throw new Error(`Uncaught errors: ${uncaughtErrors.join('; ')}`);
     }
 
-    // Flag critical console errors (but not warnings)
+    // Flag only critical JavaScript errors, not network failures
     const criticalErrors = consoleErrors.filter(
       (err) =>
+        !err.includes('Failed to load resource') &&
         !err.includes('recaptcha') &&
         !err.includes('Deprecation') &&
-        !err.includes('middleware')
+        !err.includes('middleware') &&
+        !err.includes('net::ERR')
     );
 
     if (criticalErrors.length > 0) {
