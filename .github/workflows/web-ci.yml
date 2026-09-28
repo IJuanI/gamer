@@ -112,7 +112,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright browsers
-        run: pnpm --filter @gamer/web exec playwright install chromium
+        run: pnpm --filter @gamer/web exec playwright install
 
       - name: Run E2E smoke tests
         run: pnpm --filter @gamer/web test
