@@ -55,6 +55,14 @@ jobs:
       - name: Build shared package
         run: pnpm --filter @gamer/shared build
 
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: hub/apps/web/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('hub/apps/web/package.json', 'hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
       - name: Build
         run: pnpm --filter @gamer/web build
         env:
@@ -67,7 +75,6 @@ jobs:
 
   smoke-tests:
     runs-on: ubuntu-latest
-    needs: test
     defaults:
       run:
         working-directory: hub
@@ -154,11 +161,32 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "PNPM_HOME=$(pnpm store path)" >> $GITHUB_ENV
+
+      - name: Restore pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PNPM_HOME }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --filter @gamer/web --filter @gamer/shared
 
       - name: Build shared package
         run: pnpm --filter @gamer/shared build
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: hub/apps/web/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('hub/apps/web/package.json', 'hub/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
 
       - name: Build for deployment
         run: pnpm --filter @gamer/web pages:build
