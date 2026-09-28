@@ -4,7 +4,7 @@ import apiApp from "@gamer/api/worker";
 import webHandler from "./.open-next/worker.js";
 
 export default {
-  async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: any, ctx: any): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       return apiApp.fetch(request, env, ctx);
