@@ -9,7 +9,7 @@ main = "worker-entry.ts"
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
-run_worker_first = ["/*", "!/_next/*", "!/**/*.png", "!/**/*.svg", "!/**/*.ico", "!/**/*.jpg", "!/**/*.jpeg", "!/**/*.webp", "!/**/*.gif"]
+run_worker_first = ["/*", "!/_next/*", "!/**/*.png", "!/**/*.svg", "!/**/*.ico", "!/**/*.jpg", "!/**/*.jpeg", "!/**/*.webp", "!/**/*.gif", "!/icon.png", "!/ergd-icon-color.svg", "!/jam/**"]
 
 [[routes]]
 pattern = "gameer.com.ar/*"
