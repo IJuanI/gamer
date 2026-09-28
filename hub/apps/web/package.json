@@ -14,7 +14,9 @@
     "pages:build": "opennextjs-cloudflare build && node patch-worker.mjs"
   },
   "dependencies": {
+    "@gamer/api": "workspace:*",
     "@gamer/shared": "workspace:*",
+    "hono": "^4.2.0",
     "html-to-image": "^1.11.11",
     "lucide-react": "^1.8.0",
     "next": "16.2.3",

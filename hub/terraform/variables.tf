@@ -9,11 +9,6 @@ variable "cloudflare_account_id" {
   type        = string
 }
 
-variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID for gameer.com.ar"
-  type        = string
-}
-
 variable "jwt_secret" {
   description = "JWT Secret for signing tokens"
   type        = string

@@ -138,16 +138,12 @@ terraform {
 
 ## CI/CD Integration
 
-The GitHub Actions workflow (`.github/workflows/gamer-ci.yml`) includes:
-
-1. **Terraform Plan**: On all PRs
-2. **Terraform Apply**: On main branch push (production only)
-
-Required secrets in GitHub:
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_ZONE_ID`
-- `JWT_SECRET`
+Terraform is **not** run from CI. It's applied manually from a local machine
+(`terraform plan` / `terraform apply` in this directory) whenever
+infrastructure changes. `.github/workflows/gamer-ci.yml` only runs lint/test/
+build as non-blocking validation and never touches Terraform or deployment —
+the `gamer-hub` Worker is built and deployed directly by Cloudflare Workers
+Builds via its GitHub integration.
 
 ## Troubleshooting
 

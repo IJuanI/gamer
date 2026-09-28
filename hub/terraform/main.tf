@@ -23,56 +23,29 @@ provider "cloudflare" {
 
 locals {
   domain = "gameer.com.ar"
-  api_subdomain = "api"
 }
 
 # ── Cloudflare D1 Database ─────────────────────────────
 resource "cloudflare_d1_database" "gamer_hub" {
   account_id = var.cloudflare_account_id
-  name       = "gamer-hub"
+  name       = "gamer-hub-prod"
 }
 
-# ── DNS Records ────────────────────────────────────────
-# API worker route: routes requests to the Workers script
-resource "cloudflare_workers_route" "api" {
-  zone_id     = var.cloudflare_zone_id
-  pattern     = "api.${local.domain}/*"
-  script_name = "gamer-hub-api"
-}
-
-# Primary domain A record (points to Cloudflare)
-# The actual deployment is handled by Cloudflare Pages via GitHub integration
-resource "cloudflare_record" "root" {
-  zone_id = var.cloudflare_zone_id
-  name    = "@"
-  type    = "CNAME"
-  value   = "gameer-com-ar.pages.dev"
-  ttl     = 1
-  proxied = true
-}
-
-# API subdomain CNAME
-resource "cloudflare_record" "api" {
-  zone_id = var.cloudflare_zone_id
-  name    = local.api_subdomain
-  type    = "CNAME"
-  value   = "gameer-hub-api.workers.dev"
-  ttl     = 1
-  proxied = true
-}
+# NOTE: The gamer-hub Worker itself (routes, GitHub build trigger, and its
+# route for gameer.com.ar/* + paranagamejam.com.ar/*) is managed by Cloudflare
+# Workers Builds (GitHub integration) and apps/web/wrangler.toml, not
+# Terraform. This file only manages the D1 database that the Worker binds to.
+# After `terraform apply`, take the `d1_database_id` output and either:
+#   - uncomment the [[d1_databases]] block in apps/web/wrangler.toml, or
+#   - bind it manually via `cf d1`.
 
 # ── Outputs ────────────────────────────────────────────
 output "d1_database_id" {
-  description = "D1 Database ID"
+  description = "D1 Database ID — set as database_id in apps/web/wrangler.toml"
   value       = cloudflare_d1_database.gamer_hub.id
 }
 
-output "api_url" {
-  description = "API URL"
-  value       = "https://${local.api_subdomain}.${local.domain}"
-}
-
 output "web_url" {
-  description = "Web app URL"
+  description = "Web app + API URL (single Worker)"
   value       = "https://${local.domain}"
 }

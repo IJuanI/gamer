@@ -3,7 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 
 interface Env {
