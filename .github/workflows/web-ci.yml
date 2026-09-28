@@ -68,11 +68,6 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.API_URL || 'http://localhost:4000' }}
 
-      - name: Build Cloudflare bundle
-        run: pnpm --filter @gamer/web pages:build
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.API_URL || 'http://localhost:4000' }}
-
   smoke-tests:
     runs-on: ubuntu-latest
     defaults:
