@@ -1,0 +1,104 @@
+# Validation-only pipeline. This does NOT deploy anything and does NOT gate
+# Cloudflare's deploy — Cloudflare Workers Builds deploys `gamer-hub` directly
+# from GitHub pushes to main, independently of this workflow. Terraform is
+# applied manually (see terraform/README.md), not from CI.
+name: GamER Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PNPM_HOME: /home/runner/.pnpm
+  NODEJS_VERSION: "22"
+
+jobs:
+  test-and-lint:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test --passWithNoTests
+
+  build-api:
+    name: Build API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build API
+        run: pnpm -w build
+
+      - name: Upload API build
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-build
+          path: apps/api/dist/
+          retention-days: 1
+
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Web
+        run: pnpm -w build
+        env:
+          NEXT_PUBLIC_API_URL: https://gameer.com.ar
+
+      - name: Upload Web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next/
+          retention-days: 1

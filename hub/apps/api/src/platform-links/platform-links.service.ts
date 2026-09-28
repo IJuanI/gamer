@@ -1,27 +1,13 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { FirestoreService } from "../firestore/firestore.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { GamesService } from "../games/games.service";
 import { GameProfilesService } from "../game-profiles/game-profiles.service";
-
-interface PlatformLink {
-  id: string;
-  gameProfileId: string;
-  provider: "FACEIT" | "RIOT" | "EPIC";
-  externalId: string;
-  externalHandle: string;
-  hasRankData: boolean;
-  accessToken?: string;
-  refreshToken?: string;
-  cachedStats?: object | null;
-  statsFetchedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { PlatformLink } from "@prisma/client";
 
 @Injectable()
 export class PlatformLinksService {
   constructor(
-    private readonly firestore: FirestoreService,
+    private readonly prisma: PrismaService,
     private readonly gamesService: GamesService,
     private readonly gameProfiles: GameProfilesService,
   ) {}
@@ -30,11 +16,12 @@ export class PlatformLinksService {
     const game = await this.gamesService.findBySlug(gameSlug);
     if (!game) throw new NotFoundException(`Juego "${gameSlug}" no configurado`);
 
-    const existing = await this.firestore.query<any>("gameProfiles", [
-      ["userId", "==", userId],
-      ["gameId", "==", game.id],
-    ]);
-    if (existing.length > 0) return existing[0];
+    const existing = await this.prisma.gameProfile.findUnique({
+      where: {
+        userId_gameId: { userId, gameId: game.id },
+      },
+    });
+    if (existing) return existing;
 
     return this.gameProfiles.create(userId, game.id, defaultHandle);
   }
@@ -49,9 +36,11 @@ export class PlatformLinksService {
     refreshToken?: string;
     cachedStats?: object | null;
   }) {
-    const existing = await this.firestore.query<PlatformLink>("platformLinks", [
-      ["gameProfileId", "==", params.gameProfileId],
-    ]);
+    const existing = await this.prisma.platformLink.findUnique({
+      where: {
+        gameProfileId: params.gameProfileId,
+      },
+    });
 
     const linkData = {
       provider: params.provider,
@@ -60,28 +49,38 @@ export class PlatformLinksService {
       hasRankData: params.hasRankData,
       accessToken: params.accessToken,
       refreshToken: params.refreshToken,
-      cachedStats: params.cachedStats,
-      statsFetchedAt: params.cachedStats ? new Date().toISOString() : undefined,
+      cachedStats: params.cachedStats ? JSON.stringify(params.cachedStats) : null,
+      statsFetchedAt: params.cachedStats ? new Date() : null,
     };
 
-    if (existing.length > 0) {
-      return this.firestore.set<PlatformLink>("platformLinks", existing[0].id, linkData);
+    if (existing) {
+      return this.prisma.platformLink.update({
+        where: { id: existing.id },
+        data: linkData,
+      });
     }
 
-    return this.firestore.create<PlatformLink>("platformLinks", { gameProfileId: params.gameProfileId, ...linkData });
+    return this.prisma.platformLink.create({
+      data: {
+        gameProfileId: params.gameProfileId,
+        ...linkData,
+      },
+    });
   }
 
   async assertOwned(linkId: string, userId: string): Promise<PlatformLink> {
-    const link = await this.firestore.findUnique<PlatformLink>("platformLinks", linkId);
+    const link = await this.prisma.platformLink.findUnique({
+      where: { id: linkId },
+      include: { gameProfile: true },
+    });
     if (!link) throw new NotFoundException("Vínculo no encontrado");
-
-    const gameProfile = await this.firestore.findUnique<any>("gameProfiles", link.gameProfileId);
-    if (!gameProfile || gameProfile.userId !== userId) throw new ForbiddenException("No es tu vínculo");
-
+    if (link.gameProfile.userId !== userId) throw new ForbiddenException("No es tu vínculo");
     return link;
   }
 
   async delete(id: string): Promise<void> {
-    await this.firestore.delete("platformLinks", id);
+    await this.prisma.platformLink.delete({
+      where: { id },
+    });
   }
 }

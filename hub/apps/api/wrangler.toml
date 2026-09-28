@@ -1,3 +1,6 @@
+# Local dev / `wrangler dev` only — the API is not deployed as its own Worker.
+# Production deploys the Hono app from here bundled into the gamer-hub Worker;
+# see apps/web/worker-entry.ts and apps/web/wrangler.toml.
 name = "gamer-hub-api"
 type = "service"
 main = "dist/worker.js"

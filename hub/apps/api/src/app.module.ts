@@ -1,7 +1,7 @@
 import { Module, type MiddlewareConsumer, type NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { join } from "path";
-import { FirestoreModule } from "./firestore/firestore.module";
+import { PrismaModule } from "./prisma/prisma.module";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
 import { GamesModule } from "./games/games.module";
@@ -23,7 +23,7 @@ import { DatabaseInitializer } from "./common/database-init";
       // Load the monorepo-root .env so DB/JWT/OAuth vars are shared.
       envFilePath: [join(__dirname, "../../../.env"), join(__dirname, "../.env")],
     }),
-    FirestoreModule,
+    PrismaModule,
     AuthModule,
     UsersModule,
     GamesModule,

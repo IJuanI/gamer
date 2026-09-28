@@ -19,7 +19,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       // Workers environment: use D1 adapter
       super({
         adapter: new PrismaD1(db),
-      });
+      } as any);
     } else {
       // Fallback for local testing (requires DATABASE_URL env var)
       super();

@@ -1,50 +1,33 @@
 import { Injectable } from "@nestjs/common";
 import type { PublicUser } from "@gamer/shared";
-import { FirestoreService } from "../firestore/firestore.service";
-import { v4 as uuidv4 } from "uuid";
-
-interface User {
-  id: string;
-  email: string;
-  displayName: string;
-  passwordHash?: string;
-  avatarUrl?: string | null;
-  role?: string;
-  lastActivityAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Account {
-  id: string;
-  provider: string;
-  providerAccountId: string;
-  userId: string;
-  createdAt: string;
-}
+import { PrismaService } from "../prisma/prisma.service";
+import { User, Account } from "@prisma/client";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly firestore: FirestoreService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.firestore.findByField<User>(
-      "users",
-      "email",
-      email.toLowerCase()
-    );
+    return this.prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.firestore.findUnique<User>("users", id);
+    return this.prisma.user.findUnique({
+      where: { id },
+    });
   }
 
   async getAll(): Promise<User[]> {
-    return this.firestore.findAll<User>("users");
+    return this.prisma.user.findMany();
   }
 
   async updateActivity(id: string): Promise<void> {
-    await this.firestore.set<Partial<User>>("users", id, { lastActivityAt: new Date().toISOString() });
+    await this.prisma.user.update({
+      where: { id },
+      data: { updatedAt: new Date() },
+    });
   }
 
   async create(data: {
@@ -54,16 +37,14 @@ export class UsersService {
     avatarUrl?: string | null;
     role?: string;
   }): Promise<User> {
-    const id = uuidv4();
-    const now = new Date().toISOString();
-    return this.firestore.set<User>("users", id, {
-      email: data.email.toLowerCase(),
-      displayName: data.displayName,
-      ...(data.passwordHash && { passwordHash: data.passwordHash }),
-      avatarUrl: data.avatarUrl || null,
-      role: data.role || "user",
-      createdAt: now,
-      updatedAt: now,
+    return this.prisma.user.create({
+      data: {
+        email: data.email.toLowerCase(),
+        displayName: data.displayName,
+        passwordHash: data.passwordHash,
+        avatarUrl: data.avatarUrl || null,
+        role: data.role || "MEMBER",
+      },
     });
   }
 
@@ -74,21 +55,24 @@ export class UsersService {
     displayName: string;
     avatarUrl?: string | null;
   }): Promise<User> {
-    const accountKey = `${params.provider}_${params.providerAccountId}`;
-
-    const existing = await this.firestore.findByField<Account>(
-      "accounts",
-      "accountKey",
-      accountKey
-    );
+    const existing = await this.prisma.account.findUnique({
+      where: {
+        provider_providerAccountId: {
+          provider: params.provider,
+          providerAccountId: params.providerAccountId,
+        },
+      },
+      include: { user: true },
+    });
 
     if (existing) {
-      const user = await this.firestore.findUnique<User>("users", existing.userId);
-      if (user) return user;
+      return existing.user;
     }
 
     const email = params.email.toLowerCase();
-    let user = await this.firestore.findByField<User>("users", "email", email);
+    let user = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user) {
       user = await this.create({
@@ -98,11 +82,12 @@ export class UsersService {
       });
     }
 
-    await this.firestore.create<Account>("accounts", {
-      accountKey,
-      provider: params.provider,
-      providerAccountId: params.providerAccountId,
-      userId: user.id,
+    await this.prisma.account.create({
+      data: {
+        provider: params.provider,
+        providerAccountId: params.providerAccountId,
+        userId: user.id,
+      },
     });
 
     return user;
@@ -113,9 +98,9 @@ export class UsersService {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
-      role: (user.role || "user") as any,
+      role: user.role.toLowerCase() as any,
       avatarUrl: user.avatarUrl || null,
-      createdAt: user.createdAt,
+      createdAt: user.createdAt.toISOString(),
     };
   }
 }

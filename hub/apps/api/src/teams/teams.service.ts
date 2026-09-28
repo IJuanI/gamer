@@ -5,88 +5,111 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { PublicTeam } from "@gamer/shared";
-import { FirestoreService } from "../firestore/firestore.service";
-import { GamesService } from "../games/games.service";
-
-interface Team {
-  id: string;
-  gameId: string;
-  name: string;
-  tag?: string;
-  logoUrl?: string;
-  bio?: string;
-  captainId: string;
-  memberIds: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { PrismaService } from "../prisma/prisma.service";
+import { Team, TeamMember } from "@prisma/client";
 
 @Injectable()
 export class TeamsService {
-  constructor(private readonly firestore: FirestoreService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async list(gameId?: string): Promise<Team[]> {
-    if (gameId) {
-      return this.firestore.query<Team>("teams", [["gameId", "==", gameId]]);
-    }
-    return this.firestore.findAll<Team>("teams");
+  async list(gameId?: string) {
+    return this.prisma.team.findMany({
+      where: gameId ? { gameId } : undefined,
+      include: { members: { include: { user: true } } },
+    });
   }
 
-  async findById(id: string): Promise<Team> {
-    const team = await this.firestore.findUnique<Team>("teams", id);
+  async findById(id: string) {
+    const team = await this.prisma.team.findUnique({
+      where: { id },
+      include: { members: { include: { user: true } } },
+    });
     if (!team) throw new NotFoundException("Equipo no encontrado");
     return team;
   }
 
-  async create(userId: string, data: { gameId: string; name: string; tag?: string; logoUrl?: string; bio?: string }): Promise<Team> {
-    const existing = await this.firestore.query<Team>("teams", [
-      ["gameId", "==", data.gameId],
-      ["name", "==", data.name],
-    ]);
-    if (existing.length > 0) throw new ConflictException("Ya existe un equipo con ese nombre para este juego");
+  async create(userId: string, data: { gameId: string; name: string; tag?: string; logoUrl?: string; bio?: string }) {
+    const existing = await this.prisma.team.findFirst({
+      where: {
+        gameId: data.gameId,
+        name: data.name,
+      },
+    });
+    if (existing) throw new ConflictException("Ya existe un equipo con ese nombre para este juego");
 
-    return this.firestore.create<Team>("teams", {
-      ...data,
-      captainId: userId,
-      memberIds: [userId],
+    return this.prisma.team.create({
+      data: {
+        ...data,
+        members: {
+          create: {
+            userId,
+            role: "CAPTAIN",
+          },
+        },
+      },
+      include: { members: { include: { user: true } } },
     });
   }
 
   async assertCaptain(teamId: string, userId: string): Promise<void> {
-    const team = await this.findById(teamId);
-    if (team.captainId !== userId) {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: { teamId, userId },
+      },
+    });
+    if (!membership || membership.role !== "CAPTAIN") {
       throw new ForbiddenException("Solo el capitán puede hacer esto");
     }
   }
 
-  async update(id: string, data: { name?: string; tag?: string; logoUrl?: string; bio?: string }): Promise<Team> {
-    return this.firestore.set<Team>("teams", id, data);
+  async update(id: string, data: { name?: string; tag?: string; logoUrl?: string; bio?: string }) {
+    return this.prisma.team.update({
+      where: { id },
+      data,
+      include: { members: { include: { user: true } } },
+    });
   }
 
-  async addMember(teamId: string, userId: string): Promise<Team> {
-    const team = await this.findById(teamId);
-    if (team.memberIds.includes(userId)) {
+  async addMember(teamId: string, userId: string) {
+    const existing = await this.prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: { teamId, userId },
+      },
+    });
+    if (existing) {
       throw new ConflictException("Ese usuario ya es parte del equipo");
     }
-    return this.firestore.set<Team>("teams", teamId, {
-      memberIds: [...team.memberIds, userId],
+    await this.prisma.teamMember.create({
+      data: {
+        teamId,
+        userId,
+        role: "MEMBER",
+      },
     });
+    return this.findById(teamId);
   }
 
-  async removeMember(teamId: string, userId: string): Promise<Team> {
-    const team = await this.findById(teamId);
-    if (!team.memberIds.includes(userId)) {
+  async removeMember(teamId: string, userId: string) {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: { teamId, userId },
+      },
+    });
+    if (!membership) {
       throw new NotFoundException("Ese usuario no es parte del equipo");
     }
-    if (team.captainId === userId) {
+    if (membership.role === "CAPTAIN") {
       throw new ForbiddenException("El capitán no puede salir del equipo sin transferir el rol");
     }
-    return this.firestore.set<Team>("teams", teamId, {
-      memberIds: team.memberIds.filter((id) => id !== userId),
+    await this.prisma.teamMember.delete({
+      where: {
+        teamId_userId: { teamId, userId },
+      },
     });
+    return this.findById(teamId);
   }
 
-  static toPublic(team: Team): PublicTeam {
+  static toPublic(team: any): PublicTeam {
     return {
       id: team.id,
       name: team.name,
@@ -94,15 +117,15 @@ export class TeamsService {
       logoUrl: team.logoUrl || null,
       bio: team.bio || null,
       game: { id: team.gameId, slug: "", name: "", iconUrl: null, rankVerifiable: false },
-      members: team.memberIds.map((userId) => ({
-        id: `${team.id}-${userId}`,
-        userId,
-        displayName: "Unknown",
-        avatarUrl: null,
-        role: userId === team.captainId ? "CAPTAIN" : "MEMBER",
-        joinedAt: team.createdAt,
+      members: team.members.map((member: TeamMember & { user: any }) => ({
+        id: member.id,
+        userId: member.userId,
+        displayName: member.user.displayName,
+        avatarUrl: member.user.avatarUrl || null,
+        role: member.role,
+        joinedAt: member.joinedAt.toISOString(),
       })),
-      createdAt: team.createdAt,
+      createdAt: team.createdAt.toISOString(),
     };
   }
 }
