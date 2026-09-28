@@ -160,19 +160,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "PNPM_HOME=$(pnpm store path)" >> $GITHUB_ENV
-
-      - name: Restore pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.PNPM_HOME }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('hub/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --filter @gamer/web --filter @gamer/shared
 
