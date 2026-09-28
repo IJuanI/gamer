@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "Paraná Game Jam — Entre Ríos Gamers",
   description:
     "Participa en la Paraná Game Jam, una competencia de desarrollo de videojuegos de 48 horas.",
+  icons: {
+    icon: "/jam/logo.svg",
+  },
   openGraph: {
     title: "Paraná Game Jam — Entre Ríos Gamers",
     description: "Participa en la Paraná Game Jam 2026.",
