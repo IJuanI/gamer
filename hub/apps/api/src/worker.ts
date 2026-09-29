@@ -308,6 +308,28 @@ app.get("/api/auth/me", async (c) => {
   }
 });
 
+// Auth: Delete account
+app.delete("/api/me", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    // Delete user and all related data
+    await prisma.user.delete({ where: { id: userId } });
+
+    // Clear session cookies
+    clearSessionCookies(c);
+    return c.json({ ok: true });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
 // Users: List (admin only)
 app.get("/api/users", async (c) => {
   try {
