@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const WEB_PORT = 3100; // dedicated port so visual runs don't collide with `pnpm dev`
-const BASE_URL = `http://localhost:${WEB_PORT}`;
+const BASE_URL = process.env.TEST_BASE_URL || `http://localhost:${WEB_PORT}`;
 
 /**
  * Visual regression for the GamER Hub frontend (es-AR).
