@@ -53,10 +53,16 @@ test.describe('Frontend Smoke Tests', () => {
 
     // Capture all console messages and errors
     page.on('console', (msg) => {
-      const text = `[${msg.type().toUpperCase()}] ${msg.text()}`;
-      allConsoleMessages.push(text);
+      const text = msg.text();
+      const fullText = `[${msg.type().toUpperCase()}] ${text}`;
+      allConsoleMessages.push(fullText);
       if (msg.type() === 'error') {
-        allErrors.push(text);
+        // Ignore "Failed to load resource: the server responded with a status of 401"
+        // — this comes from /api/auth/refresh on initial page load before session exists
+        if (text.includes('Failed to load resource') && text.includes('401')) {
+          return;
+        }
+        allErrors.push(fullText);
       }
     });
 
@@ -67,7 +73,20 @@ test.describe('Frontend Smoke Tests', () => {
 
     // Capture all request failures
     page.on('requestfailed', (request) => {
-      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
+      const response = request.response();
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status()})`);
+    });
+
+    // Also capture responses with error status codes, but exclude expected ones
+    page.on('response', (response) => {
+      if (response.status() >= 400 && response.status() < 600) {
+        const url = response.url();
+        // 401 on /api/auth/refresh is expected on initial page load (no session yet)
+        if (response.status() === 401 && url.includes('/api/auth/refresh')) {
+          return;
+        }
+        allErrors.push(`[HTTP_${response.status()}] ${response.request().method()} ${response.url()}`);
+      }
     });
 
     // 1. REGISTER
