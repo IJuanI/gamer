@@ -607,9 +607,17 @@ test.describe('Frontend Smoke Tests', () => {
       await page.locator('a:has-text("Volver")').click();
       await page.waitForURL('**/teams', { timeout: 10000 });
       await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState('networkidle');
+
+      // Debug: check what the API returns for teams
+      const teamsDebug = await page.evaluate(async () => {
+        const res = await fetch('/api/teams', { credentials: 'include' });
+        const data = await res.json();
+        return { status: res.status, count: Array.isArray(data) ? data.length : 0, firstTeam: Array.isArray(data) ? data[0] : null };
+      });
+      console.log('Teams API debug:', teamsDebug);
 
       // Verify the newly created team appears in the list
-      await page.waitForLoadState('networkidle');
       const teamLinkLocator = page.locator(`a:has-text("${teamName}")`);
       const teamFound = await teamLinkLocator.count();
 
@@ -617,7 +625,8 @@ test.describe('Frontend Smoke Tests', () => {
         console.log('Team found in teams list - verification passed');
       } else {
         const pageText = await page.textContent('main');
-        allErrors.push(`[TEAM_VISIBLE] Team "${teamName}" not visible in teams list. Page contains: ${pageText?.substring(0, 200)}`);
+        console.log(`Teams list page shows: ${pageText?.substring(0, 300)}`);
+        allErrors.push(`[TEAM_VISIBLE] Team "${teamName}" not visible in teams list`);
       }
     } catch (e) {
       allErrors.push(`[TEAM_FORM] Failed to create team: ${e.message}`);
