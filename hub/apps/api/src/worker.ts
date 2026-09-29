@@ -22,11 +22,13 @@ interface Env {
 }
 
 let prismaInstance: PrismaClient | null = null;
+let lastEnv: any = null;
 
 function getPrismaClient(env: Env): PrismaClient {
-  if (!prismaInstance) {
-    const adapter = new PrismaD1(env.DB);
-    prismaInstance = new PrismaClient({ adapter } as any);
+  // Create a new instance if env changes (e.g., between production and preview)
+  if (!prismaInstance || lastEnv !== env.DB) {
+    prismaInstance = new PrismaClient({ adapter: new PrismaD1(env.DB) } as any);
+    lastEnv = env.DB;
   }
   return prismaInstance;
 }
@@ -200,8 +202,9 @@ app.post("/api/auth/register", async (c) => {
     setSessionCookies(c, signTokens(user.id, c.env.JWT_SECRET));
     return c.json({ user: toPublicUser(user) });
   } catch (error) {
-    console.error("Register error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Register error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
