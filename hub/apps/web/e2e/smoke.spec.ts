@@ -777,42 +777,70 @@ test.describe('Frontend Smoke Tests', () => {
 
     expect(page.url()).toContain('/dashboard');
 
-    // 3. CREATE RECRUITMENT POST via API
+    // 3. CREATE RECRUITMENT POST via UI form
     console.log('=== CREATING RECRUITMENT POST ===');
-    currentPage = 'Recruitment';
+    currentPage = 'RecruitmentNew';
 
-    const postRes = await page.evaluate(
-      async ({ title, body, gameId }) => {
-        try {
-          const res = await fetch('/api/recruitment-posts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type: 'LOOKING_FOR_PLAYERS',
-              gameId: gameId,
-              title: title,
-              body: body,
-            }),
-            credentials: 'include',
-          });
-          const data = await res.json();
-          return { status: res.status, ok: res.ok, postId: data?.id };
-        } catch (e) {
-          console.error('Post creation error:', e);
-          return { status: 0, ok: false, error: String(e) };
-        }
-      },
-      {
-        title: postTitle,
-        body: postBody,
-        gameId: 'clz0vwx5e0000a1pq1a1a1a1a' // Counter-Strike 2 (known game)
+    await page.goto('/recruitment/new', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(1000); // Allow form JavaScript to load
+
+    try {
+      // Use simpler selectors - just find all selects and inputs on the page
+      const selects = page.locator('select');
+      const inputs = page.locator('input[type="text"], input:not([type])');
+      const textareas = page.locator('textarea');
+
+      const selectCount = await selects.count();
+      const inputCount = await inputs.count();
+      const textareaCount = await textareas.count();
+
+      console.log(`Form elements: ${selectCount} selects, ${inputCount} inputs, ${textareaCount} textareas`);
+
+      if (selectCount < 2) {
+        throw new Error(`Expected at least 2 selects, found ${selectCount}`);
       }
-    );
 
-    if (!postRes.ok) {
-      allErrors.push(`[POST_CREATE] Failed to create recruitment post: ${postRes.status}`);
-    } else {
-      console.log(`Recruitment post created successfully: ${postRes.postId}`);
+      // First select = type, second select = game
+      await selects.nth(0).selectOption({ index: 1 });
+      console.log('Selected recruitment type');
+
+      await selects.nth(1).selectOption({ index: 1 });
+      console.log('Selected game');
+
+      // Fill title (first input)
+      if (inputCount > 0) {
+        await inputs.first().fill(postTitle);
+        console.log('Filled title');
+      }
+
+      // Fill body (textarea)
+      if (textareaCount > 0) {
+        await textareas.first().fill(postBody);
+        console.log('Filled body');
+      }
+
+      console.log('Form filled, submitting...');
+
+      // Submit form
+      const navPromise = page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {
+        console.log('Navigation promise timed out or was rejected');
+      });
+
+      await page.locator('button:has-text("Publicar")').click();
+      console.log('Clicked submit button');
+      await navPromise;
+      await page.waitForTimeout(500);
+
+      const urlAfterSubmit = page.url();
+      console.log(`URL after post creation: ${urlAfterSubmit}`);
+
+      if (!urlAfterSubmit.includes('/recruitment')) {
+        allErrors.push(`[POST_CREATE] Expected /recruitment URL, got: ${urlAfterSubmit}`);
+      } else {
+        console.log('Recruitment post created successfully');
+      }
+    } catch (e) {
+      allErrors.push(`[POST_FORM] Failed to create recruitment post via UI: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // 4. DELETE ACCOUNT (cascade deletes recruitment post since user is author)

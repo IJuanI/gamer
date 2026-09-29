@@ -358,7 +358,10 @@ app.delete("/api/me", async (c) => {
     // Delete user's recruitment posts (if authored by this user)
     await prisma.recruitmentPost.deleteMany({ where: { authorId: userId } });
 
-    // Delete user (cascade delete will handle remaining TeamMembers)
+    // Delete remaining TeamMembers (for teams where user is not the only member)
+    await prisma.teamMember.deleteMany({ where: { userId } });
+
+    // Delete user (cascade delete will handle any remaining relationships)
     try {
       await prisma.user.delete({ where: { id: userId } });
     } catch (e) {
@@ -375,7 +378,10 @@ app.delete("/api/me", async (c) => {
     return c.json({ ok: true });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error("Delete account error:", errorMsg);
+    console.error("Delete account error:", {
+      errorMsg,
+      errorStack: error instanceof Error ? error.stack : undefined
+    });
     return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
