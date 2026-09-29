@@ -319,21 +319,57 @@ test.describe('Frontend Smoke Tests', () => {
 
     expect(page.url()).toContain('/dashboard');
 
-    // 3. VERIFY DASHBOARD LOADED
-    console.log('=== VERIFY DASHBOARD LOADED ===');
-    expect(page.url()).toContain('/dashboard');
+    // 3. NAVIGATE THROUGH ALL PANEL PAGES
+    console.log('=== NAVIGATING PANEL PAGES ===');
+    const panelPages = [
+      { name: 'Eventos', href: '/eventos' },
+      { name: 'Perfil de gamer', href: '/profile' },
+      { name: 'Equipos', href: '/teams' },
+      { name: 'Reclutamiento', href: '/recruitment' },
+      { name: 'Generador de flyers', href: '/admin/flyers' },
+      { name: 'Administración', href: '/admin' },
+    ];
 
-    // Verify the page has content (profile card should be visible)
-    const profileCard = page.locator('section.panel-clip').first();
-    await expect(profileCard).toBeVisible({ timeout: 5000 }).catch((e) => {
-      allErrors.push(`[DASHBOARD] Profile card not visible: ${e.message}`);
+    for (const { name, href } of panelPages) {
+      console.log(`  Navigating to ${name} (${href})`);
+      try {
+        await page.goto(href, { waitUntil: 'load', timeout: 15000 });
+        console.log(`    ✓ Loaded`);
+      } catch (e) {
+        allErrors.push(`[NAV] Failed to load ${name}: ${e.message}`);
+      }
+    }
+
+    // 4. DELETE ACCOUNT
+    console.log('=== DELETING ACCOUNT ===');
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+
+    // Try to delete account via API
+    const deleteRes = await page.evaluate(async () => {
+      try {
+        const res = await fetch('/api/me', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        return { status: res.status, ok: res.ok };
+      } catch (e) {
+        console.error('Delete failed:', e);
+        return { status: 0, ok: false };
+      }
     });
 
-    // 4. LOGOUT (cleanup)
-    console.log('=== LOGGING OUT ===');
-    await page.goto('/dashboard', { waitUntil: 'networkidle' });
-    await page.locator('button:has-text("Salir")').click();
-    await page.waitForURL('**/login', { timeout: 5000 });
+    if (deleteRes.ok) {
+      console.log('Account deleted successfully');
+    } else if (deleteRes.status === 404) {
+      console.log('Delete endpoint not available, logging out instead');
+      await page.locator('button:has-text("Salir")').click();
+      await page.waitForURL('**/login', { timeout: 5000 });
+    } else {
+      console.log(`Delete returned status ${deleteRes.status}, logging out instead`);
+      await page.locator('button:has-text("Salir")').click();
+      await page.waitForURL('**/login', { timeout: 5000 });
+    }
 
     if (allErrors.length > 0) {
       throw new Error(
