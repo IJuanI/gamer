@@ -600,12 +600,16 @@ test.describe('Frontend Smoke Tests', () => {
       currentPage = 'TeamsList';
       await page.locator('a:has-text("Volver")').click();
       await page.waitForURL('**/teams', { timeout: 10000 });
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(1000);
 
       // Check if the newly created team appears in the list
-      const teamListText = await page.textContent('main');
-      if (teamListText?.includes(teamName)) {
+      const teamText = await page.locator(`text="${teamName}"`).count();
+      if (teamText > 0) {
         console.log('Team found in teams list');
       } else {
+        const teamListText = await page.textContent('main');
+        console.log(`Teams list (first 300 chars): ${teamListText?.substring(0, 300)}`);
         allErrors.push(`[TEAM_LIST] Created team "${teamName}" not found in teams list`);
       }
     } catch (e) {
