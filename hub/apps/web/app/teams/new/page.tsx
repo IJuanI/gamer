@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { PublicGame } from "@gamer/shared";
@@ -8,7 +8,7 @@ import { Logo } from "@/components/logo";
 import { useAuth } from "@/components/auth-provider";
 import { api } from "@/lib/api";
 
-export default function NewTeamPage() {
+function NewTeamForm() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [games, setGames] = useState<PublicGame[]>([]);
@@ -18,23 +18,36 @@ export default function NewTeamPage() {
   const [bio, setBio] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Mark as client-side only
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
+  // Fetch games immediately on client
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (!isClient) return;
 
-  useEffect(() => {
-    if (!mounted) return;
-    api.listGames().then((r) => {
-      setGames(r.games || []);
-      setGameId((prev) => prev || (r.games?.[0]?.id || ""));
-    });
-  }, [mounted]);
+    const fetchGames = async () => {
+      try {
+        const r = await api.listGames();
+        const gamesList = r.games || [];
+        setGames(gamesList);
+        if (gamesList.length > 0) {
+          setGameId((prev) => prev || gamesList[0].id);
+        }
+      } catch (e) {
+        console.error("Failed to load games:", e);
+      }
+    };
+
+    fetchGames();
+  }, [isClient]);
 
   if (loading || !user) {
     return (
@@ -140,4 +153,8 @@ export default function NewTeamPage() {
       </div>
     </main>
   );
+}
+
+export default function NewTeamPage() {
+  return <NewTeamForm />;
 }

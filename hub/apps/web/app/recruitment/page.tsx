@@ -23,23 +23,28 @@ export default function RecruitmentPage() {
   const [gameId, setGameId] = useState("");
   const [type, setType] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isClient || !user) return;
     api.listGames().then((r) => setGames(r.games || [])).catch(() => {});
-  }, [user]);
+  }, [isClient, user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isClient || !user) return;
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
       .then((r) => setPosts(r.recruitmentPosts || []))
       .catch((e) => setError(e instanceof Error ? e.message : "Error"));
-  }, [user, gameId, type]);
+  }, [isClient, user, gameId, type]);
 
   if (loading || !user) {
     return (

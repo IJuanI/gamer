@@ -16,23 +16,28 @@ export default function TeamsPage() {
   const [teams, setTeams] = useState<PublicTeam[]>([]);
   const [gameId, setGameId] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isClient || !user) return;
     api.listGames().then((r) => setGames(r.games || [])).catch(() => {});
-  }, [user]);
+  }, [isClient, user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isClient || !user) return;
     api
       .listTeams(gameId || undefined)
       .then((r) => setTeams(r.teams || []))
       .catch((e) => setError(e instanceof Error ? e.message : "Error"));
-  }, [user, gameId]);
+  }, [isClient, user, gameId]);
 
   if (loading || !user) {
     return (
