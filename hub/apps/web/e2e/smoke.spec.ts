@@ -91,10 +91,11 @@ test.describe('Frontend Smoke Tests', () => {
 
     // 1. REGISTER (or skip if user exists)
     console.log('=== REGISTERING ===');
+    const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:3100';
     // Try to create user via API first - if exists, we'll just log in
     const registerRes = await page.evaluate(
-      async ({ email, displayName, password }) => {
-        const res = await fetch('/api/auth/register', {
+      async ({ email, displayName, password, baseUrl }) => {
+        const res = await fetch(`${baseUrl}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, displayName, password }),
@@ -102,7 +103,7 @@ test.describe('Frontend Smoke Tests', () => {
         });
         return { status: res.status, ok: res.ok };
       },
-      { email: testEmail, displayName: testDisplayName, password: testPassword }
+      { email: testEmail, displayName: testDisplayName, password: testPassword, baseUrl }
     );
 
     if (registerRes.status === 409) {
@@ -231,11 +232,11 @@ test.describe('Frontend Smoke Tests', () => {
 
     // 1. CREATE ADMIN USER (or skip if exists)
     console.log('=== CREATING/CHECKING ADMIN USER ===');
+    const baseUrlForAdmin = process.env.TEST_BASE_URL || 'http://localhost:3100';
 
     const createResponse = await page.evaluate(
-      async ({ email, displayName, password }) => {
-        // Use relative URL - on preview, API is bundled in same deployment
-        const res = await fetch('/api/auth/register', {
+      async ({ email, displayName, password, baseUrl }) => {
+        const res = await fetch(`${baseUrl}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, displayName, password }),
@@ -244,7 +245,7 @@ test.describe('Frontend Smoke Tests', () => {
         const data = await res.json().catch(() => ({}));
         return { status: res.status, data };
       },
-      { email: testEmail, displayName: testDisplayName, password: testPassword }
+      { email: testEmail, displayName: testDisplayName, password: testPassword, baseUrl: baseUrlForAdmin }
     );
 
     if (createResponse.status === 409) {
@@ -308,15 +309,14 @@ test.describe('Frontend Smoke Tests', () => {
     console.log('=== DELETING ACCOUNT ===');
     await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-    const deleteResponse = await page.evaluate(async () => {
-      // Try to delete via API using relative URL
-      const res = await fetch('/api/me', {
+    const deleteResponse = await page.evaluate(async ({ baseUrl }) => {
+      const res = await fetch(`${baseUrl}/api/me`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       });
       return { status: res.status };
-    });
+    }, { baseUrl: baseUrlForAdmin });
 
     // If API delete failed, fall back to manual deletion via logout
     if (deleteResponse.status === 404 || deleteResponse.status === 405) {
