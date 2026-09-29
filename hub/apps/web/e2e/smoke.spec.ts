@@ -73,6 +73,10 @@ test.describe('Frontend Smoke Tests', () => {
 
     // Capture all request failures
     page.on('requestfailed', (request) => {
+      // Ignore aborted requests (normal during navigation)
+      if (request.failure()?.errorText === 'net::ERR_ABORTED') {
+        return;
+      }
       const response = request.response();
       allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`);
     });
@@ -237,6 +241,10 @@ test.describe('Frontend Smoke Tests', () => {
     });
 
     page.on('requestfailed', (request) => {
+      // Ignore aborted requests (normal during navigation)
+      if (request.failure()?.errorText === 'net::ERR_ABORTED') {
+        return;
+      }
       const response = request.response();
       allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`);
     });
@@ -244,7 +252,12 @@ test.describe('Frontend Smoke Tests', () => {
     page.on('response', (response) => {
       if (response.status() >= 400 && response.status() < 600) {
         const url = response.url();
+        // Ignore expected auth errors
         if (response.status() === 401 && url.includes('/api/auth/refresh')) {
+          return;
+        }
+        // Ignore 409 on register (user already exists, expected)
+        if (response.status() === 409 && url.includes('/api/auth/register')) {
           return;
         }
         allErrors.push(`[HTTP_${response.status()}] ${response.request().method()} ${response.url()}`);
