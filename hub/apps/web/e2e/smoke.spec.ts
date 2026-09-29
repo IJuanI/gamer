@@ -509,26 +509,40 @@ test.describe('Frontend Smoke Tests', () => {
     await page.goto('/teams/new', { waitUntil: 'networkidle' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Fill in team form
-    await page.locator('input[name="name"]').fill(teamName);
-    if (await page.locator('input[name="tag"]').isVisible()) {
-      await page.locator('input[name="tag"]').fill(teamTag);
+    // Wait for form inputs to be visible
+    await page.waitForSelector('input[type="text"]', { timeout: 5000 });
+
+    // Fill in team form - get all text inputs
+    const inputs = page.locator('input[type="text"]');
+    const inputCount = await inputs.count();
+
+    if (inputCount >= 1) {
+      // First input is team name
+      await inputs.nth(0).fill(teamName);
+      console.log(`Filled team name: ${teamName}`);
+    }
+    if (inputCount >= 2) {
+      // Second input is team tag
+      await inputs.nth(1).fill(teamTag);
+      console.log(`Filled team tag: ${teamTag}`);
     }
 
     // Select a game
     const gameSelect = page.locator('select');
-    if (await gameSelect.isVisible()) {
-      const options = await gameSelect.locator('option').count();
+    const selectCount = await gameSelect.count();
+    if (selectCount > 0) {
+      const options = await gameSelect.nth(0).locator('option').count();
       if (options > 1) {
-        // Select the second option (first is usually a placeholder)
-        await gameSelect.selectOption({ index: 1 });
+        // Select the second option
+        await gameSelect.nth(0).selectOption({ index: 1 });
+        console.log('Selected game');
       }
     }
 
     // Submit form
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'load' }).catch(() => null),
-      page.locator('button:has-text("Crear")').click().catch((e) => {
+      page.locator('button:has-text("Crear equipo")').click().catch((e) => {
         allErrors.push(`[TEAM_CREATE_ERROR] ${e.message}`);
       }),
     ]);

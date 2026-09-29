@@ -25,8 +25,8 @@ export default function NewTeamPage() {
 
   useEffect(() => {
     api.listGames().then((r) => {
-      setGames(r.games);
-      setGameId((prev) => prev || r.games[0]?.id || "");
+      setGames(r.games || []);
+      setGameId((prev) => prev || (r.games?.[0]?.id || ""));
     });
   }, []);
 
