@@ -197,34 +197,26 @@ test.describe('Frontend Smoke Tests', () => {
 
     expect(page.url()).toContain('/dashboard');
 
-    // 4. DELETE ACCOUNT
+    // 4. DELETE ACCOUNT (via API)
     console.log('=== DELETING ACCOUNT ===');
-    // Look for account deletion option (may be in a menu or settings)
-    const profileButton = page.locator('button, a').filter({ hasText: /Configuración|Settings|Perfil|Profile/i }).first();
-
-    if (await profileButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await profileButton.click();
-      await page.waitForTimeout(500);
-    }
-
-    // Look for delete account button
-    const deleteAccountButton = page
-      .locator('button, a')
-      .filter({ hasText: /Eliminar.*cuenta|Delete.*account/i })
-      .first();
-
-    if (await deleteAccountButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await deleteAccountButton.click();
-      await page.waitForTimeout(500);
-
-      // Confirm if there's a confirmation dialog
-      const confirmButton = page.locator('button').filter({ hasText: /Confirmar|Eliminar|Delete|Yes|Sí/i }).first();
-      if (await confirmButton.isVisible({ timeout: 500 }).catch(() => false)) {
-        await Promise.all([
-          page.waitForNavigation({ waitUntil: 'load' }).catch(() => null),
-          confirmButton.click()
-        ]);
+    const deleteRes = await page.evaluate(async () => {
+      try {
+        const res = await fetch('/api/me', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        return { status: res.status, ok: res.ok };
+      } catch (e) {
+        console.error('Delete failed:', e);
+        return { status: 0, ok: false };
       }
+    });
+
+    if (deleteRes.ok) {
+      console.log('Account deleted successfully');
+    } else {
+      throw new Error(`Failed to delete account: ${deleteRes.status}`);
     }
 
     console.log('=== TEST COMPLETE ===');
