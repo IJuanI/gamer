@@ -18,17 +18,23 @@ export default function NewTeamPage() {
   const [bio, setBio] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     api.listGames().then((r) => {
       setGames(r.games || []);
       setGameId((prev) => prev || (r.games?.[0]?.id || ""));
     });
-  }, []);
+  }, [mounted]);
 
   if (loading || !user) {
     return (
@@ -102,6 +108,7 @@ export default function NewTeamPage() {
                 value={gameId}
                 onChange={(e) => setGameId(e.target.value)}
                 className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
+                suppressHydrationWarning
               >
                 {games.map((g) => (
                   <option key={g.id} value={g.id}>

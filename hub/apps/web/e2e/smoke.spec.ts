@@ -510,6 +510,7 @@ test.describe('Frontend Smoke Tests', () => {
     console.log('=== CREATING TEAM ===');
     currentPage = 'Teams';
 
+
     const teamRes = await page.evaluate(
       async ({ teamName, teamTag }) => {
         try {

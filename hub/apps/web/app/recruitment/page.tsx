@@ -73,6 +73,7 @@ export default function RecruitmentPage() {
               value={gameId}
               onChange={(e) => setGameId(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
+              suppressHydrationWarning
             >
               <option value="">Todos los juegos</option>
               {games.map((g) => (
@@ -85,6 +86,7 @@ export default function RecruitmentPage() {
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
+              suppressHydrationWarning
             >
               <option value="">Todos los tipos</option>
               <option value="LOOKING_FOR_TEAM">Busca equipo</option>

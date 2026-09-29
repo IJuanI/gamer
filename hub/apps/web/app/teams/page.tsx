@@ -66,6 +66,7 @@ export default function TeamsPage() {
               value={gameId}
               onChange={(e) => setGameId(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
+              suppressHydrationWarning
             >
               <option value="">Todos los juegos</option>
               {games.map((g) => (
