@@ -359,14 +359,24 @@ app.delete("/api/me", async (c) => {
     await prisma.recruitmentPost.deleteMany({ where: { authorId: userId } });
 
     // Delete user (cascade delete will handle remaining TeamMembers)
-    await prisma.user.delete({ where: { id: userId } });
+    try {
+      await prisma.user.delete({ where: { id: userId } });
+    } catch (e) {
+      console.error("Failed to delete user after cleanup:", {
+        userId,
+        error: e instanceof Error ? e.message : String(e),
+        teamsDeleted: teamsToDelete.length
+      });
+      throw e;
+    }
 
     // Clear session cookies
     clearSessionCookies(c);
     return c.json({ ok: true });
   } catch (error) {
-    console.error("Delete account error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Delete account error:", errorMsg);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1371,7 +1381,7 @@ app.get("/api/platform-links/riot/callback", async (c) => {
   }
 });
 
-// Test Cleanup: Delete all smoke test users and their data
+// Test Cleanup: Delete all test users and their data
 app.delete("/api/test/cleanup", async (c) => {
   try {
     // Only allow in non-production environments
@@ -1381,33 +1391,36 @@ app.delete("/api/test/cleanup", async (c) => {
 
     const prisma = getPrismaClient(c.env);
 
-    // Find all users with "smoke" in their email
-    const smokeUsers = await prisma.user.findMany({
-      where: { email: { contains: "smoke" } },
+    // Find all users with "test.local" in their email (catches smoke, api, debug, verify, etc.)
+    const testUsers = await prisma.user.findMany({
+      where: { email: { contains: "test.local" } },
     });
 
-    if (smokeUsers.length === 0) {
+    if (testUsers.length === 0) {
       return c.json({ deleted: { users: 0, teams: 0 } });
     }
 
-    const userIds = smokeUsers.map((u) => u.id);
+    const userIds = testUsers.map((u) => u.id);
+    console.log(`Cleaning up ${userIds.length} test users`);
 
-    // Find teams that only have smoke test users (no regular users)
+    // Find teams that only have test users (no regular users)
     const userTeams = await prisma.teamMember.findMany({
       where: { userId: { in: userIds } },
       include: { team: { include: { members: true } } },
     });
 
-    // Find teams where all members are smoke test users
+    // Find teams where all members are test users
     const teamIdsToDelete = new Set<string>();
     for (const teamMember of userTeams) {
-      const allMembersAreSmoke = teamMember.team.members.every((m) =>
+      const allMembersAreTest = teamMember.team.members.every((m) =>
         userIds.includes(m.userId)
       );
-      if (allMembersAreSmoke) {
+      if (allMembersAreTest) {
         teamIdsToDelete.add(teamMember.team.id);
       }
     }
+
+    console.log(`Found ${teamIdsToDelete.size} teams with only test users`);
 
     // Delete TeamMembers for teams being deleted
     if (teamIdsToDelete.size > 0) {
@@ -1430,13 +1443,13 @@ app.delete("/api/test/cleanup", async (c) => {
       });
     }
 
-    // Delete game profiles by smoke users
+    // Delete game profiles by test users
     await prisma.gameProfile.deleteMany({ where: { userId: { in: userIds } } });
 
-    // Delete recruitment posts authored by smoke users
+    // Delete recruitment posts authored by test users
     await prisma.recruitmentPost.deleteMany({ where: { authorId: { in: userIds } } });
 
-    // Delete all smoke test users
+    // Delete all test users
     const deleteResult = await prisma.user.deleteMany({
       where: { id: { in: userIds } },
     });
@@ -1449,7 +1462,7 @@ app.delete("/api/test/cleanup", async (c) => {
     });
   } catch (error) {
     console.error("Test cleanup error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    return c.json({ statusCode: 500, message: `Server error: ${error instanceof Error ? error.message : String(error)}` }, 500);
   }
 });
 
