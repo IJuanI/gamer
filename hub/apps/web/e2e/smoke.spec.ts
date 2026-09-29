@@ -74,7 +74,7 @@ test.describe('Frontend Smoke Tests', () => {
     // Capture all request failures
     page.on('requestfailed', (request) => {
       const response = request.response();
-      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status()})`);
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`);
     });
 
     // Also capture responses with error status codes, but exclude expected ones
@@ -243,7 +243,7 @@ test.describe('Frontend Smoke Tests', () => {
 
     page.on('requestfailed', (request) => {
       const response = request.response();
-      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status()})`);
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`);
     });
 
     page.on('response', (response) => {
