@@ -105,7 +105,8 @@ export default function NewRecruitmentPostPage() {
                 onChange={(e) => setGameId(e.target.value)}
                 className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
               >
-                {games.map((g) => (
+                <option value="">Seleccionar juego</option>
+                {games.length > 0 && games.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.name}
                   </option>
