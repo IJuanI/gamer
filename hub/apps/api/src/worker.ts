@@ -318,38 +318,47 @@ app.delete("/api/me", async (c) => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
-    // Find all teams this user belongs to
+    // Find all teams this user belongs to (before any deletes)
     const userTeams = await prisma.teamMember.findMany({
       where: { userId },
       include: { team: { include: { members: true } } }
     });
 
-    // Delete user's game profiles and recruitment posts first
-    await prisma.gameProfile.deleteMany({ where: { userId } });
-    await prisma.recruitmentPost.deleteMany({ where: { authorId: userId } });
-
-    // Remove user from all teams and delete empty teams
+    // Find teams where user is the only member
     const teamsToDelete: string[] = [];
     for (const teamMember of userTeams) {
-      const teamMembersCount = teamMember.team.members.length;
-      // If this is the only member, mark team for deletion
-      if (teamMembersCount === 1) {
+      if (teamMember.team.members.length === 1) {
         teamsToDelete.push(teamMember.team.id);
       }
     }
 
-    // Delete recruitment posts from teams being deleted
+    // Delete TeamMembers for teams being deleted (breaks foreign key references)
     if (teamsToDelete.length > 0) {
-      await prisma.recruitmentPost.deleteMany({
+      await prisma.teamMember.deleteMany({
         where: { teamId: { in: teamsToDelete } }
       });
-      // Delete the empty teams
+    }
+
+    // Delete recruitment posts for teams being deleted (will set teamId to null, not delete)
+    // But we want to delete them, so do it explicitly
+    await prisma.recruitmentPost.deleteMany({
+      where: { teamId: { in: teamsToDelete } }
+    });
+
+    // Delete the teams
+    if (teamsToDelete.length > 0) {
       await prisma.team.deleteMany({
         where: { id: { in: teamsToDelete } }
       });
     }
 
-    // Delete user and all remaining related data
+    // Delete user's game profiles
+    await prisma.gameProfile.deleteMany({ where: { userId } });
+
+    // Delete user's recruitment posts (if authored by this user)
+    await prisma.recruitmentPost.deleteMany({ where: { authorId: userId } });
+
+    // Delete user (cascade delete will handle remaining TeamMembers)
     await prisma.user.delete({ where: { id: userId } });
 
     // Clear session cookies
@@ -1359,6 +1368,88 @@ app.get("/api/platform-links/riot/callback", async (c) => {
   } catch (error) {
     console.error("Riot OAuth error:", error);
     return c.redirect(`${webOrigin(c.env)}/dashboard?error=platform_link_failed`);
+  }
+});
+
+// Test Cleanup: Delete all smoke test users and their data
+app.delete("/api/test/cleanup", async (c) => {
+  try {
+    // Only allow in non-production environments
+    if (c.env.NODE_ENV === "production") {
+      return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+    }
+
+    const prisma = getPrismaClient(c.env);
+
+    // Find all users with "smoke" in their email
+    const smokeUsers = await prisma.user.findMany({
+      where: { email: { contains: "smoke" } },
+    });
+
+    if (smokeUsers.length === 0) {
+      return c.json({ deleted: { users: 0, teams: 0 } });
+    }
+
+    const userIds = smokeUsers.map((u) => u.id);
+
+    // Find teams that only have smoke test users (no regular users)
+    const userTeams = await prisma.teamMember.findMany({
+      where: { userId: { in: userIds } },
+      include: { team: { include: { members: true } } },
+    });
+
+    // Find teams where all members are smoke test users
+    const teamIdsToDelete = new Set<string>();
+    for (const teamMember of userTeams) {
+      const allMembersAreSmoke = teamMember.team.members.every((m) =>
+        userIds.includes(m.userId)
+      );
+      if (allMembersAreSmoke) {
+        teamIdsToDelete.add(teamMember.team.id);
+      }
+    }
+
+    // Delete TeamMembers for teams being deleted
+    if (teamIdsToDelete.size > 0) {
+      await prisma.teamMember.deleteMany({
+        where: { teamId: { in: Array.from(teamIdsToDelete) } },
+      });
+    }
+
+    // Delete recruitment posts from teams being deleted
+    if (teamIdsToDelete.size > 0) {
+      await prisma.recruitmentPost.deleteMany({
+        where: { teamId: { in: Array.from(teamIdsToDelete) } },
+      });
+    }
+
+    // Delete the teams
+    if (teamIdsToDelete.size > 0) {
+      await prisma.team.deleteMany({
+        where: { id: { in: Array.from(teamIdsToDelete) } },
+      });
+    }
+
+    // Delete game profiles by smoke users
+    await prisma.gameProfile.deleteMany({ where: { userId: { in: userIds } } });
+
+    // Delete recruitment posts authored by smoke users
+    await prisma.recruitmentPost.deleteMany({ where: { authorId: { in: userIds } } });
+
+    // Delete all smoke test users
+    const deleteResult = await prisma.user.deleteMany({
+      where: { id: { in: userIds } },
+    });
+
+    return c.json({
+      deleted: {
+        users: deleteResult.count,
+        teams: teamIdsToDelete.size,
+      },
+    });
+  } catch (error) {
+    console.error("Test cleanup error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
   }
 });
 
