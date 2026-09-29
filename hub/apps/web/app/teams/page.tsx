@@ -38,23 +38,30 @@ export default function TeamsPage() {
     };
   }, []);
 
-  useEffect(() => {
-    fetch(`/api/teams${gameId ? `?gameId=${gameId}` : ''}`, { credentials: 'include' })
+  useLayoutEffect(() => {
+    let isMounted = true;
+    const query = gameId ? `?gameId=${gameId}` : '';
+    fetch(`/api/teams${query}`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) {
-          console.error(`Teams API error: ${res.status}`);
+          if (isMounted) console.error(`Teams API error: ${res.status}`);
           return [];
         }
         return res.json();
       })
       .then((data) => {
+        if (!isMounted) return;
         const teamsArray = Array.isArray(data) ? data : data?.teams || [];
         setTeams(teamsArray);
       })
       .catch((e) => {
+        if (!isMounted) return;
         console.error('Failed to fetch teams:', e);
         setError(e instanceof Error ? e.message : "Error");
       });
+    return () => {
+      isMounted = false;
+    };
   }, [gameId]);
 
   if (loading || !user) {
