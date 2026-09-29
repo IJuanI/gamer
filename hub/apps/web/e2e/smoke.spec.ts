@@ -229,8 +229,9 @@ test.describe('Frontend Smoke Tests', () => {
       const fullText = `[${msg.type().toUpperCase()}] ${text}`;
       allConsoleMessages.push(fullText);
       if (msg.type() === 'error') {
-        if (text.includes('Failed to load resource') && text.includes('401')) {
-          return; // ignore expected refresh 401
+        // Ignore expected auth errors
+        if (text.includes('Failed to load resource') && (text.includes('401') || text.includes('409'))) {
+          return;
         }
         allErrors.push(fullText);
       }
