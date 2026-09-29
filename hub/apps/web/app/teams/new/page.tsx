@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { PublicGame } from "@gamer/shared";
@@ -8,7 +8,7 @@ import { Logo } from "@/components/logo";
 import { useAuth } from "@/components/auth-provider";
 import { api } from "@/lib/api";
 
-function NewTeamForm() {
+export default function NewTeamPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [games, setGames] = useState<PublicGame[]>([]);
@@ -18,36 +18,17 @@ function NewTeamForm() {
   const [bio, setBio] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  // Mark as client-side only
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
-  // Fetch games immediately on client
   useEffect(() => {
-    if (!isClient) return;
-
-    const fetchGames = async () => {
-      try {
-        const r = await api.listGames();
-        const gamesList = r.games || [];
-        setGames(gamesList);
-        if (gamesList.length > 0) {
-          setGameId((prev) => prev || gamesList[0].id);
-        }
-      } catch (e) {
-        console.error("Failed to load games:", e);
-      }
-    };
-
-    fetchGames();
-  }, [isClient]);
+    api.listGames().then((r) => {
+      setGames(r.games || []);
+      setGameId((prev) => prev || (r.games?.[0]?.id || ""));
+    });
+  }, []);
 
   if (loading || !user) {
     return (
@@ -121,8 +102,8 @@ function NewTeamForm() {
                 value={gameId}
                 onChange={(e) => setGameId(e.target.value)}
                 className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
-                suppressHydrationWarning
               >
+                <option value="">Seleccionar juego</option>
                 {games.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.name}
@@ -153,8 +134,4 @@ function NewTeamForm() {
       </div>
     </main>
   );
-}
-
-export default function NewTeamPage() {
-  return <NewTeamForm />;
 }

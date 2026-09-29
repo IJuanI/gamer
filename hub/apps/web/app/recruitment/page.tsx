@@ -23,28 +23,21 @@ export default function RecruitmentPage() {
   const [gameId, setGameId] = useState("");
   const [type, setType] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!isClient || !user) return;
     api.listGames().then((r) => setGames(r.games || [])).catch(() => {});
-  }, [isClient, user]);
+  }, []);
 
   useEffect(() => {
-    if (!isClient || !user) return;
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
       .then((r) => setPosts(r.recruitmentPosts || []))
       .catch((e) => setError(e instanceof Error ? e.message : "Error"));
-  }, [isClient, user, gameId, type]);
+  }, [gameId, type]);
 
   if (loading || !user) {
     return (
@@ -78,7 +71,6 @@ export default function RecruitmentPage() {
               value={gameId}
               onChange={(e) => setGameId(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
-              suppressHydrationWarning
             >
               <option value="">Todos los juegos</option>
               {games.map((g) => (
@@ -91,7 +83,6 @@ export default function RecruitmentPage() {
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
-              suppressHydrationWarning
             >
               <option value="">Todos los tipos</option>
               <option value="LOOKING_FOR_TEAM">Busca equipo</option>
