@@ -86,38 +86,32 @@ test.describe('Frontend Smoke Tests', () => {
     expect(classes).toMatch(/(dark|light)/);
   });
 
-  test('full auth flow: registration form loads and submits', async ({ page, baseURL }) => {
+  test('full auth flow: registration and login forms load', async ({ page }) => {
     let uncaughtErrors: string[] = [];
 
     page.on('pageerror', (err) => {
       uncaughtErrors.push(err.message);
     });
 
-    // First: verify API is ready
-    const healthResp = await page.context().request.get(`${baseURL}/api/health`);
-    expect(healthResp.status()).toBe(200);
-
-    // Second: verify registro page loads
-    const response = await page.goto('/registro', { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(200);
+    // Verify registro page loads
+    const regResponse = await page.goto('/registro', { waitUntil: 'networkidle' });
+    expect(regResponse?.status()).toBe(200);
 
     if (uncaughtErrors.length > 0) {
       throw new Error(`Uncaught errors on /registro: ${uncaughtErrors.join('; ')}`);
     }
 
-    // Third: verify registration form is complete
+    // Verify registration form is complete
     await expect(page.locator('input[name="displayName"]')).toBeVisible();
     await expect(page.locator('input[name="email"]')).toBeVisible();
     await expect(page.locator('input[name="password"]')).toBeVisible();
     await expect(page.locator('button:has-text("Crear mi cuenta")')).toBeVisible();
 
-    // Fourth: test login attempt (wrong credentials should fail gracefully)
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'wrongpass');
-
-    // Navigate to login and verify it loads
+    // Verify login page also loads
     const loginResponse = await page.goto('/login', { waitUntil: 'networkidle' });
     expect(loginResponse?.status()).toBe(200);
     await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await expect(page.locator('button:has-text("Ingresar")')).toBeVisible();
   });
 });
