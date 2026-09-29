@@ -43,12 +43,35 @@ test.describe('Frontend Smoke Tests', () => {
     }
   });
 
-  test('create account, logout, login, and delete account', async ({ page }) => {
+  test('create account, logout, login, and delete account', async ({ page, context }) => {
     const testEmail = `smoke-${Date.now()}@test.local`;
     const testPassword = 'SmokeTest123!';
     const testDisplayName = `SmokeTest${Date.now()}`;
 
+    const allErrors: string[] = [];
+    const allConsoleMessages: string[] = [];
+
+    // Capture all console messages and errors
+    page.on('console', (msg) => {
+      const text = `[${msg.type().toUpperCase()}] ${msg.text()}`;
+      allConsoleMessages.push(text);
+      if (msg.type() === 'error') {
+        allErrors.push(text);
+      }
+    });
+
+    // Capture all page errors
+    page.on('pageerror', (err) => {
+      allErrors.push(`[PAGE_ERROR] ${err.message}`);
+    });
+
+    // Capture all request failures
+    page.on('requestfailed', (request) => {
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
+    });
+
     // 1. REGISTER
+    console.log('=== REGISTERING ===');
     await page.goto('/registro', { waitUntil: 'networkidle' });
     expect(page.url()).toContain('/registro');
 
@@ -57,37 +80,91 @@ test.describe('Frontend Smoke Tests', () => {
     await page.locator('input[name="email"]').fill(testEmail);
     await page.locator('input[name="password"]').fill(testPassword);
 
-    // Submit form by clicking button
-    const form = page.locator('form').first();
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'load' }).catch(() => null),
-      page.locator('button:has-text("Crear mi cuenta")').click()
-    ]);
+    // Log form state before submission
+    const displayNameValue = await page.locator('input[name="displayName"]').inputValue();
+    const emailValue = await page.locator('input[name="email"]').inputValue();
+    const passwordValue = await page.locator('input[name="password"]').inputValue();
+    console.log(`Form filled: displayName="${displayNameValue}", email="${emailValue}", password="${passwordValue}"`);
+
+    // Click submit button and capture any errors during submission
+    const submitButton = page.locator('button:has-text("Crear mi cuenta")');
+    const isDisabled = await submitButton.isDisabled();
+    console.log(`Submit button disabled: ${isDisabled}`);
+
+    // Try to submit
+    try {
+      await submitButton.click();
+    } catch (e) {
+      allErrors.push(`[CLICK_ERROR] ${e}`);
+    }
+
+    // Wait for navigation or timeout gracefully
+    try {
+      await page.waitForNavigation({ waitUntil: 'load', timeout: 10000 });
+    } catch (e) {
+      allErrors.push(`[NAV_TIMEOUT] ${e.message}`);
+    }
+
+    // Wait and check URL - if page is still open
+    try {
+      await page.waitForTimeout(1000);
+      const urlAfterSubmit = page.url();
+      console.log(`URL after submit: ${urlAfterSubmit}`);
+    } catch (e) {
+      allErrors.push(`[PAGE_CLOSED] Page was closed after button click`);
+    }
+
+    if (allErrors.length > 0) {
+      throw new Error(
+        `Errors during registration:\n${allErrors.join('\n')}\n\nAll console messages:\n${allConsoleMessages.join('\n')}`
+      );
+    }
 
     // Should redirect to dashboard
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
+    try {
+      await page.waitForURL('**/dashboard', { timeout: 10000 });
+    } catch (e) {
+      throw new Error(
+        `Registration failed - did not redirect to dashboard. Currently at: ${page.url()}\n\nErrors:\n${allErrors.join('\n')}\n\nAll console:\n${allConsoleMessages.join('\n')}`
+      );
+    }
+
     expect(page.url()).toContain('/dashboard');
 
     // 2. LOGOUT
+    console.log('=== LOGGING OUT ===');
     await page.locator('button:has-text("Salir")').click();
     await page.waitForURL('**/login', { timeout: 5000 });
     expect(page.url()).toContain('/login');
 
     // 3. LOGIN
+    console.log('=== LOGGING IN ===');
     await page.locator('input[name="email"]').fill(testEmail);
     await page.locator('input[name="password"]').fill(testPassword);
 
     // Submit login form
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'load' }).catch(() => null),
-      page.locator('button:has-text("Ingresar")').click()
+      page.waitForNavigation({ waitUntil: 'load' }).catch((e) => {
+        allErrors.push(`[LOGIN_NAV_ERROR] ${e.message}`);
+      }),
+      page.locator('button:has-text("Ingresar")').click().catch((e) => {
+        allErrors.push(`[LOGIN_CLICK_ERROR] ${e.message}`);
+      })
     ]);
 
     // Should redirect to dashboard
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
+    try {
+      await page.waitForURL('**/dashboard', { timeout: 10000 });
+    } catch (e) {
+      throw new Error(
+        `Login failed - did not redirect to dashboard. Currently at: ${page.url()}\n\nErrors:\n${allErrors.join('\n')}\n\nAll console:\n${allConsoleMessages.join('\n')}`
+      );
+    }
+
     expect(page.url()).toContain('/dashboard');
 
     // 4. DELETE ACCOUNT
+    console.log('=== DELETING ACCOUNT ===');
     // Look for account deletion option (may be in a menu or settings)
     const profileButton = page.locator('button, a').filter({ hasText: /Configuración|Settings|Perfil|Profile/i }).first();
 
@@ -97,7 +174,10 @@ test.describe('Frontend Smoke Tests', () => {
     }
 
     // Look for delete account button
-    const deleteAccountButton = page.locator('button, a').filter({ hasText: /Eliminar.*cuenta|Delete.*account/i }).first();
+    const deleteAccountButton = page
+      .locator('button, a')
+      .filter({ hasText: /Eliminar.*cuenta|Delete.*account/i })
+      .first();
 
     if (await deleteAccountButton.isVisible({ timeout: 1000 }).catch(() => false)) {
       await deleteAccountButton.click();
@@ -112,5 +192,7 @@ test.describe('Frontend Smoke Tests', () => {
         ]);
       }
     }
+
+    console.log('=== TEST COMPLETE ===');
   });
 });
