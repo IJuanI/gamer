@@ -16,7 +16,7 @@ import type {
 
 import { reportError } from "./telemetry";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== "undefined" ? "/api" : "http://localhost:4000");
 
 // No production API is deployed yet, so unless NEXT_PUBLIC_API_URL was set at
 // build time, this would otherwise point every deployed domain at localhost —
