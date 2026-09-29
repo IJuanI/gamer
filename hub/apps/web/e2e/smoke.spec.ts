@@ -44,9 +44,9 @@ test.describe('Frontend Smoke Tests', () => {
   });
 
   test('create account, logout, login, and delete account', async ({ page, context }) => {
-    const testEmail = `smoke-${Date.now()}@test.local`;
+    const testEmail = 'smoke@test.local';
     const testPassword = 'SmokeTest123!';
-    const testDisplayName = `SmokeTest${Date.now()}`;
+    const testDisplayName = 'Smoke Test User';
 
     const allErrors: string[] = [];
     const allConsoleMessages: string[] = [];
