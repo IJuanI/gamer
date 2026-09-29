@@ -601,7 +601,7 @@ test.describe('Frontend Smoke Tests', () => {
     // 4. DELETE ACCOUNT (cascade delete team)
     console.log('=== DELETING USER (CASCADE DELETE TEAM) ===');
     currentPage = 'Delete';
-    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard', { waitUntil: 'load' });
     await page.waitForLoadState('domcontentloaded');
 
     const deleteRes = await page.evaluate(async () => {
