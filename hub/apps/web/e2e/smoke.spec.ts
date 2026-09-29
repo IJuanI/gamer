@@ -594,6 +594,20 @@ test.describe('Frontend Smoke Tests', () => {
       } catch (e) {
         allErrors.push(`[TEAM_CREATE] Form submission failed - did not reach team page. Currently at: ${page.url()}`);
       }
+
+      // Go back to teams list and verify the new team appears
+      console.log('=== VERIFYING TEAM IN LIST ===');
+      currentPage = 'TeamsList';
+      await page.locator('a:has-text("Volver")').click();
+      await page.waitForURL('**/teams', { timeout: 10000 });
+
+      // Check if the newly created team appears in the list
+      const teamListText = await page.textContent('main');
+      if (teamListText?.includes(teamName)) {
+        console.log('Team found in teams list');
+      } else {
+        allErrors.push(`[TEAM_LIST] Created team "${teamName}" not found in teams list`);
+      }
     } catch (e) {
       allErrors.push(`[TEAM_FORM] Failed to create team: ${e.message}`);
     }
