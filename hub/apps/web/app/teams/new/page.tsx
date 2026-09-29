@@ -29,12 +29,8 @@ export default function NewTeamPage() {
       .then(res => res.json())
       .then((data) => {
         if (!isMounted) return;
-        console.log('Games loaded:', data?.length || 0, 'games');
         const gamesArray = Array.isArray(data) ? data : data?.games || [];
         setGames(gamesArray);
-        if (gamesArray.length > 0) {
-          setGameId(gamesArray[0].id);
-        }
       })
       .catch((e) => {
         if (!isMounted) return;
