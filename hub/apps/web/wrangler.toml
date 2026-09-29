@@ -41,3 +41,5 @@ vars = { NODE_ENV = "preview", WEB_ORIGIN = "https://feature-complete-api-endpoi
 binding = "DB"
 database_name = "gamer-hub-prod"
 database_id = "001ab94c-89cd-473f-9dc4-ef7b39cab23b"
+# Preview database binding for feature branch testing
+# Allows the preview deployment to access the production D1 database
