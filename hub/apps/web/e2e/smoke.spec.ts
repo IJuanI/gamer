@@ -667,4 +667,186 @@ test.describe('Frontend Smoke Tests', () => {
 
     console.log('=== TEST COMPLETE ===');
   });
+
+  test('create user, create recruitment post, delete user (cascade)', async ({ page }) => {
+    const testEmail = `smoke-recruitment@test.local`;
+    const testPassword = 'SmokeRecruit123!';
+    const testDisplayName = 'Smoke Recruitment User';
+    const postTitle = `Smoke Recruitment Post`;
+    const postBody = `Looking for teammates for competitive play`;
+
+    const allErrors: string[] = [];
+    const allConsoleMessages: string[] = [];
+    let currentPage = '';
+
+    // Capture console errors
+    page.on('console', (msg) => {
+      const text = msg.text();
+      const fullText = `[${msg.type().toUpperCase()}] ${text}`;
+      allConsoleMessages.push(fullText);
+      if (msg.type() === 'error') {
+        if (text.includes('Failed to load resource') && (text.includes('401') || text.includes('409'))) {
+          return;
+        }
+        const prefix = currentPage ? `[${currentPage}] ` : '';
+        allErrors.push(`${prefix}${fullText}`);
+      }
+    });
+
+    page.on('pageerror', (err) => {
+      allErrors.push(`[PAGE_ERROR] ${err.message}`);
+    });
+
+    page.on('requestfailed', (request) => {
+      if (request.failure()?.errorText === 'net::ERR_ABORTED') {
+        return;
+      }
+      const response = request.response();
+      allErrors.push(
+        `[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`
+      );
+    });
+
+    page.on('response', (response) => {
+      if (response.status() >= 400 && response.status() < 600) {
+        const url = response.url();
+        if (response.status() === 401 && url.includes('/api/auth/refresh')) {
+          return;
+        }
+        if (response.status() === 409 && url.includes('/api/auth/register')) {
+          return;
+        }
+        allErrors.push(`[HTTP_${response.status()}] ${response.request().method()} ${response.url()}`);
+      }
+    });
+
+    // 1. REGISTER
+    console.log('=== CREATING USER ===');
+    currentPage = 'Register';
+    await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.waitForLoadState('domcontentloaded');
+
+    const registerRes = await page.evaluate(
+      async ({ email, displayName, password }) => {
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, displayName, password }),
+            credentials: 'include',
+          });
+          return { status: res.status, ok: res.ok };
+        } catch (e) {
+          console.error('Register fetch error:', e);
+          throw e;
+        }
+      },
+      { email: testEmail, displayName: testDisplayName, password: testPassword }
+    );
+
+    if (!registerRes.ok && registerRes.status !== 409) {
+      throw new Error(`Registration failed with status ${registerRes.status}`);
+    }
+    console.log('User registered/exists');
+
+    // 2. LOGIN
+    console.log('=== LOGGING IN ===');
+    currentPage = 'Login';
+    if (registerRes.status === 409) {
+      await page.goto('/login', { waitUntil: 'networkidle' });
+      await page.waitForLoadState('domcontentloaded');
+    }
+
+    await page.locator('input[name="email"]').fill(testEmail);
+    await page.locator('input[name="password"]').fill(testPassword);
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'load' }).catch((e) => {
+        allErrors.push(`[LOGIN_NAV_ERROR] ${e.message}`);
+      }),
+      page.locator('button:has-text("Ingresar")').click().catch((e) => {
+        allErrors.push(`[LOGIN_CLICK_ERROR] ${e.message}`);
+      }),
+    ]);
+
+    try {
+      await page.waitForURL('**/dashboard', { timeout: 10000 });
+    } catch (e) {
+      throw new Error(`Login failed - did not reach dashboard. Currently at: ${page.url()}`);
+    }
+
+    expect(page.url()).toContain('/dashboard');
+
+    // 3. CREATE RECRUITMENT POST via API
+    console.log('=== CREATING RECRUITMENT POST ===');
+    currentPage = 'Recruitment';
+
+    const postRes = await page.evaluate(
+      async ({ title, body, gameId }) => {
+        try {
+          const res = await fetch('/api/recruitment-posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'LOOKING_FOR_PLAYERS',
+              gameId: gameId,
+              title: title,
+              body: body,
+            }),
+            credentials: 'include',
+          });
+          const data = await res.json();
+          return { status: res.status, ok: res.ok, postId: data?.id };
+        } catch (e) {
+          console.error('Post creation error:', e);
+          return { status: 0, ok: false, error: String(e) };
+        }
+      },
+      {
+        title: postTitle,
+        body: postBody,
+        gameId: 'clz0vwx5e0000a1pq1a1a1a1a' // Counter-Strike 2 (known game)
+      }
+    );
+
+    if (!postRes.ok) {
+      allErrors.push(`[POST_CREATE] Failed to create recruitment post: ${postRes.status}`);
+    } else {
+      console.log(`Recruitment post created successfully: ${postRes.postId}`);
+    }
+
+    // 4. DELETE ACCOUNT (cascade deletes recruitment post since user is author)
+    console.log('=== DELETING USER ACCOUNT ===');
+    currentPage = 'Delete';
+    await page.goto('/dashboard', { waitUntil: 'load' });
+    await page.waitForLoadState('domcontentloaded');
+
+    const deleteRes = await page.evaluate(async () => {
+      try {
+        const res = await fetch('/api/me', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        return { status: res.status, ok: res.ok };
+      } catch (e) {
+        console.error('Delete failed:', e);
+        return { status: 0, ok: false };
+      }
+    });
+
+    if (deleteRes.ok) {
+      console.log('User account deleted successfully');
+    } else {
+      allErrors.push(`[USER_DELETE] Failed to delete user: ${deleteRes.status}`);
+    }
+
+    if (allErrors.length > 0) {
+      throw new Error(
+        `Errors during recruitment flow:\n${allErrors.join('\n')}\n\nAll console:\n${allConsoleMessages.join('\n')}`
+      );
+    }
+
+    console.log('=== TEST COMPLETE ===');
+  });
 });
