@@ -142,10 +142,14 @@ export const api = {
     request<PublicTeam>("/teams", { method: "POST", body: JSON.stringify(payload) }),
   updateTeam: (id: string, payload: UpdateTeamPayload) =>
     request<PublicTeam>(`/teams/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteTeam: (id: string) =>
+    request<{ ok: boolean }>(`/teams/${id}`, { method: "DELETE" }),
   addTeamMember: (id: string, userId: string) =>
     request<PublicTeam>(`/teams/${id}/members`, { method: "POST", body: JSON.stringify({ userId }) }),
-  removeTeamMember: (id: string, userId: string) =>
-    request<{ ok: boolean }>(`/teams/${id}/members/${userId}`, { method: "DELETE" }),
+  removeTeamMember: (teamId: string, memberId: string) =>
+    request<{ ok: boolean }>(`/teams/${teamId}/members/${memberId}`, { method: "DELETE" }),
+  updateTeamMemberRole: (teamId: string, memberId: string, role: "CAPTAIN" | "MEMBER") =>
+    request<{ id: string; role: string }>(`/teams/${teamId}/members/${memberId}`, { method: "PATCH", body: JSON.stringify({ role }) }),
 
   // Recruitment posts
   listRecruitmentPosts: (params?: { gameId?: string; type?: string; isOpen?: boolean }) => {

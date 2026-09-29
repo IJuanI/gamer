@@ -722,6 +722,134 @@ app.patch("/api/teams/:id", async (c) => {
   }
 });
 
+// Teams: Delete
+app.delete("/api/teams/:id", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const teamId = c.req.param("id");
+
+    const team = await prisma.team.findUnique({ where: { id: teamId }, include: { members: true } });
+    if (!team) return c.json({ statusCode: 404, message: "Not found" }, 404);
+
+    const isCaptain = team.members.some((m) => m.userId === userId && m.role === "CAPTAIN");
+    if (!isCaptain) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    // Delete recruitment posts from this team
+    await prisma.recruitmentPost.deleteMany({ where: { teamId } });
+    // Delete all team members
+    await prisma.teamMember.deleteMany({ where: { teamId } });
+    // Delete the team
+    await prisma.team.delete({ where: { id: teamId } });
+
+    return c.json({ ok: true });
+  } catch (error) {
+    console.error("Delete team error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Teams: Update Member Role
+app.patch("/api/teams/:id/members/:memberId", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const teamId = c.req.param("id");
+    const memberId = c.req.param("memberId");
+
+    const team = await prisma.team.findUnique({ where: { id: teamId }, include: { members: true } });
+    if (!team) return c.json({ statusCode: 404, message: "Not found" }, 404);
+
+    const isCaptain = team.members.some((m) => m.userId === userId && m.role === "CAPTAIN");
+    if (!isCaptain) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    const member = await prisma.teamMember.findUnique({ where: { id: memberId } });
+    if (!member || member.teamId !== teamId) return c.json({ statusCode: 404, message: "Not found" }, 404);
+
+    const { role } = await c.req.json();
+    if (role !== "CAPTAIN" && role !== "MEMBER") {
+      return c.json({ statusCode: 400, message: "Invalid role" }, 400);
+    }
+
+    // If promoting to CAPTAIN, demote current captain (only one captain per team)
+    if (role === "CAPTAIN") {
+      const currentCaptain = team.members.find((m) => m.role === "CAPTAIN");
+      if (currentCaptain && currentCaptain.id !== memberId) {
+        await prisma.teamMember.update({
+          where: { id: currentCaptain.id },
+          data: { role: "MEMBER" }
+        });
+      }
+    }
+
+    const updated = await prisma.teamMember.update({
+      where: { id: memberId },
+      data: { role }
+    });
+
+    return c.json({ id: updated.id, role: updated.role });
+  } catch (error) {
+    console.error("Update team member role error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
+// Teams: Remove Member
+app.delete("/api/teams/:id/members/:memberId", async (c) => {
+  try {
+    const userId = requireUserId(c);
+    if (!userId) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
+
+    const prisma = getPrismaClient(c.env);
+    const teamId = c.req.param("id");
+    const memberId = c.req.param("memberId");
+
+    const team = await prisma.team.findUnique({ where: { id: teamId }, include: { members: true } });
+    if (!team) return c.json({ statusCode: 404, message: "Not found" }, 404);
+
+    const member = await prisma.teamMember.findUnique({ where: { id: memberId } });
+    if (!member || member.teamId !== teamId) return c.json({ statusCode: 404, message: "Not found" }, 404);
+
+    // Allow captain to remove any member, or member to remove themselves
+    const isCaptain = team.members.some((m) => m.userId === userId && m.role === "CAPTAIN");
+    const isSelf = member.userId === userId;
+    if (!isCaptain && !isSelf) return c.json({ statusCode: 403, message: "Forbidden" }, 403);
+
+    // If removing the captain, promote the oldest member to captain
+    if (member.role === "CAPTAIN") {
+      const oldestMember = team.members
+        .filter((m) => m.id !== memberId)
+        .sort((a, b) => a.joinedAt.getTime() - b.joinedAt.getTime())[0];
+
+      if (oldestMember) {
+        await prisma.teamMember.update({
+          where: { id: oldestMember.id },
+          data: { role: "CAPTAIN" }
+        });
+      }
+    }
+
+    // Remove the member
+    await prisma.teamMember.delete({ where: { id: memberId } });
+
+    // If team now has 0 members, delete it and its posts
+    const remaining = await prisma.teamMember.count({ where: { teamId } });
+    if (remaining === 0) {
+      await prisma.recruitmentPost.deleteMany({ where: { teamId } });
+      await prisma.team.delete({ where: { id: teamId } });
+    }
+
+    return c.json({ ok: true });
+  } catch (error) {
+    console.error("Remove team member error:", error);
+    return c.json({ statusCode: 500, message: "Server error" }, 500);
+  }
+});
+
 // Recruitment Posts: List
 app.get("/api/recruitment-posts", async (c) => {
   try {
