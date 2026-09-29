@@ -522,22 +522,31 @@ test.describe('Frontend Smoke Tests', () => {
       allErrors.push(`[TEAM_PAGE] Page doesn't contain "Crear equipo". URL: ${page.url()}`);
     }
 
+    // Wait a bit for games to load
+    await page.waitForTimeout(2000);
+
     // Get the form HTML for debugging
     const formCount = await page.locator('form').count();
     console.log(`Found ${formCount} form elements`);
     if (formCount > 0) {
       const formHtml = await page.locator('form').first().innerHTML();
       console.log(`Form HTML (first 800 chars): ${formHtml?.substring(0, 800)}`);
+
+      const selectHtml = await page.locator('select').first().innerHTML();
+      console.log(`Select options: ${selectHtml}`);
     }
 
-    // Test if API works from browser
+    // Test if API works from browser and check data format
     console.log('Testing API from browser...');
     const apiTest = await page.evaluate(async () => {
       try {
         const res = await fetch('/api/games', { credentials: 'include' });
         const data = await res.json();
-        console.log('API response:', data);
-        return { status: res.status, count: data?.length || 0 };
+        console.log('API response type:', typeof data);
+        console.log('API response is array:', Array.isArray(data));
+        console.log('API response length:', data?.length);
+        console.log('First game:', data?.[0]);
+        return { status: res.status, count: Array.isArray(data) ? data.length : 0 };
       } catch (e) {
         console.error('API error:', e);
         return { error: String(e) };
@@ -545,42 +554,48 @@ test.describe('Frontend Smoke Tests', () => {
     });
     console.log('API test result:', apiTest);
 
-    // Create team via API (select options don't populate in preview due to Cloudflare Workers hydration issues)
-    // TODO: Fix React rendering of games dropdown in Cloudflare Workers environment
-    const teamRes = await page.evaluate(
-      async ({ teamName, teamTag }) => {
-        try {
-          const gamesRes = await fetch('/api/games', { credentials: 'include' });
-          const games = await gamesRes.json();
-          const firstGame = games[0];
+    // Create team via UI form with dropdown selection
+    try {
+      // Find inputs by their position relative to labels
+      const nameLabel = page.locator('label:has-text("Nombre")').first();
+      const nameInput = nameLabel.locator('input');
+      await nameInput.fill(teamName);
 
-          if (!firstGame) {
-            return { status: 500, ok: false, error: 'No games' };
-          }
+      const tagLabel = page.locator('label:has-text("Tag")').first();
+      const tagInput = tagLabel.locator('input');
+      await tagInput.fill(teamTag);
 
-          const res = await fetch('/api/teams', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: teamName,
-              gameId: firstGame.id,
-              tag: teamTag,
-              bio: 'Smoke test team'
-            }),
-            credentials: 'include',
-          });
-          return { status: res.status, ok: res.ok };
-        } catch (e) {
-          return { status: 0, ok: false, error: String(e) };
-        }
-      },
-      { teamName, teamTag }
-    );
+      // Select first game from dropdown (skip placeholder at index 0)
+      const gameLabel = page.locator('label:has-text("Juego")');
+      const gameSelect = gameLabel.locator('select');
+      const gameOptions = await gameSelect.locator('option').count();
 
-    if (teamRes.ok) {
-      console.log('Team created successfully via API');
-    } else {
-      allErrors.push(`[TEAM_CREATE] API failed with status ${teamRes.status}: ${teamRes.error || ''}`);
+      if (gameOptions > 1) {
+        await gameSelect.selectOption({ index: 1 }); // Select first real game
+        console.log(`Selected game from ${gameOptions} available options`);
+      } else {
+        throw new Error(`No games available to select (only ${gameOptions} options)`);
+      }
+
+      // Submit form
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'load' }).catch((e) => {
+          allErrors.push(`[TEAM_NAV_ERROR] ${e.message}`);
+        }),
+        page.locator('button:has-text("Crear equipo")').click().catch((e) => {
+          allErrors.push(`[TEAM_CLICK_ERROR] ${e.message}`);
+        }),
+      ]);
+
+      // Verify we're on the team detail page
+      try {
+        await page.waitForURL('**/teams/**', { timeout: 10000 });
+        console.log('Team created successfully via form with game dropdown');
+      } catch (e) {
+        allErrors.push(`[TEAM_CREATE] Form submission failed - did not reach team page. Currently at: ${page.url()}`);
+      }
+    } catch (e) {
+      allErrors.push(`[TEAM_FORM] Failed to create team: ${e.message}`);
     }
 
     // 4. DELETE ACCOUNT (cascade delete team)
