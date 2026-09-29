@@ -51,8 +51,8 @@ export default function AdminPage() {
             Miembros de la comunidad
           </h2>
           {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
-          <div className="overflow-hidden rounded-lg border border-white/8">
-            <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto rounded-lg border border-white/8">
+            <table className="w-full min-w-max text-left text-sm">
               <thead className="bg-white/5 text-xs uppercase tracking-wider text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Gamer</th>
