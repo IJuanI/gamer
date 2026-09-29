@@ -603,23 +603,22 @@ test.describe('Frontend Smoke Tests', () => {
       const teamPageUrl = page.url();
       console.log(`Current team page URL: ${teamPageUrl}`);
 
-      // Check if team exists via API
-      const teamsApiRes = await page.evaluate(async () => {
-        try {
-          const res = await fetch('/api/teams', { credentials: 'include' });
-          const teams = await res.json();
-          return { count: teams.length };
-        } catch (e) {
-          return { error: String(e) };
-        }
-      });
-      console.log(`Teams API returned ${teamsApiRes.count || 0} teams`);
-
       // Click Volver to go back to teams list
       await page.locator('a:has-text("Volver")').click();
       await page.waitForURL('**/teams', { timeout: 10000 });
       await page.waitForLoadState('domcontentloaded');
-      console.log('Successfully navigated back to teams list');
+
+      // Verify the newly created team appears in the list
+      await page.waitForLoadState('networkidle');
+      const teamLinkLocator = page.locator(`a:has-text("${teamName}")`);
+      const teamFound = await teamLinkLocator.count();
+
+      if (teamFound > 0) {
+        console.log('Team found in teams list - verification passed');
+      } else {
+        const pageText = await page.textContent('main');
+        allErrors.push(`[TEAM_VISIBLE] Team "${teamName}" not visible in teams list. Page contains: ${pageText?.substring(0, 200)}`);
+      }
     } catch (e) {
       allErrors.push(`[TEAM_FORM] Failed to create team: ${e.message}`);
     }
