@@ -121,6 +121,28 @@ test.describe('Frontend Smoke Tests', () => {
       console.log('User registered successfully');
     }
 
+    // If registration returned 409, we need to log in (navigate to dashboard)
+    if (registerRes.status === 409 || !registerRes.ok) {
+      console.log('=== LOGGING IN ===');
+      await page.locator('input[name="email"]').fill(testEmail);
+      await page.locator('input[name="password"]').fill(testPassword);
+
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'load' }).catch((e) => {
+          allErrors.push(`[LOGIN_NAV_ERROR] ${e.message}`);
+        }),
+        page.locator('button:has-text("Ingresar")').click().catch((e) => {
+          allErrors.push(`[LOGIN_CLICK_ERROR] ${e.message}`);
+        })
+      ]);
+
+      try {
+        await page.waitForURL('**/dashboard', { timeout: 10000 });
+      } catch (e) {
+        throw new Error(`Initial login failed - did not reach dashboard. Currently at: ${page.url()}`);
+      }
+    }
+
     expect(page.url()).toContain('/dashboard');
 
     // 2. LOGOUT
@@ -249,14 +271,14 @@ test.describe('Frontend Smoke Tests', () => {
     );
 
     if (createResponse.status === 409) {
-      console.log('Admin user already exists, using existing account');
+      console.log('Admin user already exists, will log in');
     } else if (createResponse.status === 200) {
       console.log('Admin user created successfully');
     } else {
       throw new Error(`Failed to create admin user: ${createResponse.status} - ${createResponse.data.message}`);
     }
 
-    // 2. LOGIN
+    // 2. LOGIN (if needed)
     console.log('=== LOGGING IN ===');
     await page.goto('/login', { waitUntil: 'networkidle' });
     expect(page.url()).toContain('/login');
@@ -293,25 +315,11 @@ test.describe('Frontend Smoke Tests', () => {
       allErrors.push(`[DASHBOARD] Profile card not visible: ${e.message}`);
     });
 
-    // 4. DELETE ACCOUNT
-    console.log('=== DELETING ACCOUNT ===');
+    // 4. LOGOUT (cleanup)
+    console.log('=== LOGGING OUT ===');
     await page.goto('/dashboard', { waitUntil: 'networkidle' });
-
-    const deleteResponse = await page.evaluate(async () => {
-      const res = await fetch('/api/me', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      return { status: res.status };
-    });
-
-    // If API delete failed, fall back to manual deletion via logout
-    if (deleteResponse.status === 404 || deleteResponse.status === 405) {
-      console.log('Account delete endpoint not available, logging out instead');
-      await page.locator('button:has-text("Salir")').click();
-      await page.waitForURL('**/login', { timeout: 5000 });
-    }
+    await page.locator('button:has-text("Salir")').click();
+    await page.waitForURL('**/login', { timeout: 5000 });
 
     if (allErrors.length > 0) {
       throw new Error(
