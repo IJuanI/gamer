@@ -92,7 +92,7 @@ test.describe('Frontend Smoke Tests', () => {
     for (let i = 0; i < 30; i++) {
       try {
         const response = await page.context().request.get(`${baseURL}/api/health`);
-        if (response.ok) {
+        if (response.status() === 200) {
           apiReady = true;
           break;
         }
@@ -112,23 +112,23 @@ test.describe('Frontend Smoke Tests', () => {
     const registerResponse = await page.goto('/registro', { waitUntil: 'networkidle' });
     expect(registerResponse?.status()).toBe(200);
 
-    // Fill registration form
+    // Wait for form to be visible and fill it
+    await expect(page.locator('input[name="displayName"]')).toBeVisible();
     await page.fill('input[name="displayName"]', `TestUser${timestamp}`);
     await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="password"]', testPassword);
 
-    // Submit form
+    // Click submit and wait for navigation
     const registerButton = page.locator('button:has-text("Crear mi cuenta")');
-    await registerButton.click();
+    await Promise.all([
+      page.waitForNavigation(),
+      registerButton.click(),
+    ]);
 
-    // Wait for redirect to dashboard
-    await page.waitForURL('/dashboard', { timeout: 15000 });
+    // Verify we're on the dashboard
+    expect(page.url()).toContain('/dashboard');
 
-    // Verify dashboard is loaded
-    const dashboardResponse = await page.goto('/dashboard', { waitUntil: 'networkidle' });
-    expect(dashboardResponse?.status()).toBe(200);
-
-    // Verify dashboard header is present
-    await expect(page.locator('h1:has-text("Hola")')).toBeVisible();
+    // Verify dashboard elements are present
+    await expect(page.locator('h1')).toContainText('Hola');
   });
 });
