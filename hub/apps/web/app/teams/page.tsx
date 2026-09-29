@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Users, Plus } from "lucide-react";
@@ -21,8 +21,21 @@ export default function TeamsPage() {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
-  useEffect(() => {
-    api.listGames().then((r) => setGames(r.games || [])).catch(() => {});
+  useLayoutEffect(() => {
+    let isMounted = true;
+    fetch('/api/games', { credentials: 'include' })
+      .then(res => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        const gamesArray = Array.isArray(data) ? data : data?.games || [];
+        setGames(gamesArray);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -61,12 +74,13 @@ export default function TeamsPage() {
           <h1 className="font-azonix text-2xl text-white">Equipos</h1>
           <div className="flex items-center gap-3">
             <select
+              key={`select-${games.length}`}
               value={gameId}
               onChange={(e) => setGameId(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
             >
               <option value="">Todos los juegos</option>
-              {games.map((g) => (
+              {games.length > 0 && games.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
                 </option>
