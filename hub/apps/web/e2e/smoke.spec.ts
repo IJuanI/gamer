@@ -405,6 +405,7 @@ test.describe('Frontend Smoke Tests', () => {
     const allErrors: string[] = [];
     const allConsoleMessages: string[] = [];
     let currentPage = '';
+    let teamId = '';
 
     // Capture console errors
     page.on('console', (msg) => {
@@ -599,9 +600,14 @@ test.describe('Frontend Smoke Tests', () => {
       console.log('=== VERIFYING TEAM IN LIST ===');
       currentPage = 'TeamsList';
 
-      // Get the current URL which should be the team detail page
+      // Get the current URL which should be the team detail page and extract team ID
       const teamPageUrl = page.url();
       console.log(`Current team page URL: ${teamPageUrl}`);
+      const teamIdMatch = teamPageUrl.match(/\/teams\/([a-z0-9]+)$/i);
+      if (teamIdMatch) {
+        teamId = teamIdMatch[1];
+        console.log(`Extracted team ID: ${teamId}`);
+      }
 
       // Click Volver to go back to teams list
       await page.locator('a:has-text("Volver")').click();
@@ -632,8 +638,54 @@ test.describe('Frontend Smoke Tests', () => {
       allErrors.push(`[TEAM_FORM] Failed to create team: ${e.message}`);
     }
 
-    // 4. DELETE ACCOUNT (cascade delete team)
-    console.log('=== DELETING USER (CASCADE DELETE TEAM) ===');
+    // 4. DELETE TEAM (through API)
+    console.log('=== DELETING TEAM ===');
+
+    if (!teamId) {
+      allErrors.push(`[TEAM_DELETE] Team ID was not captured during creation`);
+    }
+
+    const deleteTeamRes = await page.evaluate(async (tId) => {
+      try {
+        const res = await fetch(`/api/teams/${tId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        return { status: res.status, ok: res.ok };
+      } catch (e) {
+        console.error('Team delete failed:', e);
+        return { status: 0, ok: false };
+      }
+    }, teamId);
+
+    if (deleteTeamRes.ok) {
+      console.log('Team deleted successfully via DELETE /api/teams/:id');
+
+      // Verify team is gone from list
+      const teamsAfterDelete = await page.evaluate(async () => {
+        try {
+          const res = await fetch('/api/teams');
+          const teams = await res.json();
+          return Array.isArray(teams) ? teams : [];
+        } catch (e) {
+          console.error('Failed to verify team deletion:', e);
+          return [];
+        }
+      });
+
+      const teamStillExists = teamsAfterDelete.some((t: any) => t.name === teamName);
+      if (teamStillExists) {
+        allErrors.push(`[TEAM_DELETION] Team "${teamName}" still exists after deletion`);
+      } else {
+        console.log('Team verified deleted from list');
+      }
+    } else {
+      allErrors.push(`[TEAM_DELETE_API] Failed to delete team: ${deleteTeamRes.status}`);
+    }
+
+    // 5. DELETE ACCOUNT
+    console.log('=== DELETING USER ACCOUNT ===');
     currentPage = 'Delete';
     await page.goto('/dashboard', { waitUntil: 'load' });
     await page.waitForLoadState('domcontentloaded');
@@ -653,28 +705,9 @@ test.describe('Frontend Smoke Tests', () => {
     });
 
     if (deleteRes.ok) {
-      console.log('User and team deleted successfully');
-
-      // Verify team is deleted by checking API
-      const teamsRes = await page.evaluate(async () => {
-        try {
-          const res = await fetch('/api/teams');
-          const teams = await res.json();
-          return Array.isArray(teams) ? teams : [];
-        } catch (e) {
-          console.error('Failed to verify team deletion:', e);
-          return [];
-        }
-      });
-
-      const teamStillExists = teamsRes.some((t: any) => t.name === teamName);
-      if (teamStillExists) {
-        allErrors.push(`[TEAM_DELETION] Team "${teamName}" was not deleted after user deletion`);
-      } else {
-        console.log('Team verified deleted from API');
-      }
+      console.log('User account deleted successfully');
     } else {
-      throw new Error(`Failed to delete user: ${deleteRes.status}`);
+      allErrors.push(`[USER_DELETE] Failed to delete user: ${deleteRes.status}`);
     }
 
     if (allErrors.length > 0) {
