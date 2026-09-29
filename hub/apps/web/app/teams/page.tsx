@@ -110,8 +110,8 @@ export default function TeamsPage() {
 
         {error && <p className="mt-4 text-sm text-[var(--gamer-purple-text)]">{error}</p>}
 
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {teams.map((team) => (
+        <div key={`teams-${teams.length}`} className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {teams.length > 0 && teams.map((team) => (
             <Link
               key={team.id}
               href={`/teams/${team.id}`}
