@@ -18,7 +18,8 @@ test.describe('Frontend Smoke Tests', () => {
     const response = await page.goto('/', { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
 
-    // Wait for hydration to complete
+    // Wait for full JS rendering and hydration
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('networkidle');
 
     // Critical: check for uncaught errors
@@ -101,6 +102,7 @@ test.describe('Frontend Smoke Tests', () => {
     console.log('=== REGISTERING ===');
     // Navigate to login first to establish page context/base URL
     await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to create user via API first - if exists, we'll just log in
     const registerRes = await page.evaluate(
@@ -157,6 +159,7 @@ test.describe('Frontend Smoke Tests', () => {
     console.log('=== LOGGING OUT ===');
     await page.locator('button:has-text("Salir")').click();
     await page.waitForURL('**/login', { timeout: 5000 });
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/login');
 
     // 3. LOGIN
@@ -233,8 +236,8 @@ test.describe('Frontend Smoke Tests', () => {
       const fullText = `[${msg.type().toUpperCase()}] ${text}`;
       allConsoleMessages.push(fullText);
       if (msg.type() === 'error') {
-        // Ignore expected errors: auth (401, 409) and delete endpoint (404)
-        if (text.includes('Failed to load resource') && (text.includes('401') || text.includes('409') || text.includes('404'))) {
+        // Ignore expected auth errors
+        if (text.includes('Failed to load resource') && (text.includes('401') || text.includes('409'))) {
           return;
         }
         allErrors.push(fullText);
@@ -263,10 +266,6 @@ test.describe('Frontend Smoke Tests', () => {
         }
         // Ignore 409 on register (user already exists, expected)
         if (response.status() === 409 && url.includes('/api/auth/register')) {
-          return;
-        }
-        // Ignore 404 on delete (endpoint may not be implemented)
-        if (response.status() === 404 && url.includes('/api/me') && response.request().method() === 'DELETE') {
           return;
         }
         allErrors.push(`[HTTP_${response.status()}] ${response.request().method()} ${response.url()}`);
@@ -303,6 +302,7 @@ test.describe('Frontend Smoke Tests', () => {
     // 2. LOGIN (if needed)
     console.log('=== LOGGING IN ===');
     await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/login');
 
     await page.locator('input[name="email"]').fill(testEmail);
@@ -341,7 +341,9 @@ test.describe('Frontend Smoke Tests', () => {
     for (const { name, href } of panelPages) {
       console.log(`  Navigating to ${name} (${href})`);
       try {
-        await page.goto(href, { waitUntil: 'load', timeout: 15000 });
+        await page.goto(href, { waitUntil: 'networkidle', timeout: 15000 });
+        // Wait for JS to render
+        await page.waitForLoadState('domcontentloaded');
         console.log(`    ✓ Loaded`);
       } catch (e) {
         allErrors.push(`[NAV] Failed to load ${name}: ${e.message}`);
@@ -351,6 +353,7 @@ test.describe('Frontend Smoke Tests', () => {
     // 4. DELETE ACCOUNT
     console.log('=== DELETING ACCOUNT ===');
     await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await page.waitForLoadState('domcontentloaded');
 
     // Try to delete account via API
     const deleteRes = await page.evaluate(async () => {
@@ -369,14 +372,12 @@ test.describe('Frontend Smoke Tests', () => {
 
     if (deleteRes.ok) {
       console.log('Account deleted successfully');
-    } else if (deleteRes.status === 404) {
-      console.log('Delete endpoint not available, logging out instead');
-      await page.locator('button:has-text("Salir")').click();
-      await page.waitForURL('**/login', { timeout: 5000 });
+      // After deletion, should be redirected or logged out
+      await page.waitForURL('**/login', { timeout: 5000 }).catch(() => {
+        console.log('Did not redirect to login after delete (expected behavior may vary)');
+      });
     } else {
-      console.log(`Delete returned status ${deleteRes.status}, logging out instead`);
-      await page.locator('button:has-text("Salir")').click();
-      await page.waitForURL('**/login', { timeout: 5000 });
+      throw new Error(`Failed to delete account: ${deleteRes.status}`);
     }
 
     if (allErrors.length > 0) {
