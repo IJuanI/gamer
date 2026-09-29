@@ -35,8 +35,9 @@ function getPrismaClient(env: Env): PrismaClient {
 
 // Free-plan Workers get 10 ms CPU: bcryptjs (pure JS) can't fit, native PBKDF2 can.
 // Iterations are stored in each hash, so DEFAULT_PBKDF2_ITERATIONS can change later.
-// 30k iterations ≈ 5.7ms PBKDF2 + 0.5ms JWT + 2ms Prisma = ~8.2ms, leaves 1.8ms headroom.
-const DEFAULT_PBKDF2_ITERATIONS = 30000;
+// Measured in Node: 10k ≈ 2.8ms, but Workers V8 is likely slower.
+// Using 10k as conservative estimate to stay under 10ms budget.
+const DEFAULT_PBKDF2_ITERATIONS = 10000;
 
 const toB64 = (b: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(b)));
 const fromB64 = (s: string) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
