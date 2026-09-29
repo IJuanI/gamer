@@ -214,4 +214,155 @@ test.describe('Frontend Smoke Tests', () => {
 
     console.log('=== TEST COMPLETE ===');
   });
+
+  test('admin user: create, login, navigate panel, delete', async ({ page, context }) => {
+    const testEmail = 'smoke-admin@test.local';
+    const testPassword = 'SmokeAdmin123!';
+    const testDisplayName = 'Smoke Admin User';
+    const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:3100';
+
+    const allErrors: string[] = [];
+    const allConsoleMessages: string[] = [];
+
+    // Capture console errors
+    page.on('console', (msg) => {
+      const text = msg.text();
+      const fullText = `[${msg.type().toUpperCase()}] ${text}`;
+      allConsoleMessages.push(fullText);
+      if (msg.type() === 'error') {
+        if (text.includes('Failed to load resource') && text.includes('401')) {
+          return; // ignore expected refresh 401
+        }
+        allErrors.push(fullText);
+      }
+    });
+
+    page.on('pageerror', (err) => {
+      allErrors.push(`[PAGE_ERROR] ${err.message}`);
+    });
+
+    page.on('requestfailed', (request) => {
+      const response = request.response();
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status()})`);
+    });
+
+    page.on('response', (response) => {
+      if (response.status() >= 400 && response.status() < 600) {
+        const url = response.url();
+        if (response.status() === 401 && url.includes('/api/auth/refresh')) {
+          return;
+        }
+        allErrors.push(`[HTTP_${response.status()}] ${response.request().method()} ${response.url()}`);
+      }
+    });
+
+    // 1. CREATE ADMIN USER (or skip if exists)
+    console.log('=== CREATING/CHECKING ADMIN USER ===');
+    const apiUrl = baseUrl === 'http://localhost:3100'
+      ? 'http://localhost:4000'
+      : baseUrl.replace(/:\d+$/, ':4000'); // Replace port with 4000 for API
+
+    const createResponse = await page.evaluate(
+      async ({ email, displayName, password, apiUrl }) => {
+        const res = await fetch(`${apiUrl}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, displayName, password }),
+          credentials: 'include',
+        });
+        const data = await res.json();
+        return { status: res.status, data };
+      },
+      { email: testEmail, displayName: testDisplayName, password: testPassword, apiUrl }
+    );
+
+    if (createResponse.status === 409) {
+      console.log('Admin user already exists, using existing account');
+    } else if (createResponse.status === 200) {
+      console.log('Admin user created successfully');
+    } else {
+      throw new Error(`Failed to create admin user: ${createResponse.status} - ${createResponse.data.message}`);
+    }
+
+    // 2. LOGIN
+    console.log('=== LOGGING IN ===');
+    await page.goto('/login', { waitUntil: 'networkidle' });
+    expect(page.url()).toContain('/login');
+
+    await page.locator('input[name="email"]').fill(testEmail);
+    await page.locator('input[name="password"]').fill(testPassword);
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'load' }).catch((e) => {
+        allErrors.push(`[LOGIN_NAV_ERROR] ${e.message}`);
+      }),
+      page.locator('button:has-text("Ingresar")').click().catch((e) => {
+        allErrors.push(`[LOGIN_CLICK_ERROR] ${e.message}`);
+      })
+    ]);
+
+    try {
+      await page.waitForURL('**/dashboard', { timeout: 10000 });
+    } catch (e) {
+      throw new Error(
+        `Login failed - did not redirect to dashboard. Currently at: ${page.url()}\n\nErrors:\n${allErrors.join('\n')}\n\nConsole:\n${allConsoleMessages.join('\n')}`
+      );
+    }
+
+    expect(page.url()).toContain('/dashboard');
+
+    // 3. NAVIGATE THROUGH ALL PANEL PAGES
+    console.log('=== NAVIGATING PANEL PAGES ===');
+    const pages = [
+      { name: 'Eventos', href: '/eventos' },
+      { name: 'Perfil de gamer', href: '/profile' },
+      { name: 'Equipos', href: '/teams' },
+      { name: 'Reclutamiento', href: '/recruitment' },
+      { name: 'Generador de flyers', href: '/admin/flyers' },
+      { name: 'Administración', href: '/admin' },
+    ];
+
+    for (const { name, href } of pages) {
+      console.log(`Navigating to ${name} (${href})`);
+      try {
+        await page.goto(href, { waitUntil: 'networkidle', timeout: 15000 });
+        const status = page.url();
+        console.log(`  ✓ Loaded: ${status}`);
+      } catch (e) {
+        allErrors.push(`[NAV_TIMEOUT] Failed to load ${name}: ${e.message}`);
+      }
+    }
+
+    // 4. DELETE ACCOUNT
+    console.log('=== DELETING ACCOUNT ===');
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+
+    const deleteResponse = await page.evaluate(
+      async ({ email, apiUrl }) => {
+        // Try to delete via API (if endpoint exists) or through UI
+        const res = await fetch(`${apiUrl}/api/me`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        return { status: res.status };
+      },
+      { email: testEmail, apiUrl }
+    );
+
+    // If API delete failed, fall back to manual deletion via logout
+    if (deleteResponse.status === 404 || deleteResponse.status === 405) {
+      console.log('Account delete endpoint not available, logging out instead');
+      await page.locator('button:has-text("Salir")').click();
+      await page.waitForURL('**/login', { timeout: 5000 });
+    }
+
+    if (allErrors.length > 0) {
+      throw new Error(
+        `Errors during admin flow:\n${allErrors.join('\n')}\n\nAll console:\n${allConsoleMessages.join('\n')}`
+      );
+    }
+
+    console.log('=== TEST COMPLETE ===');
+  });
 });
