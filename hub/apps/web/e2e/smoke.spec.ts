@@ -131,10 +131,17 @@ test.describe('Frontend Smoke Tests', () => {
       throw new Error(`Registration failed with status ${registerRes.status}`);
     } else {
       console.log('User registered successfully');
+      // Wait for auto-redirect to dashboard after successful registration
+      try {
+        await page.waitForURL('**/dashboard', { timeout: 5000 });
+      } catch (e) {
+        // If no auto-redirect, we'll need to log in manually
+        console.log('No auto-redirect after registration, will log in manually');
+      }
     }
 
-    // If registration returned 409, we need to log in (navigate to dashboard)
-    if (registerRes.status === 409 || !registerRes.ok) {
+    // If registration returned 409 or we're not on dashboard, we need to log in
+    if (registerRes.status === 409 || !registerRes.ok || !page.url().includes('/dashboard')) {
       console.log('=== LOGGING IN ===');
       await page.locator('input[name="email"]').fill(testEmail);
       await page.locator('input[name="password"]').fill(testPassword);
