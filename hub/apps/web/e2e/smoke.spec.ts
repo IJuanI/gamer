@@ -404,30 +404,6 @@ test.describe('Frontend Smoke Tests', () => {
     const allConsoleMessages: string[] = [];
     let currentPage = '';
 
-    // 0. CLEANUP: Remove any existing smoke test data from previous runs
-    console.log('=== CLEANING UP OLD TEST DATA ===');
-    const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:3100';
-    try {
-      const cleanupRes = await page.evaluate(
-        async (url) => {
-          try {
-            const res = await fetch(url + '/api/test/cleanup', {
-              method: 'DELETE',
-              credentials: 'include',
-            });
-            const data = await res.json().catch(() => ({}));
-            return { status: res.status, ok: res.ok, data };
-          } catch (e) {
-            return { error: String(e) };
-          }
-        },
-        baseUrl
-      );
-      console.log('Cleanup result:', cleanupRes);
-    } catch (e) {
-      console.log('Cleanup fetch error (endpoint may not be available):', e);
-    }
-
     // Capture console errors
     page.on('console', (msg) => {
       const text = msg.text();
