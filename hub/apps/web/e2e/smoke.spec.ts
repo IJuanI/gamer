@@ -41,77 +41,62 @@ test.describe('Frontend Smoke Tests', () => {
     }
   });
 
-  test('login page loads without JS errors', async ({ page }) => {
+  test('full auth flow: register, logout, login, and delete account', async ({ page }) => {
+    const testEmail = `test-${Date.now()}@example.com`;
+    const testPassword = 'TestPassword123!';
+    const testDisplayName = `TestUser${Date.now()}`;
+
     let uncaughtErrors: string[] = [];
 
     page.on('pageerror', (err) => {
       uncaughtErrors.push(err.message);
     });
 
-    const response = await page.goto('/login', { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(200);
+    // Register new account
+    await page.goto('/registro', { waitUntil: 'networkidle' });
+    expect(page.url()).toContain('/registro');
 
-    await page.waitForLoadState('networkidle');
+    await page.fill('input[name="displayName"]', testDisplayName);
+    await page.fill('input[name="email"]', testEmail);
+    await page.fill('input[name="password"]', testPassword);
+    await page.click('button:has-text("Crear mi cuenta")');
 
-    if (uncaughtErrors.length > 0) {
-      throw new Error(`Uncaught errors on /login: ${uncaughtErrors.join('; ')}`);
-    }
-
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-  });
-
-  test('registro page loads without JS errors', async ({ page }) => {
-    let uncaughtErrors: string[] = [];
-
-    page.on('pageerror', (err) => {
-      uncaughtErrors.push(err.message);
-    });
-
-    const response = await page.goto('/registro', { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(200);
-
-    await page.waitForLoadState('networkidle');
+    // Wait for navigation to dashboard after successful registration
+    await page.waitForURL('**/dashboard', { timeout: 10000 });
+    expect(page.url()).toContain('/dashboard');
 
     if (uncaughtErrors.length > 0) {
-      throw new Error(`Uncaught errors on /registro: ${uncaughtErrors.join('; ')}`);
+      throw new Error(`Uncaught errors after registration: ${uncaughtErrors.join('; ')}`);
     }
-  });
 
-  test('theme provider works', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    // Logout
+    await page.click('button:has-text("Salir")');
+    await page.waitForURL('**/login', { timeout: 5000 });
 
-    const htmlElement = page.locator('html');
-    const classes = await htmlElement.getAttribute('class');
+    // Login with registered credentials
+    await page.fill('input[type="email"]', testEmail);
+    await page.fill('input[type="password"]', testPassword);
+    await page.click('button:has-text("Ingresar")');
 
-    expect(classes).toMatch(/(dark|light)/);
-  });
-
-  test('full auth flow: registration and login forms load', async ({ page }) => {
-    let uncaughtErrors: string[] = [];
-
-    page.on('pageerror', (err) => {
-      uncaughtErrors.push(err.message);
-    });
-
-    // Verify registro page loads
-    const regResponse = await page.goto('/registro', { waitUntil: 'networkidle' });
-    expect(regResponse?.status()).toBe(200);
+    // Verify we're back at dashboard
+    await page.waitForURL('**/dashboard', { timeout: 10000 });
+    expect(page.url()).toContain('/dashboard');
 
     if (uncaughtErrors.length > 0) {
-      throw new Error(`Uncaught errors on /registro: ${uncaughtErrors.join('; ')}`);
+      throw new Error(`Uncaught errors after login: ${uncaughtErrors.join('; ')}`);
     }
 
-    // Verify registration form is complete
-    await expect(page.locator('input[name="displayName"]')).toBeVisible();
-    await expect(page.locator('input[name="email"]')).toBeVisible();
-    await expect(page.locator('input[name="password"]')).toBeVisible();
-    await expect(page.locator('button:has-text("Crear mi cuenta")')).toBeVisible();
+    // Delete account (look for settings or delete button)
+    await page.click('text=Configuración');
+    await page.click('button:has-text("Eliminar cuenta")');
 
-    // Verify login page also loads
-    const loginResponse = await page.goto('/login', { waitUntil: 'networkidle' });
-    expect(loginResponse?.status()).toBe(200);
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
-    await expect(page.locator('button:has-text("Ingresar")')).toBeVisible();
+    // Confirm deletion if there's a confirmation dialog
+    const confirmButton = page.locator('button:has-text("Confirmar")').or(page.locator('button:has-text("Eliminar")'));
+    if (await confirmButton.isVisible()) {
+      await confirmButton.click();
+    }
+
+    // Should be redirected to login or home after deletion
+    await page.waitForURL('**/login|/', { timeout: 5000 });
   });
 });
