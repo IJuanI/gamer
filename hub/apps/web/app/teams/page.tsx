@@ -23,14 +23,14 @@ export default function TeamsPage() {
 
   useEffect(() => {
     if (!user) return;
-    api.listGames().then((r) => setGames(r.games)).catch(() => {});
+    api.listGames().then((r) => setGames(r.games || [])).catch(() => {});
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
     api
       .listTeams(gameId || undefined)
-      .then((r) => setTeams(r.teams))
+      .then((r) => setTeams(r.teams || []))
       .catch((e) => setError(e instanceof Error ? e.message : "Error"));
   }, [user, gameId]);
 

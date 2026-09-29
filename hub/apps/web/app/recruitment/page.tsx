@@ -30,14 +30,14 @@ export default function RecruitmentPage() {
 
   useEffect(() => {
     if (!user) return;
-    api.listGames().then((r) => setGames(r.games)).catch(() => {});
+    api.listGames().then((r) => setGames(r.games || [])).catch(() => {});
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
-      .then((r) => setPosts(r.recruitmentPosts))
+      .then((r) => setPosts(r.recruitmentPosts || []))
       .catch((e) => setError(e instanceof Error ? e.message : "Error"));
   }, [user, gameId, type]);
 
