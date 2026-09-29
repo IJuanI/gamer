@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { PublicGame } from "@gamer/shared";
@@ -23,14 +23,26 @@ export default function NewTeamPage() {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
-  useEffect(() => {
-    api.listGames().then((r) => {
-      console.log('Games loaded:', r.games?.length || 0, 'games');
-      setGames(r.games || []);
-      setGameId((prev) => prev || (r.games?.[0]?.id || ""));
-    }).catch((e) => {
-      console.error('Failed to load games:', e);
-    });
+  useLayoutEffect(() => {
+    let isMounted = true;
+    fetch('/api/games', { credentials: 'include' })
+      .then(res => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        console.log('Games loaded:', data?.length || 0, 'games');
+        const gamesArray = Array.isArray(data) ? data : data?.games || [];
+        setGames(gamesArray);
+        if (gamesArray.length > 0) {
+          setGameId(gamesArray[0].id);
+        }
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error('Failed to load games:', e);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading || !user) {
@@ -104,12 +116,13 @@ export default function NewTeamPage() {
             <label className="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
               Juego
               <select
+                key={`select-${games.length}`}
                 value={gameId}
                 onChange={(e) => setGameId(e.target.value)}
                 className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
               >
                 <option value="">Seleccionar juego</option>
-                {games.map((g) => (
+                {games.length > 0 && games.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.name}
                   </option>
