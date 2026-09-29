@@ -91,35 +91,34 @@ test.describe('Frontend Smoke Tests', () => {
 
     // 1. REGISTER (or skip if user exists)
     console.log('=== REGISTERING ===');
-    const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:3100';
+    // Navigate to login first to establish page context/base URL
+    await page.goto('/login', { waitUntil: 'networkidle' });
+
     // Try to create user via API first - if exists, we'll just log in
     const registerRes = await page.evaluate(
-      async ({ email, displayName, password, baseUrl }) => {
-        const res = await fetch(`${baseUrl}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, displayName, password }),
-          credentials: 'include',
-        });
-        return { status: res.status, ok: res.ok };
+      async ({ email, displayName, password }) => {
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, displayName, password }),
+            credentials: 'include',
+          });
+          return { status: res.status, ok: res.ok };
+        } catch (e) {
+          console.error('Register fetch error:', e);
+          throw e;
+        }
       },
-      { email: testEmail, displayName: testDisplayName, password: testPassword, baseUrl }
+      { email: testEmail, displayName: testDisplayName, password: testPassword }
     );
 
     if (registerRes.status === 409) {
-      console.log('User already exists, skipping registration');
+      console.log('User already exists, will log in instead');
     } else if (!registerRes.ok) {
       throw new Error(`Registration failed with status ${registerRes.status}`);
     } else {
       console.log('User registered successfully');
-    }
-
-    // Navigate to dashboard - we should already be logged in from registration or can log in
-    try {
-      await page.goto('/dashboard', { waitUntil: 'networkidle', timeout: 10000 });
-    } catch (e) {
-      // If not logged in, go to login
-      await page.goto('/login', { waitUntil: 'networkidle', timeout: 10000 });
     }
 
     expect(page.url()).toContain('/dashboard');
@@ -232,11 +231,12 @@ test.describe('Frontend Smoke Tests', () => {
 
     // 1. CREATE ADMIN USER (or skip if exists)
     console.log('=== CREATING/CHECKING ADMIN USER ===');
-    const baseUrlForAdmin = process.env.TEST_BASE_URL || 'http://localhost:3100';
+    // Navigate to login first to establish page context/base URL
+    await page.goto('/login', { waitUntil: 'networkidle' });
 
     const createResponse = await page.evaluate(
-      async ({ email, displayName, password, baseUrl }) => {
-        const res = await fetch(`${baseUrl}/api/auth/register`, {
+      async ({ email, displayName, password }) => {
+        const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, displayName, password }),
@@ -245,7 +245,7 @@ test.describe('Frontend Smoke Tests', () => {
         const data = await res.json().catch(() => ({}));
         return { status: res.status, data };
       },
-      { email: testEmail, displayName: testDisplayName, password: testPassword, baseUrl: baseUrlForAdmin }
+      { email: testEmail, displayName: testDisplayName, password: testPassword }
     );
 
     if (createResponse.status === 409) {
@@ -309,14 +309,14 @@ test.describe('Frontend Smoke Tests', () => {
     console.log('=== DELETING ACCOUNT ===');
     await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-    const deleteResponse = await page.evaluate(async ({ baseUrl }) => {
-      const res = await fetch(`${baseUrl}/api/me`, {
+    const deleteResponse = await page.evaluate(async () => {
+      const res = await fetch('/api/me', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       });
       return { status: res.status };
-    }, { baseUrl: baseUrlForAdmin });
+    });
 
     // If API delete failed, fall back to manual deletion via logout
     if (deleteResponse.status === 404 || deleteResponse.status === 405) {
