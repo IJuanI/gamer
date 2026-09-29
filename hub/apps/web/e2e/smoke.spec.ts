@@ -56,13 +56,17 @@ test.describe('Frontend Smoke Tests', () => {
     await page.goto('/registro', { waitUntil: 'networkidle' });
     expect(page.url()).toContain('/registro');
 
+    // Fill and submit registration form
     await page.fill('input[name="displayName"]', testDisplayName);
     await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="password"]', testPassword);
-    await page.click('button:has-text("Crear mi cuenta")');
 
-    // Wait for navigation to dashboard after successful registration
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
+    // Click submit and wait for response
+    const submitPromise = page.waitForNavigation({ waitUntil: 'networkidle' });
+    await page.click('button:has-text("Crear mi cuenta")');
+    await submitPromise;
+
+    // Verify we're on dashboard
     expect(page.url()).toContain('/dashboard');
 
     if (uncaughtErrors.length > 0) {
@@ -74,12 +78,15 @@ test.describe('Frontend Smoke Tests', () => {
     await page.waitForURL('**/login', { timeout: 5000 });
 
     // Login with registered credentials
-    await page.fill('input[type="email"]', testEmail);
-    await page.fill('input[type="password"]', testPassword);
+    await page.fill('input[name="email"]', testEmail);
+    await page.fill('input[name="password"]', testPassword);
+
+    // Click submit and wait for response
+    const loginPromise = page.waitForNavigation({ waitUntil: 'networkidle' });
     await page.click('button:has-text("Ingresar")');
+    await loginPromise;
 
     // Verify we're back at dashboard
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
     expect(page.url()).toContain('/dashboard');
 
     if (uncaughtErrors.length > 0) {
