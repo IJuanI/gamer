@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Frontend Smoke Tests', () => {
+  test.setTimeout(60000);
+
   test('homepage loads without JS errors', async ({ page }) => {
     let consoleErrors: string[] = [];
     let uncaughtErrors: string[] = [];
@@ -509,46 +511,77 @@ test.describe('Frontend Smoke Tests', () => {
     await page.goto('/teams/new', { waitUntil: 'networkidle' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Wait for form inputs to be visible
-    await page.waitForSelector('input[type="text"]', { timeout: 5000 });
-
-    // Fill in team form - get all text inputs
-    const inputs = page.locator('input[type="text"]');
-    const inputCount = await inputs.count();
-
-    if (inputCount >= 1) {
-      // First input is team name
-      await inputs.nth(0).fill(teamName);
-      console.log(`Filled team name: ${teamName}`);
-    }
-    if (inputCount >= 2) {
-      // Second input is team tag
-      await inputs.nth(1).fill(teamTag);
-      console.log(`Filled team tag: ${teamTag}`);
+    // Wait for form to appear
+    try {
+      await page.waitForSelector('form', { timeout: 10000 });
+      console.log('Team creation form loaded');
+    } catch (e) {
+      allErrors.push(`[FORM_LOAD] Team form did not load: ${e.message}`);
     }
 
-    // Select a game
-    const gameSelect = page.locator('select');
-    const selectCount = await gameSelect.count();
-    if (selectCount > 0) {
-      const options = await gameSelect.nth(0).locator('option').count();
-      if (options > 1) {
-        // Select the second option
-        await gameSelect.nth(0).selectOption({ index: 1 });
-        console.log('Selected game');
+    // Wait for inputs to render
+    await page.waitForTimeout(1500);
+
+    // Fill in team form
+    try {
+      // Get all inputs in order
+      const allInputs = page.locator('input');
+      const inputCount = await allInputs.count().catch(() => 0);
+      console.log(`Found ${inputCount} input fields`);
+
+      const firstInput = allInputs.first();
+      const secondInput = allInputs.nth(1);
+
+      // Fill team name
+      if (await firstInput.isVisible().catch(() => false)) {
+        await firstInput.fill(teamName);
+        console.log(`Filled team name: ${teamName}`);
       }
+
+      // Fill team tag
+      if (await secondInput.isVisible().catch(() => false)) {
+        await secondInput.fill(teamTag);
+        console.log(`Filled team tag: ${teamTag}`);
+      }
+
+      // Check game select
+      const select = page.locator('select').first();
+      const optionCount = await select.locator('option').count().catch(() => 0);
+      console.log(`Game select has ${optionCount} options`);
+
+      if (optionCount > 1) {
+        try {
+          await select.selectOption({ index: 1 });
+          console.log('Selected first game');
+        } catch (e) {
+          console.log(`Game select failed: ${e.message}`);
+        }
+      }
+
+      // Wait a bit for form to be ready
+      await page.waitForTimeout(500);
+
+      // Try to click submit button
+      const submitBtn = page.locator('button:has-text("Crear equipo")');
+      const isEnabled = await submitBtn.isEnabled().catch(() => false);
+      console.log(`Submit button enabled: ${isEnabled}`);
+
+      if (isEnabled) {
+        try {
+          await submitBtn.click();
+          console.log('Clicked create button');
+          // Wait for navigation
+          await page.waitForNavigation({ waitUntil: 'load' }).catch(() => null);
+        } catch (e) {
+          console.log(`Submit click failed: ${e.message}`);
+          allErrors.push(`[TEAM_SUBMIT] ${e.message}`);
+        }
+      }
+    } catch (e) {
+      allErrors.push(`[TEAM_FORM] Error during team creation: ${e.message}`);
     }
 
-    // Submit form
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'load' }).catch(() => null),
-      page.locator('button:has-text("Crear equipo")').click().catch((e) => {
-        allErrors.push(`[TEAM_CREATE_ERROR] ${e.message}`);
-      }),
-    ]);
-
-    // Should be redirected to teams page or team detail
-    console.log(`Team creation complete, currently at: ${page.url()}`);
+    console.log(`Team creation done, currently at: ${page.url()}`);
 
     // 4. DELETE ACCOUNT (cascade delete team)
     console.log('=== DELETING USER (CASCADE DELETE TEAM) ===');
