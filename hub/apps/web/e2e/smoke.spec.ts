@@ -229,6 +229,7 @@ test.describe('Frontend Smoke Tests', () => {
 
     const allErrors: string[] = [];
     const allConsoleMessages: string[] = [];
+    let currentPage = '';
 
     // Capture console errors
     page.on('console', (msg) => {
@@ -240,11 +241,8 @@ test.describe('Frontend Smoke Tests', () => {
         if (text.includes('Failed to load resource') && (text.includes('401') || text.includes('409'))) {
           return;
         }
-        // Ignore data access errors after account deletion (user data no longer exists)
-        if (text.includes('Cannot read properties of undefined')) {
-          return;
-        }
-        allErrors.push(fullText);
+        const prefix = currentPage ? `[${currentPage}] ` : '';
+        allErrors.push(`${prefix}${fullText}`);
       }
     });
 
@@ -343,6 +341,7 @@ test.describe('Frontend Smoke Tests', () => {
     ];
 
     for (const { name, href } of panelPages) {
+      currentPage = name;
       console.log(`  Navigating to ${name} (${href})`);
       try {
         await page.goto(href, { waitUntil: 'networkidle', timeout: 15000 });
