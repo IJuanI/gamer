@@ -25,8 +25,11 @@ export default function NewTeamPage() {
 
   useEffect(() => {
     api.listGames().then((r) => {
+      console.log('Games loaded:', r.games?.length || 0, 'games');
       setGames(r.games || []);
       setGameId((prev) => prev || (r.games?.[0]?.id || ""));
+    }).catch((e) => {
+      console.error('Failed to load games:', e);
     });
   }, []);
 

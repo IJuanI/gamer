@@ -522,29 +522,40 @@ test.describe('Frontend Smoke Tests', () => {
       allErrors.push(`[TEAM_PAGE] Page doesn't contain "Crear equipo". URL: ${page.url()}`);
     }
 
-    // Wait for form elements to be visible
-    try {
-      await page.locator('input[placeholder="Nombre del equipo"]').waitFor({ timeout: 10000 });
-    } catch (e) {
-      console.error(`Form input not found. Checking for other inputs...`);
-      const allInputs = await page.locator('input').count();
-      console.log(`Found ${allInputs} input elements`);
-      allErrors.push(`[TEAM_FORM] Form input not found. Page: ${page.url()}`);
-      throw e;
+    // Get the form HTML for debugging
+    const formCount = await page.locator('form').count();
+    console.log(`Found ${formCount} form elements`);
+    if (formCount > 0) {
+      const formHtml = await page.locator('form').first().innerHTML();
+      console.log(`Form HTML (first 800 chars): ${formHtml?.substring(0, 800)}`);
     }
 
-    // Fill out team form
-    await page.locator('input[placeholder="Nombre del equipo"]').fill(teamName);
-    await page.locator('input[placeholder="Ej: STM"]').fill(teamTag);
+    // Wait for form elements to be visible and fill form
+    try {
+      // Find inputs by their position relative to labels
+      const nameLabel = page.locator('label:has-text("Nombre")').first();
+      const nameInput = nameLabel.locator('input');
+      await nameInput.waitFor({ timeout: 10000 });
+      await nameInput.fill(teamName);
 
-    // Select a game from dropdown - wait for it to have options
-    const gameSelect = page.locator('select').first();
-    await gameSelect.waitFor({ timeout: 10000 });
+      const tagLabel = page.locator('label:has-text("Tag")').first();
+      const tagInput = tagLabel.locator('input');
+      await tagInput.fill(teamTag);
 
-    // Get available options and select first non-empty option
-    const options = await gameSelect.locator('option').count();
-    if (options > 1) {
-      await gameSelect.selectOption({ index: 1 }); // select first available game (skip "Seleccionar juego")
+      // Select a game from dropdown - wait for it to have options
+      const gameLabel = page.locator('label:has-text("Juego")');
+      const gameSelect = gameLabel.locator('select');
+      await gameSelect.waitFor({ timeout: 10000 });
+
+      // Get available options and select first non-empty option
+      const options = await gameSelect.locator('option').count();
+      console.log(`Found ${options} game options`);
+      if (options > 1) {
+        await gameSelect.selectOption({ index: 1 }); // select first available game (skip "Seleccionar juego")
+      }
+    } catch (e) {
+      allErrors.push(`[TEAM_FORM] Failed to fill form: ${e.message}`);
+      throw e;
     }
 
     // Submit form
