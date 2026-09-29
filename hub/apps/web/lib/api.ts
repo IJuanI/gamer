@@ -16,7 +16,19 @@ import type {
 
 import { reportError } from "./telemetry";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== "undefined" ? "/api" : "http://localhost:4000");
+function getApiUrl(): string {
+  if (typeof window === "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  }
+  // At runtime, if on a preview domain (.workers.dev), use relative path
+  if (window.location.hostname.includes(".workers.dev")) {
+    return "/api";
+  }
+  // Otherwise use configured URL
+  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+}
+
+const API_URL = getApiUrl();
 
 // No production API is deployed yet, so unless NEXT_PUBLIC_API_URL was set at
 // build time, this would otherwise point every deployed domain at localhost —
