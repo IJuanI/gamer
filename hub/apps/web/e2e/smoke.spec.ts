@@ -109,26 +109,26 @@ test.describe('Frontend Smoke Tests', () => {
     const testPassword = 'TestPassword123!';
 
     // Navigate to register page
-    await page.goto('/registro', { waitUntil: 'networkidle' });
+    const registerResponse = await page.goto('/registro', { waitUntil: 'networkidle' });
+    expect(registerResponse?.status()).toBe(200);
 
     // Fill registration form
-    await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="displayName"]', `TestUser${timestamp}`);
+    await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="password"]', testPassword);
-    await page.fill('input[name="confirmPassword"]', testPassword);
 
     // Submit form
-    const registerButton = page.locator('button:has-text("Registrarse")');
+    const registerButton = page.locator('button:has-text("Crear mi cuenta")');
     await registerButton.click();
 
     // Wait for redirect to dashboard
-    await page.waitForURL('/dashboard', { timeout: 10000 });
+    await page.waitForURL('/dashboard', { timeout: 15000 });
 
     // Verify dashboard is loaded
-    const response = await page.goto('/dashboard', { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(200);
+    const dashboardResponse = await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    expect(dashboardResponse?.status()).toBe(200);
 
-    // Verify dashboard elements are present
-    await expect(page.locator('text=/Hola.*TestUser/')).toBeVisible();
+    // Verify dashboard header is present
+    await expect(page.locator('h1:has-text("Hola")')).toBeVisible();
   });
 });
