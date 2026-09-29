@@ -85,4 +85,50 @@ test.describe('Frontend Smoke Tests', () => {
 
     expect(classes).toMatch(/(dark|light)/);
   });
+
+  test('login flow and dashboard access', async ({ page, baseURL }) => {
+    // Wait for API to be ready
+    let apiReady = false;
+    for (let i = 0; i < 30; i++) {
+      try {
+        const response = await page.context().request.get(`${baseURL}/api/health`);
+        if (response.ok) {
+          apiReady = true;
+          break;
+        }
+      } catch {
+        // API not ready yet
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    expect(apiReady).toBe(true);
+
+    // Generate unique test user
+    const timestamp = Date.now();
+    const testEmail = `test-${timestamp}@example.com`;
+    const testPassword = 'TestPassword123!';
+
+    // Navigate to register page
+    await page.goto('/registro', { waitUntil: 'networkidle' });
+
+    // Fill registration form
+    await page.fill('input[name="email"]', testEmail);
+    await page.fill('input[name="displayName"]', `TestUser${timestamp}`);
+    await page.fill('input[name="password"]', testPassword);
+    await page.fill('input[name="confirmPassword"]', testPassword);
+
+    // Submit form
+    const registerButton = page.locator('button:has-text("Registrarse")');
+    await registerButton.click();
+
+    // Wait for redirect to dashboard
+    await page.waitForURL('/dashboard', { timeout: 10000 });
+
+    // Verify dashboard is loaded
+    const response = await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    expect(response?.status()).toBe(200);
+
+    // Verify dashboard elements are present
+    await expect(page.locator('text=/Hola.*TestUser/')).toBeVisible();
+  });
 });
