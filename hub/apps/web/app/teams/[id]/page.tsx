@@ -104,24 +104,45 @@ export default function TeamDetailPage() {
                   </td>
                   {isCaptain && (
                     <td className="px-4 py-3 text-right">
-                      {m.role !== "CAPTAIN" && (
-                        <button
-                          disabled={busy}
-                          onClick={async () => {
-                            setBusy(true);
-                            try {
-                              await api.removeTeamMember(team.id, m.userId);
-                              await load();
-                            } finally {
-                              setBusy(false);
-                            }
-                          }}
-                          className="text-[var(--muted)] transition-colors hover:text-white"
-                          aria-label="Quitar del equipo"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        {m.role !== "CAPTAIN" && (
+                          <button
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusy(true);
+                              try {
+                                await api.updateTeamMemberRole(team.id, m.id, "CAPTAIN");
+                                await load();
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                            className="text-xs text-[var(--muted)] transition-colors hover:text-white"
+                            aria-label="Promover a capitán"
+                            title="Promover a capitán"
+                          >
+                            Promover
+                          </button>
+                        )}
+                        {m.id !== myMembership?.id && (
+                          <button
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusy(true);
+                              try {
+                                await api.removeTeamMember(team.id, m.id);
+                                await load();
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                            className="text-[var(--muted)] transition-colors hover:text-white"
+                            aria-label="Quitar del equipo"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -131,41 +152,61 @@ export default function TeamDetailPage() {
         </div>
 
         {isCaptain && (
-          <form
-            className="mt-6 flex items-end gap-3"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setError(null);
-              setBusy(true);
-              try {
-                await api.addTeamMember(team.id, addUserId);
-                setAddUserId("");
-                await load();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Error");
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <label className="flex flex-1 flex-col gap-1 text-sm text-[var(--text-secondary)]">
-              ID de usuario a agregar
-              <input
-                required
-                value={addUserId}
-                onChange={(e) => setAddUserId(e.target.value)}
-                className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={busy}
-              className="rounded-md px-4 py-2 text-sm font-medium text-white transition-transform hover:scale-105 disabled:opacity-50"
-              style={{ backgroundColor: "var(--gamer-purple)" }}
+          <>
+            <form
+              className="mt-6 flex items-end gap-3"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setError(null);
+                setBusy(true);
+                try {
+                  await api.addTeamMember(team.id, addUserId);
+                  setAddUserId("");
+                  await load();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Error");
+                } finally {
+                  setBusy(false);
+                }
+              }}
             >
-              Agregar
+              <label className="flex flex-1 flex-col gap-1 text-sm text-[var(--text-secondary)]">
+                ID de usuario a agregar
+                <input
+                  required
+                  value={addUserId}
+                  onChange={(e) => setAddUserId(e.target.value)}
+                  className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={busy}
+                className="rounded-md px-4 py-2 text-sm font-medium text-white transition-transform hover:scale-105 disabled:opacity-50"
+                style={{ backgroundColor: "var(--gamer-purple)" }}
+              >
+                Agregar
+              </button>
+            </form>
+
+            <button
+              disabled={busy}
+              onClick={async () => {
+                if (!confirm("¿Estás seguro que quieres eliminar este equipo? Esta acción no se puede deshacer.")) return;
+                setBusy(true);
+                try {
+                  await api.deleteTeam(team.id);
+                  router.push("/teams");
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Error al eliminar equipo");
+                  setBusy(false);
+                }
+              }}
+              className="mt-4 rounded-md border border-red-500/50 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:border-red-500 hover:text-red-300 disabled:opacity-50"
+            >
+              Eliminar equipo
             </button>
-          </form>
+          </>
         )}
 
         {!isCaptain && myMembership && (
@@ -174,7 +215,7 @@ export default function TeamDetailPage() {
             onClick={async () => {
               setBusy(true);
               try {
-                await api.removeTeamMember(team.id, user.id);
+                await api.removeTeamMember(team.id, myMembership.id);
                 router.push("/teams");
               } finally {
                 setBusy(false);
