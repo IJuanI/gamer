@@ -45,12 +45,12 @@ cwd = "../../"
 watch_paths = ["apps/api/src/**/*.ts", "packages/shared/src/**/*.ts"]
 
 [previews]
-vars = { NODE_ENV = "preview", WEB_ORIGIN = "http://localhost:3000", OAUTH_CALLBACK_BASE = "http://localhost:4000" }
+vars = { NODE_ENV = "preview", WEB_ORIGIN = "https://feature-complete-api-endpoints-gamer-hub.juancojcl.workers.dev", OAUTH_CALLBACK_BASE = "https://feature-complete-api-endpoints-gamer-hub.juancojcl.workers.dev" }
 
 [[previews.d1_databases]]
 binding = "DB"
-database_name = "gamer-hub-dev"
-database_id = "local-dev"
+database_name = "gamer-hub-prod"
+database_id = "001ab94c-89cd-473f-9dc4-ef7b39cab23b"
 
 [triggers]
 crons = []
