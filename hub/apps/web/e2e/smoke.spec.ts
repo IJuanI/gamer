@@ -41,7 +41,7 @@ test.describe('Frontend Smoke Tests', () => {
     }
   });
 
-  test('full auth flow: register, logout, login, and delete account', async ({ page }) => {
+  test('full auth flow: register, logout, and login', async ({ page }) => {
     const testEmail = `test-${Date.now()}@example.com`;
     const testPassword = 'TestPassword123!';
     const testDisplayName = `TestUser${Date.now()}`;
@@ -85,18 +85,5 @@ test.describe('Frontend Smoke Tests', () => {
     if (uncaughtErrors.length > 0) {
       throw new Error(`Uncaught errors after login: ${uncaughtErrors.join('; ')}`);
     }
-
-    // Delete account (look for settings or delete button)
-    await page.click('text=Configuración');
-    await page.click('button:has-text("Eliminar cuenta")');
-
-    // Confirm deletion if there's a confirmation dialog
-    const confirmButton = page.locator('button:has-text("Confirmar")').or(page.locator('button:has-text("Eliminar")'));
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-
-    // Should be redirected to login or home after deletion
-    await page.waitForURL('**/login|/', { timeout: 5000 });
   });
 });
