@@ -27,8 +27,13 @@ export default function NewRecruitmentPostPage() {
 
   useEffect(() => {
     api.listGames().then((r) => {
-      setGames(r.games);
-      setGameId((prev) => prev || r.games[0]?.id || "");
+      const gamesList = Array.isArray(r.games) ? r.games : [];
+      setGames(gamesList);
+      if (gamesList.length > 0) {
+        setGameId((prev) => prev || gamesList[0].id || "");
+      }
+    }).catch((err) => {
+      console.error("Failed to load games:", err);
     });
   }, []);
 
