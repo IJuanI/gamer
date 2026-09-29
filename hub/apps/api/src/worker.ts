@@ -618,7 +618,17 @@ app.get("/api/teams", async (c) => {
       where: gameId ? { gameId } : undefined,
       include: { game: true, members: { include: { user: true } } }
     });
-    return c.json(teams.map((t) => ({
+
+    // Clean up empty teams (teams with 0 members)
+    const emptyTeamIds = teams.filter((t) => t.members.length === 0).map((t) => t.id);
+    if (emptyTeamIds.length > 0) {
+      await prisma.recruitmentPost.deleteMany({ where: { teamId: { in: emptyTeamIds } } });
+      await prisma.team.deleteMany({ where: { id: { in: emptyTeamIds } } });
+    }
+
+    // Return only teams with members
+    const filledTeams = teams.filter((t) => t.members.length > 0);
+    return c.json(filledTeams.map((t) => ({
       id: t.id,
       name: t.name,
       tag: t.tag,

@@ -654,6 +654,25 @@ test.describe('Frontend Smoke Tests', () => {
 
     if (deleteRes.ok) {
       console.log('User and team deleted successfully');
+
+      // Verify team is deleted by checking API
+      const teamsRes = await page.evaluate(async () => {
+        try {
+          const res = await fetch('/api/teams');
+          const teams = await res.json();
+          return Array.isArray(teams) ? teams : [];
+        } catch (e) {
+          console.error('Failed to verify team deletion:', e);
+          return [];
+        }
+      });
+
+      const teamStillExists = teamsRes.some((t: any) => t.name === teamName);
+      if (teamStillExists) {
+        allErrors.push(`[TEAM_DELETION] Team "${teamName}" was not deleted after user deletion`);
+      } else {
+        console.log('Team verified deleted from API');
+      }
     } else {
       throw new Error(`Failed to delete user: ${deleteRes.status}`);
     }
