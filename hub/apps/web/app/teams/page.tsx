@@ -39,10 +39,22 @@ export default function TeamsPage() {
   }, []);
 
   useEffect(() => {
-    api
-      .listTeams(gameId || undefined)
-      .then((r) => setTeams(r.teams || []))
-      .catch((e) => setError(e instanceof Error ? e.message : "Error"));
+    fetch(`/api/teams${gameId ? `?gameId=${gameId}` : ''}`, { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) {
+          console.error(`Teams API error: ${res.status}`);
+          return [];
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const teamsArray = Array.isArray(data) ? data : data?.teams || [];
+        setTeams(teamsArray);
+      })
+      .catch((e) => {
+        console.error('Failed to fetch teams:', e);
+        setError(e instanceof Error ? e.message : "Error");
+      });
   }, [gameId]);
 
   if (loading || !user) {
