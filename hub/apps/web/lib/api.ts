@@ -20,9 +20,9 @@ function getApiUrl(): string {
   if (typeof window === "undefined") {
     return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
   }
-  // At runtime, if on a preview domain (.workers.dev), use relative path
+  // At runtime, if on a preview domain (.workers.dev), use relative path (empty string for root)
   if (window.location.hostname.includes(".workers.dev")) {
-    return "/api";
+    return "";
   }
   // Otherwise use configured URL
   return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
