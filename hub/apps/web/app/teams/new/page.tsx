@@ -82,6 +82,7 @@ export default function NewTeamPage() {
               Nombre
               <input
                 required
+                placeholder="Nombre del equipo"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
@@ -90,6 +91,7 @@ export default function NewTeamPage() {
             <label className="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
               Tag (opcional)
               <input
+                placeholder="Ej: STM"
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
                 maxLength={6}

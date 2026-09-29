@@ -506,49 +506,63 @@ test.describe('Frontend Smoke Tests', () => {
 
     expect(page.url()).toContain('/dashboard');
 
-    // 3. CREATE TEAM via API (form-based creation has hydration issues in preview)
+    // 3. CREATE TEAM via UI form
     console.log('=== CREATING TEAM ===');
-    currentPage = 'Teams';
+    currentPage = 'Teams/New';
+    await page.goto('/teams/new', { waitUntil: 'networkidle' });
+    await page.waitForLoadState('domcontentloaded');
 
+    // Debug: check what's on the page
+    console.log(`Current URL: ${page.url()}`);
+    const pageText = await page.textContent('body');
+    console.log(`Page contains "Crear equipo": ${pageText?.includes('Crear equipo')}`);
+    console.log(`Page text length: ${pageText?.length}`);
 
-    const teamRes = await page.evaluate(
-      async ({ teamName, teamTag }) => {
-        try {
-          // First get the first game from the API
-          const gamesRes = await fetch('/api/games', { credentials: 'include' });
-          const games = await gamesRes.json();
-          const firstGame = games[0];
+    if (!pageText?.includes('Crear equipo')) {
+      allErrors.push(`[TEAM_PAGE] Page doesn't contain "Crear equipo". URL: ${page.url()}`);
+    }
 
-          if (!firstGame) {
-            console.error('No games available');
-            return { status: 500, ok: false, error: 'No games' };
-          }
+    // Wait for form elements to be visible
+    try {
+      await page.locator('input[placeholder="Nombre del equipo"]').waitFor({ timeout: 10000 });
+    } catch (e) {
+      console.error(`Form input not found. Checking for other inputs...`);
+      const allInputs = await page.locator('input').count();
+      console.log(`Found ${allInputs} input elements`);
+      allErrors.push(`[TEAM_FORM] Form input not found. Page: ${page.url()}`);
+      throw e;
+    }
 
-          const res = await fetch('/api/teams', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: teamName,
-              gameId: firstGame.id,
-              tag: teamTag,
-              bio: 'Smoke test team'
-            }),
-            credentials: 'include',
-          });
-          return { status: res.status, ok: res.ok };
-        } catch (e) {
-          console.error('Team creation fetch error:', e);
-          return { status: 0, ok: false, error: String(e) };
-        }
-      },
-      { teamName, teamTag }
-    );
+    // Fill out team form
+    await page.locator('input[placeholder="Nombre del equipo"]').fill(teamName);
+    await page.locator('input[placeholder="Ej: STM"]').fill(teamTag);
 
-    if (teamRes.ok) {
-      console.log('Team created successfully via API');
-    } else {
-      console.log(`Team creation failed with status ${teamRes.status}: ${teamRes.error || ''}`);
-      allErrors.push(`[TEAM_CREATE] Status ${teamRes.status}`);
+    // Select a game from dropdown - wait for it to have options
+    const gameSelect = page.locator('select').first();
+    await gameSelect.waitFor({ timeout: 10000 });
+
+    // Get available options and select first non-empty option
+    const options = await gameSelect.locator('option').count();
+    if (options > 1) {
+      await gameSelect.selectOption({ index: 1 }); // select first available game (skip "Seleccionar juego")
+    }
+
+    // Submit form
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'load' }).catch((e) => {
+        allErrors.push(`[TEAM_NAV_ERROR] ${e.message}`);
+      }),
+      page.locator('button:has-text("Crear equipo")').click().catch((e) => {
+        allErrors.push(`[TEAM_CLICK_ERROR] ${e.message}`);
+      }),
+    ]);
+
+    // Verify we're on the team detail page
+    try {
+      await page.waitForURL('**/teams/**', { timeout: 10000 });
+      console.log('Team created successfully via form');
+    } catch (e) {
+      allErrors.push(`[TEAM_CREATE] Form submission failed - did not reach team page. Currently at: ${page.url()}`);
     }
 
     // 4. DELETE ACCOUNT (cascade delete team)
