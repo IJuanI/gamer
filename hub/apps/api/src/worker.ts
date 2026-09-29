@@ -4,7 +4,6 @@ import { logger } from "hono/logger";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
-import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 
 interface Env {
@@ -19,6 +18,7 @@ interface Env {
   WEB_ORIGIN?: string;
   OAUTH_CALLBACK_BASE?: string;
   NODE_ENV?: string;
+  PASSWORD_PBKDF2_ITERATIONS?: string;
 }
 
 let prismaInstance: PrismaClient | null = null;
@@ -31,6 +31,36 @@ function getPrismaClient(env: Env): PrismaClient {
     lastEnv = env.DB;
   }
   return prismaInstance;
+}
+
+// Free-plan Workers get 10 ms CPU: bcryptjs (pure JS) can't fit, native PBKDF2 can.
+// Iterations are stored in each hash, so DEFAULT_PBKDF2_ITERATIONS can change later.
+// 30k iterations ≈ 5.7ms PBKDF2 + 0.5ms JWT + 2ms Prisma = ~8.2ms, leaves 1.8ms headroom.
+const DEFAULT_PBKDF2_ITERATIONS = 30000;
+
+const toB64 = (b: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(b)));
+const fromB64 = (s: string) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
+
+async function pbkdf2(password: string, salt: Uint8Array, iterations: number): Promise<Uint8Array> {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: salt as BufferSource, iterations }, key, 256);
+  return new Uint8Array(bits);
+}
+
+async function hashPassword(password: string, env: Env): Promise<string> {
+  const iterations = Number(env.PASSWORD_PBKDF2_ITERATIONS) || DEFAULT_PBKDF2_ITERATIONS;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return `pbkdf2$sha256$${iterations}$${toB64(salt)}$${toB64(await pbkdf2(password, salt, iterations))}`;
+}
+
+async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  if (!stored.startsWith("pbkdf2$")) return false;
+  const [, , iterations, salt, expected] = stored.split("$");
+  const actual = await pbkdf2(password, fromB64(salt), Number(iterations));
+  const want = fromB64(expected);
+  let diff = actual.length ^ want.length;
+  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ (want[i] ?? 0);
+  return diff === 0;
 }
 
 const ACCESS_TOKEN_EXPIRES_IN = "15m";
@@ -194,7 +224,7 @@ app.post("/api/auth/register", async (c) => {
       return c.json({ statusCode: 409, message: "Ya existe una cuenta con ese email" }, 409);
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await hashPassword(password, c.env);
     const user = await prisma.user.create({
       data: { email: email.toLowerCase(), displayName, passwordHash, role: "MEMBER" },
     });
@@ -223,7 +253,7 @@ app.post("/api/auth/login", async (c) => {
       return c.json({ statusCode: 401, message: "Credenciales inválidas" }, 401);
     }
 
-    const ok = await bcrypt.compare(password, user.passwordHash);
+    const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) {
       return c.json({ statusCode: 401, message: "Credenciales inválidas" }, 401);
     }
