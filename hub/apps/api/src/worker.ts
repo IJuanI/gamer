@@ -318,7 +318,38 @@ app.delete("/api/me", async (c) => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return c.json({ statusCode: 401, message: "Unauthorized" }, 401);
 
-    // Delete user and all related data
+    // Find all teams this user belongs to
+    const userTeams = await prisma.teamMember.findMany({
+      where: { userId },
+      include: { team: { include: { members: true } } }
+    });
+
+    // Delete user's game profiles and recruitment posts first
+    await prisma.gameProfile.deleteMany({ where: { userId } });
+    await prisma.recruitmentPost.deleteMany({ where: { authorId: userId } });
+
+    // Remove user from all teams and delete empty teams
+    const teamsToDelete: string[] = [];
+    for (const teamMember of userTeams) {
+      const teamMembersCount = teamMember.team.members.length;
+      // If this is the only member, mark team for deletion
+      if (teamMembersCount === 1) {
+        teamsToDelete.push(teamMember.team.id);
+      }
+    }
+
+    // Delete recruitment posts from teams being deleted
+    if (teamsToDelete.length > 0) {
+      await prisma.recruitmentPost.deleteMany({
+        where: { teamId: { in: teamsToDelete } }
+      });
+      // Delete the empty teams
+      await prisma.team.deleteMany({
+        where: { id: { in: teamsToDelete } }
+      });
+    }
+
+    // Delete user and all remaining related data
     await prisma.user.delete({ where: { id: userId } });
 
     // Clear session cookies
