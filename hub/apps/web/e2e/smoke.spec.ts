@@ -761,39 +761,30 @@ test.describe('Frontend Smoke Tests', () => {
     await page.waitForTimeout(1000); // Allow form JavaScript to load
 
     try {
-      // Use simpler selectors - just find all selects and inputs on the page
-      const selects = page.locator('select');
-      const inputs = page.locator('input[type="text"], input:not([type])');
-      const textareas = page.locator('textarea');
+      // Select dropdowns by label text to avoid issues with conditional rendering
+      const typeSelect = page.locator('label:has-text("Tipo")').locator('select');
+      const gameSelect = page.locator('label:has-text("Juego")').locator('select');
+      const titleInput = page.locator('label:has-text("Título")').locator('input');
+      const bodyTextarea = page.locator('label:has-text("Descripción")').locator('textarea');
 
-      const selectCount = await selects.count();
-      const inputCount = await inputs.count();
-      const textareaCount = await textareas.count();
-
-      console.log(`Form elements: ${selectCount} selects, ${inputCount} inputs, ${textareaCount} textareas`);
-
-      if (selectCount < 2) {
-        throw new Error(`Expected at least 2 selects, found ${selectCount}`);
-      }
-
-      // First select = type, second select = game
-      await selects.nth(0).selectOption({ index: 1 });
+      // Select type: "Busco jugadores" (index 1)
+      await typeSelect.selectOption({ index: 1 });
       console.log('Selected recruitment type');
 
-      await selects.nth(1).selectOption({ index: 1 });
+      // Wait for game dropdown to have options (after type selection)
+      await page.waitForTimeout(500);
+
+      // Select game (first available game, skip placeholder at index 0)
+      await gameSelect.selectOption({ index: 1 });
       console.log('Selected game');
 
-      // Fill title (first input)
-      if (inputCount > 0) {
-        await inputs.first().fill(postTitle);
-        console.log('Filled title');
-      }
+      // Fill title
+      await titleInput.fill(postTitle);
+      console.log('Filled title');
 
-      // Fill body (textarea)
-      if (textareaCount > 0) {
-        await textareas.first().fill(postBody);
-        console.log('Filled body');
-      }
+      // Fill body
+      await bodyTextarea.fill(postBody);
+      console.log('Filled body');
 
       console.log('Form filled, submitting...');
 
