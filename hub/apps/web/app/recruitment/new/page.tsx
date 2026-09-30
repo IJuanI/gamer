@@ -27,25 +27,16 @@ export default function NewRecruitmentPostPage() {
 
   useLayoutEffect(() => {
     let isMounted = true;
-    console.log('useLayoutEffect running for games');
     fetch('/api/games', { credentials: 'include' })
-      .then(res => {
-        console.log('Games fetch response:', res.status);
-        return res.json();
-      })
+      .then(res => res.json())
       .then((data) => {
-        console.log('Games JSON parsed:', Array.isArray(data), data?.length);
-        if (!isMounted) {
-          console.log('Component unmounted, skipping setGames');
-          return;
-        }
+        if (!isMounted) return;
         const gamesArray = Array.isArray(data) ? data : data?.games || [];
-        console.log('Setting games:', gamesArray.length);
         setGames(gamesArray);
       })
       .catch((err) => {
-        console.error("Games fetch error:", err);
         if (!isMounted) return;
+        console.error("Failed to load games:", err);
       });
     return () => {
       isMounted = false;
