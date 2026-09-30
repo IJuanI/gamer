@@ -799,6 +799,12 @@ test.describe('Frontend Smoke Tests', () => {
               }
             });
             console.log(`Games API test (attempt ${attempt + 1}):`, gamesFetchTest);
+
+            // Also check what options are actually in the select
+            const selectHTML = await gameSelect.evaluate((el: any) => {
+              return { innerHTML: el.innerHTML.substring(0, 300), optionCount: el.querySelectorAll('option').length };
+            });
+            console.log(`Select HTML (attempt ${attempt + 1}):`, selectHTML);
             continue;
           }
         }
