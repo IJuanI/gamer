@@ -778,40 +778,23 @@ test.describe('Frontend Smoke Tests', () => {
       console.log('Selected recruitment type');
 
       // Wait for game options to load - games are fetched via useEffect on mount
-      // Try multiple times as the API might be slow or have transient issues
-      let gameOptionsLoaded = false;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          await gameSelect.locator('option:not([value=""])').first().waitFor({ timeout: 5000 });
-          gameOptionsLoaded = true;
-          break;
-        } catch {
-          if (attempt < 2) {
-            await page.waitForTimeout(1000);
-            // Test the API directly to see if it's working
-            const gamesFetchTest = await page.evaluate(async () => {
-              try {
-                const res = await fetch('/api/games', { credentials: 'include' });
-                const body = await res.text();
-                return { status: res.status, body: body.substring(0, 200) };
-              } catch (e) {
-                return { error: String(e) };
-              }
-            });
-            console.log(`Games API test (attempt ${attempt + 1}):`, gamesFetchTest);
+      // Give time for the component to render options
+      await page.waitForTimeout(2000);
 
-            // Also check what options are actually in the select
-            const selectHTML = await gameSelect.evaluate((el: any) => {
-              return { innerHTML: el.innerHTML.substring(0, 300), optionCount: el.querySelectorAll('option').length };
-            });
-            console.log(`Select HTML (attempt ${attempt + 1}):`, selectHTML);
-            continue;
-          }
+      // Check if options are now in the select
+      const selectHTML = await gameSelect.evaluate((el: any) => {
+        return { optionCount: el.querySelectorAll('option').length };
+      });
+
+      if (selectHTML.optionCount < 2) {
+        // Still no game options, try waiting a bit more
+        await page.waitForTimeout(1000);
+        const retryHTML = await gameSelect.evaluate((el: any) => {
+          return { optionCount: el.querySelectorAll('option').length };
+        });
+        if (retryHTML.optionCount < 2) {
+          throw new Error(`Game options not loaded. Expected at least 2 options (placeholder + 1 game), got ${retryHTML.optionCount}`);
         }
-      }
-
-      if (!gameOptionsLoaded) {
-        throw new Error('Game options failed to load after 3 attempts');
       }
       console.log('Game options loaded');
 
