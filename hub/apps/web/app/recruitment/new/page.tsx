@@ -34,6 +34,7 @@ export default function NewRecruitmentPostPage() {
       }
     }).catch((err) => {
       console.error("Failed to load games:", err);
+      setGames([]);
     });
   }, []);
 
