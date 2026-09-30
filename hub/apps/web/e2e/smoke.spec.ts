@@ -622,16 +622,18 @@ test.describe('Frontend Smoke Tests', () => {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
         });
-        return { status: res.status, ok: res.ok };
+        const body = await res.text();
+        return { status: res.status, ok: res.ok, body };
       } catch (e) {
         console.error('Delete failed:', e);
-        return { status: 0, ok: false };
+        return { status: 0, ok: false, body: String(e) };
       }
     });
 
     if (deleteRes.ok) {
       console.log('User account deleted successfully');
     } else {
+      console.error(`Delete response (${deleteRes.status}):`, deleteRes.body);
       allErrors.push(`[USER_DELETE] Failed to delete user: ${deleteRes.status}`);
     }
 
@@ -845,16 +847,18 @@ test.describe('Frontend Smoke Tests', () => {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
         });
-        return { status: res.status, ok: res.ok };
+        const body = await res.text();
+        return { status: res.status, ok: res.ok, body };
       } catch (e) {
         console.error('Delete failed:', e);
-        return { status: 0, ok: false };
+        return { status: 0, ok: false, body: String(e) };
       }
     });
 
     if (deleteRes.ok) {
       console.log('User account deleted successfully');
     } else {
+      console.error(`Delete response (${deleteRes.status}):`, deleteRes.body);
       allErrors.push(`[USER_DELETE] Failed to delete user: ${deleteRes.status}`);
     }
 
