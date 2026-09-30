@@ -771,8 +771,9 @@ test.describe('Frontend Smoke Tests', () => {
       await typeSelect.selectOption({ index: 1 });
       console.log('Selected recruitment type');
 
-      // Wait for game dropdown to have options (after type selection)
-      await page.waitForTimeout(500);
+      // Wait for game options to load - games are fetched via useEffect on mount
+      await gameSelect.locator('option:not([value=""])').first().waitFor({ timeout: 10000 });
+      console.log('Game options loaded');
 
       // Select game (first available game, skip placeholder at index 0)
       await gameSelect.selectOption({ index: 1 });
