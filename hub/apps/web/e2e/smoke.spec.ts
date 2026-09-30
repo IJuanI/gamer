@@ -788,6 +788,17 @@ test.describe('Frontend Smoke Tests', () => {
         } catch {
           if (attempt < 2) {
             await page.waitForTimeout(1000);
+            // Test the API directly to see if it's working
+            const gamesFetchTest = await page.evaluate(async () => {
+              try {
+                const res = await fetch('/api/games', { credentials: 'include' });
+                const body = await res.text();
+                return { status: res.status, body: body.substring(0, 200) };
+              } catch (e) {
+                return { error: String(e) };
+              }
+            });
+            console.log(`Games API test (attempt ${attempt + 1}):`, gamesFetchTest);
             continue;
           }
         }
