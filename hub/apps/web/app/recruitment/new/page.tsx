@@ -39,7 +39,13 @@ export default function NewRecruitmentPostPage() {
 
   useEffect(() => {
     if (!user || type !== "LOOKING_FOR_PLAYERS") return;
-    api.listTeams().then((r) => setMyTeams(r.teams.filter((t) => t.members.some((m) => m.userId === user.id && m.role === "CAPTAIN"))));
+    api.listTeams().then((r) => {
+      const teamsList = Array.isArray(r.teams) ? r.teams : [];
+      setMyTeams(teamsList.filter((t) => t.members.some((m) => m.userId === user.id && m.role === "CAPTAIN")));
+    }).catch((err) => {
+      console.error("Failed to load teams:", err);
+      setMyTeams([]);
+    });
   }, [user, type]);
 
   if (loading || !user) {
