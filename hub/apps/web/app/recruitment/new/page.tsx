@@ -32,6 +32,7 @@ export default function NewRecruitmentPostPage() {
       .then((data) => {
         if (!isMounted) return;
         const gamesArray = Array.isArray(data) ? data : data?.games || [];
+        console.log('Loaded games in recruitment form:', gamesArray.length);
         setGames(gamesArray);
       })
       .catch((err) => {
