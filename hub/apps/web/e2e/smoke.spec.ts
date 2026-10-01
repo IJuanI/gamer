@@ -844,14 +844,25 @@ test.describe('Frontend Smoke Tests', () => {
     }
 
     try {
-      // Wait for posts to load and find the created post by title
-      await page.waitForTimeout(1000);
+      // Wait for posts to load - give it time to fetch from API
+      await page.waitForTimeout(2000);
+
+      // Check page content for debugging
+      const pageText = await page.content();
+      const hasPostTitle = pageText.includes(postTitle);
+      console.log(`Post title "${postTitle}" in page: ${hasPostTitle}`);
+
       const postElement = page.locator(`text=${postTitle}`);
 
       // Verify the post appears in the list
       const postCount = await postElement.count();
       if (postCount === 0) {
         allErrors.push('[RECRUITMENT_VERIFY] Created post did not appear in recruitment list');
+        // Try checking the page HTML for debugging
+        const bodyText = await page.locator('body').textContent();
+        if (bodyText && bodyText.length > 500) {
+          console.log(`Page body first 500 chars: ${bodyText.substring(0, 500)}`);
+        }
       } else {
         console.log('Recruitment post verified in list');
       }
