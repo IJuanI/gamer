@@ -24,6 +24,8 @@ export default function RecruitmentPage() {
   const [type, setType] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  console.log(`[recruitment] Rendering: loading=${loading}, user=${user?.id}, posts.length=${posts.length}, error=${error}`);
+
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
@@ -46,10 +48,17 @@ export default function RecruitmentPage() {
   }, []);
 
   useEffect(() => {
+    console.log(`[recruitment] Effect running with gameId="${gameId}", type="${type}"`);
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
-      .then((r) => setPosts(r.recruitmentPosts || []))
-      .catch((e) => setError(e instanceof Error ? e.message : "Error"));
+      .then((r) => {
+        console.log(`[recruitment] API response:`, r);
+        setPosts(r.recruitmentPosts || []);
+      })
+      .catch((e) => {
+        console.error(`[recruitment] API error:`, e);
+        setError(e instanceof Error ? e.message : "Error");
+      });
   }, [gameId, type]);
 
   if (loading || !user) {
