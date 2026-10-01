@@ -158,7 +158,7 @@ export const api = {
     if (params?.type) q.set("type", params.type);
     if (params?.isOpen !== undefined) q.set("isOpen", String(params.isOpen));
     const qs = q.toString();
-    return request<{ recruitmentPosts: PublicRecruitmentPost[] }>(`/recruitment-posts${qs ? `?${qs}` : ""}`);
+    return request<{ posts: PublicRecruitmentPost[] }>(`/recruitment-posts${qs ? `?${qs}` : ""}`);
   },
   getRecruitmentPost: (id: string) => request<PublicRecruitmentPost>(`/recruitment-posts/${id}`),
   createRecruitmentPost: (payload: CreateRecruitmentPostPayload) =>
