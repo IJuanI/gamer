@@ -885,6 +885,14 @@ test.describe('Frontend Smoke Tests', () => {
         const typeValue = await typeSelect.inputValue().catch(() => 'unknown');
         console.log(`Current filters - Game: "${gameValue}", Type: "${typeValue}"`);
 
+        // Check if the "no posts" message is showing
+        const noPostsMsg = await page.locator('text=No hay publicaciones abiertas').count();
+        console.log(`"No hay publicaciones" message visible: ${noPostsMsg}`);
+
+        // Get the actual posts divs on the page
+        const postDivs = await page.locator('[class*="panel-clip"]').count();
+        console.log(`Number of post divs (panel-clip) on page: ${postDivs}`);
+
         postCount = await postElement.count();
         if (postCount === 0) {
           allErrors.push('[RECRUITMENT_VERIFY] Created post did not appear in recruitment list');
