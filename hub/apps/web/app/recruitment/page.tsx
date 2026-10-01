@@ -48,18 +48,19 @@ export default function RecruitmentPage() {
   }, []);
 
   useEffect(() => {
+    if (!user) return; // Don't fetch if user not loaded
     console.log(`[recruitment] Effect running with gameId="${gameId}", type="${type}"`);
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
       .then((r) => {
-        console.log(`[recruitment] API response:`, r);
+        console.log(`[recruitment] API response: got ${Array.isArray(r.recruitmentPosts) ? r.recruitmentPosts.length : 0} posts`);
         setPosts(r.recruitmentPosts || []);
       })
       .catch((e) => {
-        console.error(`[recruitment] API error:`, e);
+        console.error(`[recruitment] API error caught:`, e);
         setError(e instanceof Error ? e.message : "Error");
       });
-  }, [gameId, type]);
+  }, [gameId, type, user]);
 
   if (loading || !user) {
     return (
