@@ -878,6 +878,12 @@ test.describe('Frontend Smoke Tests', () => {
         console.log('Recruitment post verified in list');
         postCount = await postElement.count();
       } catch (err) {
+        // Capture ALL console logs to see the debug output
+        const consoleLogs = allConsoleMessages.filter(msg => msg.includes('[DEBUG]'));
+        if (consoleLogs.length > 0) {
+          console.log('Debug logs from page:');
+          consoleLogs.forEach(log => console.log('  ' + log));
+        }
         console.log(`Post "${postTitle}" did not appear. Checking page state...`);
         // Check if page is still loading
         const loadingIndicators = await page.locator('text=Cargando').count();

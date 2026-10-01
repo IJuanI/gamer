@@ -50,9 +50,14 @@ export default function RecruitmentPage() {
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
       .then((r) => {
+        console.log('[DEBUG] API response received:', r);
+        console.log('[DEBUG] r.posts:', r.posts);
+        console.log('[DEBUG] r.posts type:', typeof r.posts);
+        console.log('[DEBUG] r.posts length:', (r.posts as any)?.length);
         setPosts(r.posts);
       })
       .catch((e) => {
+        console.error('[DEBUG] API error:', e);
         setError(e instanceof Error ? e.message : "Error");
       });
   }, [gameId, type, user]);
