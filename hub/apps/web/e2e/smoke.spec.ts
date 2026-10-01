@@ -843,6 +843,29 @@ test.describe('Frontend Smoke Tests', () => {
       await page.goto('/recruitment', { waitUntil: 'load' });
     }
 
+    // Check if there are any unhandled errors on the page
+    const pageErrors = await page.evaluate(() => {
+      const errorElements = document.querySelectorAll('[role="alert"], .error, [class*="error"]');
+      return {
+        errorElementCount: errorElements.length,
+        errorTexts: Array.from(errorElements).map(el => el.textContent).slice(0, 3)
+      };
+    });
+    if (pageErrors.errorElementCount > 0) {
+      console.log(`⚠️  Found ${pageErrors.errorElementCount} error elements on page:`, pageErrors.errorTexts);
+    }
+
+    // Check if games fetch worked
+    const gamesStatus = await page.evaluate(async () => {
+      try {
+        const res = await fetch('/api/games', { credentials: 'include' });
+        return { status: res.status, ok: res.ok };
+      } catch (e) {
+        return { error: String(e) };
+      }
+    });
+    console.log(`Games API status: ${JSON.stringify(gamesStatus)}`);
+
     try {
       // Wait for the recruitment post to appear in the list
       // The page needs to hydrate and fetch posts from the API
@@ -870,7 +893,7 @@ test.describe('Frontend Smoke Tests', () => {
           try {
             const res = await fetch('/api/recruitment-posts?isOpen=true', { credentials: 'include' });
             const data = await res.json();
-            const posts = Array.isArray(data) ? data : data.recruitmentPosts || [];
+            const posts = Array.isArray(data) ? data : (data.posts || data.recruitmentPosts || []);
             return { status: res.status, count: posts.length, titles: posts.map((p: any) => p.title) };
           } catch (e) {
             return { error: String(e) };
