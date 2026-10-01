@@ -26,8 +26,8 @@ export default function ProfilePage() {
     if (!user) return;
     Promise.all([api.listGames(), api.myGameProfiles()])
       .then(([g, p]) => {
-        setGames(g.games);
-        setProfiles(p.gameProfiles);
+        setGames(g.games || []);
+        setProfiles(p.gameProfiles || []);
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Error"));
   }, [user]);

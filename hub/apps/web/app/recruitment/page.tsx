@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Megaphone, Plus } from "lucide-react";
@@ -28,18 +28,34 @@ export default function RecruitmentPage() {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
-  useEffect(() => {
-    if (!user) return;
-    api.listGames().then((r) => setGames(r.games)).catch(() => {});
-  }, [user]);
+  useLayoutEffect(() => {
+    let isMounted = true;
+    fetch('/api/games', { credentials: 'include' })
+      .then(res => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        const gamesArray = Array.isArray(data) ? data : data?.games || [];
+        setGames(gamesArray);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) return; // Don't fetch if user not loaded
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
-      .then((r) => setPosts(r.recruitmentPosts))
-      .catch((e) => setError(e instanceof Error ? e.message : "Error"));
-  }, [user, gameId, type]);
+      .then((r) => {
+        setPosts(r);
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Error");
+      });
+  }, [gameId, type, user]);
 
   if (loading || !user) {
     return (
@@ -70,12 +86,13 @@ export default function RecruitmentPage() {
           <h1 className="font-azonix text-2xl text-white">Reclutamiento</h1>
           <div className="flex flex-wrap items-center gap-3">
             <select
+              key={`games-select-${games.length}`}
               value={gameId}
               onChange={(e) => setGameId(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
             >
               <option value="">Todos los juegos</option>
-              {games.map((g) => (
+              {games.length > 0 && games.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
                 </option>
@@ -126,6 +143,22 @@ export default function RecruitmentPage() {
                     {post.author.displayName} · {formatRelative(post.createdAt)}
                   </p>
                 </div>
+                {user?.id === post.author.id && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.deleteRecruitmentPost(post.id);
+                        setPosts(posts.filter((p) => p.id !== post.id));
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : "Error deleting post");
+                      }
+                    }}
+                    className="rounded-md px-2 py-1 text-xs text-[var(--muted)] transition-colors hover:text-white hover:bg-white/10"
+                    title="Eliminar publicación"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             </div>
           ))}

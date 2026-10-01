@@ -265,8 +265,8 @@ curl http://localhost:4000/api/health
 curl -X POST http://localhost:4000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "test@example.com",
-    "displayName": "Test User",
+    "email": "newuser@example.com",
+    "displayName": "New User",
     "password": "SecurePassword123"
   }'
 
