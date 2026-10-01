@@ -844,27 +844,31 @@ test.describe('Frontend Smoke Tests', () => {
     }
 
     try {
-      // Wait for posts to load - give it time to fetch from API
-      await page.waitForTimeout(2000);
-
-      // Check page content for debugging
-      const pageText = await page.content();
-      const hasPostTitle = pageText.includes(postTitle);
-      console.log(`Post title "${postTitle}" in page: ${hasPostTitle}`);
-
+      // Wait for the recruitment post to appear in the list
+      // The page needs to hydrate and fetch posts from the API
       const postElement = page.locator(`text=${postTitle}`);
 
-      // Verify the post appears in the list
-      const postCount = await postElement.count();
-      if (postCount === 0) {
-        allErrors.push('[RECRUITMENT_VERIFY] Created post did not appear in recruitment list');
-        // Try checking the page HTML for debugging
-        const bodyText = await page.locator('body').textContent();
-        if (bodyText && bodyText.length > 500) {
-          console.log(`Page body first 500 chars: ${bodyText.substring(0, 500)}`);
-        }
-      } else {
+      let postCount = 0;
+      try {
+        // Wait up to 10 seconds for the post to appear
+        await postElement.first().waitFor({ timeout: 10000 });
         console.log('Recruitment post verified in list');
+        postCount = await postElement.count();
+      } catch (err) {
+        console.log(`Post "${postTitle}" did not appear. Checking page state...`);
+        // Check if page is still loading
+        const loadingIndicators = await page.locator('text=Cargando').count();
+        console.log(`Page loading indicators: ${loadingIndicators}`);
+
+        // Check the actual text content on the page
+        const bodyText = await page.locator('body').textContent();
+        const textLength = bodyText?.length || 0;
+        console.log(`Page text content length: ${textLength}`);
+
+        postCount = await postElement.count();
+        if (postCount === 0) {
+          allErrors.push('[RECRUITMENT_VERIFY] Created post did not appear in recruitment list');
+        }
       }
 
       // 5. DELETE RECRUITMENT POST via UI
