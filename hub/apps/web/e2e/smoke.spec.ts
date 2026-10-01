@@ -870,12 +870,20 @@ test.describe('Frontend Smoke Tests', () => {
           try {
             const res = await fetch('/api/recruitment-posts?isOpen=true', { credentials: 'include' });
             const data = await res.json();
-            return { status: res.status, count: Array.isArray(data) ? data.length : data.recruitmentPosts?.length || 0 };
+            const posts = Array.isArray(data) ? data : data.recruitmentPosts || [];
+            return { status: res.status, count: posts.length, titles: posts.map((p: any) => p.title) };
           } catch (e) {
             return { error: String(e) };
           }
         });
         console.log(`API recruitment posts response: ${JSON.stringify(apiResponse)}`);
+
+        // Check the filter selects
+        const gameSelect = page.locator('select').first();
+        const typeSelect = page.locator('select').nth(1);
+        const gameValue = await gameSelect.inputValue().catch(() => 'unknown');
+        const typeValue = await typeSelect.inputValue().catch(() => 'unknown');
+        console.log(`Current filters - Game: "${gameValue}", Type: "${typeValue}"`);
 
         postCount = await postElement.count();
         if (postCount === 0) {
