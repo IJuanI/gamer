@@ -4,8 +4,8 @@ test.describe('Frontend Smoke Tests', () => {
   test.setTimeout(120000);
 
   test('homepage loads without JS errors', async ({ page }) => {
-    let consoleErrors: string[] = [];
-    let uncaughtErrors: string[] = [];
+    const consoleErrors: string[] = [];
+    const uncaughtErrors: string[] = [];
 
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
@@ -46,7 +46,7 @@ test.describe('Frontend Smoke Tests', () => {
     }
   });
 
-  test('create account, logout, login, and delete account', async ({ page, context }) => {
+  test('create account, logout, login, and delete account', async ({ page }) => {
     const testEmail = 'smoke@test.local';
     const testPassword = 'SmokeTest123!';
     const testDisplayName = 'Smoke Test User';
@@ -80,8 +80,7 @@ test.describe('Frontend Smoke Tests', () => {
       if (request.failure()?.errorText === 'net::ERR_ABORTED') {
         return;
       }
-      const response = request.response();
-      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`);
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
     });
 
     // Also capture responses with error status codes, but exclude expected ones
@@ -117,7 +116,7 @@ test.describe('Frontend Smoke Tests', () => {
             credentials: 'include',
           });
           return { status: res.status, ok: res.ok };
-        } catch (e) {
+        } catch (_e) {
           console.error('Register fetch error:', e);
           throw e;
         }
@@ -134,7 +133,7 @@ test.describe('Frontend Smoke Tests', () => {
       // Wait for auto-redirect to dashboard after successful registration
       try {
         await page.waitForURL('**/dashboard', { timeout: 5000 });
-      } catch (e) {
+      } catch (_e) {
         // If no auto-redirect, we'll need to log in manually
         console.log('No auto-redirect after registration, will log in manually');
       }
@@ -157,7 +156,7 @@ test.describe('Frontend Smoke Tests', () => {
 
       try {
         await page.waitForURL('**/dashboard', { timeout: 10000 });
-      } catch (e) {
+      } catch (_e) {
         throw new Error(`Initial login failed - did not reach dashboard. Currently at: ${page.url()}`);
       }
     }
@@ -189,7 +188,7 @@ test.describe('Frontend Smoke Tests', () => {
     // Should redirect to dashboard
     try {
       await page.waitForURL('**/dashboard', { timeout: 10000 });
-    } catch (e) {
+    } catch (_e) {
       throw new Error(
         `Login failed - did not redirect to dashboard. Currently at: ${page.url()}\n\nErrors:\n${allErrors.join('\n')}\n\nAll console:\n${allConsoleMessages.join('\n')}`
       );
@@ -207,7 +206,7 @@ test.describe('Frontend Smoke Tests', () => {
           credentials: 'include',
         });
         return { status: res.status, ok: res.ok };
-      } catch (e) {
+      } catch (_e) {
         console.error('Delete failed:', e);
         return { status: 0, ok: false };
       }
@@ -222,11 +221,10 @@ test.describe('Frontend Smoke Tests', () => {
     console.log('=== TEST COMPLETE ===');
   });
 
-  test('admin user: create, login, navigate panel, delete', async ({ page, context }) => {
+  test('admin user: create, login, navigate panel, delete', async ({ page }) => {
     const testEmail = 'smoke-admin@test.local';
     const testPassword = 'SmokeAdmin123!';
     const testDisplayName = 'Smoke Admin User';
-    const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:3100';
 
     const allErrors: string[] = [];
     const allConsoleMessages: string[] = [];
@@ -256,8 +254,7 @@ test.describe('Frontend Smoke Tests', () => {
       if (request.failure()?.errorText === 'net::ERR_ABORTED') {
         return;
       }
-      const response = request.response();
-      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`);
+      allErrors.push(`[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
     });
 
     page.on('response', (response) => {
@@ -322,7 +319,7 @@ test.describe('Frontend Smoke Tests', () => {
 
     try {
       await page.waitForURL('**/dashboard', { timeout: 10000 });
-    } catch (e) {
+    } catch (_e) {
       throw new Error(
         `Login failed - did not redirect to dashboard. Currently at: ${page.url()}\n\nErrors:\n${allErrors.join('\n')}\n\nConsole:\n${allConsoleMessages.join('\n')}`
       );
@@ -349,8 +346,8 @@ test.describe('Frontend Smoke Tests', () => {
         // Wait for JS to render
         await page.waitForLoadState('domcontentloaded');
         console.log(`    ✓ Loaded`);
-      } catch (e) {
-        allErrors.push(`[NAV] Failed to load ${name}: ${e.message}`);
+      } catch (_e) {
+        allErrors.push(`[NAV] Failed to load ${name}: ${e instanceof Error ? e.message : String(e)}`);
       }
     }
 
@@ -368,7 +365,7 @@ test.describe('Frontend Smoke Tests', () => {
           credentials: 'include',
         });
         return { status: res.status, ok: res.ok };
-      } catch (e) {
+      } catch (_e) {
         console.error('Delete failed:', e);
         return { status: 0, ok: false };
       }
@@ -427,9 +424,8 @@ test.describe('Frontend Smoke Tests', () => {
       if (request.failure()?.errorText === 'net::ERR_ABORTED') {
         return;
       }
-      const response = request.response();
       allErrors.push(
-        `[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`
+        `[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText}`
       );
     });
 
@@ -462,7 +458,7 @@ test.describe('Frontend Smoke Tests', () => {
             credentials: 'include',
           });
           return { status: res.status, ok: res.ok };
-        } catch (e) {
+        } catch (_e) {
           console.error('Register fetch error:', e);
           throw e;
         }
@@ -498,7 +494,7 @@ test.describe('Frontend Smoke Tests', () => {
 
     try {
       await page.waitForURL('**/dashboard', { timeout: 10000 });
-    } catch (e) {
+    } catch (_e) {
       throw new Error(`Login failed - did not reach dashboard. Currently at: ${page.url()}`);
     }
 
@@ -545,7 +541,7 @@ test.describe('Frontend Smoke Tests', () => {
         console.log('API response length:', data?.length);
         console.log('First game:', data?.[0]);
         return { status: res.status, count: Array.isArray(data) ? data.length : 0 };
-      } catch (e) {
+      } catch (_e) {
         console.error('API error:', e);
         return { error: String(e) };
       }
@@ -587,7 +583,7 @@ test.describe('Frontend Smoke Tests', () => {
 
         await page.locator('button:has-text("Crear equipo")').click();
         await navPromise;
-      } catch (e) {
+      } catch (_e) {
         submitError = `Submit error: ${e instanceof Error ? e.message : String(e)}`;
         allErrors.push(`[TEAM_CLICK_ERROR] ${submitError}`);
         console.log(submitError);
@@ -605,8 +601,8 @@ test.describe('Frontend Smoke Tests', () => {
       } else if (urlAfterSubmit.includes('/teams/')) {
         console.log('Team created successfully - navigated to team detail page');
       }
-    } catch (e) {
-      allErrors.push(`[TEAM_FORM] Failed to create team: ${e.message}`);
+    } catch (_e) {
+      allErrors.push(`[TEAM_FORM] Failed to create team: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // 4. DELETE ACCOUNT (cascade deletes team since user is only member)
@@ -624,7 +620,7 @@ test.describe('Frontend Smoke Tests', () => {
         });
         const body = await res.text();
         return { status: res.status, ok: res.ok, body };
-      } catch (e) {
+      } catch (_e) {
         console.error('Delete failed:', e);
         return { status: 0, ok: false, body: String(e) };
       }
@@ -679,9 +675,8 @@ test.describe('Frontend Smoke Tests', () => {
       if (request.failure()?.errorText === 'net::ERR_ABORTED') {
         return;
       }
-      const response = request.response();
       allErrors.push(
-        `[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText} (status: ${response?.status ?? 'unknown'})`
+        `[REQUEST_FAILED] ${request.method()} ${request.url()}: ${request.failure()?.errorText}`
       );
     });
 
@@ -718,7 +713,7 @@ test.describe('Frontend Smoke Tests', () => {
             credentials: 'include',
           });
           return { status: res.status, ok: res.ok };
-        } catch (e) {
+        } catch (_e) {
           console.error('Register fetch error:', e);
           throw e;
         }
@@ -753,7 +748,7 @@ test.describe('Frontend Smoke Tests', () => {
 
     try {
       await page.waitForURL('**/dashboard', { timeout: 10000 });
-    } catch (e) {
+    } catch (_e) {
       throw new Error(`Login failed - did not reach dashboard. Currently at: ${page.url()}`);
     }
 
@@ -782,14 +777,14 @@ test.describe('Frontend Smoke Tests', () => {
       await page.waitForTimeout(2000);
 
       // Check if options are now in the select
-      const selectHTML = await gameSelect.evaluate((el: any) => {
+      const selectHTML = await gameSelect.evaluate((el: HTMLSelectElement) => {
         return { optionCount: el.querySelectorAll('option').length };
       });
 
       if (selectHTML.optionCount < 2) {
         // Still no game options, try waiting a bit more
         await page.waitForTimeout(1000);
-        const retryHTML = await gameSelect.evaluate((el: any) => {
+        const retryHTML = await gameSelect.evaluate((el: HTMLSelectElement) => {
           return { optionCount: el.querySelectorAll('option').length };
         });
         if (retryHTML.optionCount < 2) {
@@ -830,7 +825,7 @@ test.describe('Frontend Smoke Tests', () => {
       } else {
         console.log('Recruitment post created successfully');
       }
-    } catch (e) {
+    } catch (_e) {
       allErrors.push(`[POST_FORM] Failed to create recruitment post via UI: ${e instanceof Error ? e.message : String(e)}`);
     }
 
@@ -860,7 +855,7 @@ test.describe('Frontend Smoke Tests', () => {
       try {
         const res = await fetch('/api/games', { credentials: 'include' });
         return { status: res.status, ok: res.ok };
-      } catch (e) {
+      } catch (_e) {
         return { error: String(e) };
       }
     });
@@ -900,8 +895,8 @@ test.describe('Frontend Smoke Tests', () => {
             const res = await fetch('/api/recruitment-posts?isOpen=true', { credentials: 'include' });
             const data = await res.json();
             const posts = Array.isArray(data) ? data : (data.posts || data.recruitmentPosts || []);
-            return { status: res.status, count: posts.length, titles: posts.map((p: any) => p.title) };
-          } catch (e) {
+            return { status: res.status, count: posts.length, titles: posts.map((p: { title: string }) => p.title) };
+          } catch (_e) {
             return { error: String(e) };
           }
         });
@@ -953,7 +948,7 @@ test.describe('Frontend Smoke Tests', () => {
           allErrors.push('[RECRUITMENT_DELETE] Delete button not found for post');
         }
       }
-    } catch (e) {
+    } catch (_e) {
       allErrors.push(`[RECRUITMENT_VERIFY] Error verifying/deleting recruitment post: ${e instanceof Error ? e.message : String(e)}`);
     }
 
@@ -972,7 +967,7 @@ test.describe('Frontend Smoke Tests', () => {
         });
         const body = await res.text();
         return { status: res.status, ok: res.ok, body };
-      } catch (e) {
+      } catch (_e) {
         console.error('Delete failed:', e);
         return { status: 0, ok: false, body: String(e) };
       }
