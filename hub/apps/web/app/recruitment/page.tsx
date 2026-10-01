@@ -53,8 +53,10 @@ export default function RecruitmentPage() {
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
       .then((r) => {
-        console.log(`[recruitment] API response: got ${Array.isArray(r.recruitmentPosts) ? r.recruitmentPosts.length : 0} posts`);
-        setPosts(r.recruitmentPosts || []);
+        // Handle both array and object response formats
+        const postsArray = Array.isArray(r) ? r : (r.recruitmentPosts || []);
+        console.log(`[recruitment] API response: got ${postsArray.length} posts`);
+        setPosts(postsArray);
       })
       .catch((e) => {
         console.error(`[recruitment] API error caught:`, e);
