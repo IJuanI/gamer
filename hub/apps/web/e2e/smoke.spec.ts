@@ -834,7 +834,58 @@ test.describe('Frontend Smoke Tests', () => {
       allErrors.push(`[POST_FORM] Failed to create recruitment post via UI: ${e instanceof Error ? e.message : String(e)}`);
     }
 
-    // 4. DELETE ACCOUNT (cascade deletes recruitment post since user is author)
+    // 4. VERIFY RECRUITMENT POST APPEARS IN LIST
+    console.log('=== VERIFYING RECRUITMENT POST IN LIST ===');
+    currentPage = 'RecruitmentList';
+
+    // Should already be on /recruitment page after form submission
+    if (!page.url().includes('/recruitment')) {
+      await page.goto('/recruitment', { waitUntil: 'load' });
+    }
+
+    try {
+      // Wait for posts to load and find the created post by title
+      await page.waitForTimeout(1000);
+      const postElement = page.locator(`text=${postTitle}`);
+
+      // Verify the post appears in the list
+      const postCount = await postElement.count();
+      if (postCount === 0) {
+        allErrors.push('[RECRUITMENT_VERIFY] Created post did not appear in recruitment list');
+      } else {
+        console.log('Recruitment post verified in list');
+      }
+
+      // 5. DELETE RECRUITMENT POST via UI
+      console.log('=== DELETING RECRUITMENT POST VIA UI ===');
+      if (postCount > 0) {
+        // Find the delete button for this post (✕ button next to the title)
+        const postCard = page.locator(`:has-text("${postTitle}")`).first();
+        const deleteButton = postCard.locator('button[title="Eliminar publicación"]');
+
+        if (await deleteButton.count() > 0) {
+          await deleteButton.click();
+          console.log('Clicked delete button for recruitment post');
+
+          // Wait a bit for the deletion to process
+          await page.waitForTimeout(500);
+
+          // Verify post is gone from the list
+          const postCountAfterDelete = await page.locator(`text=${postTitle}`).count();
+          if (postCountAfterDelete > 0) {
+            allErrors.push('[RECRUITMENT_DELETE] Post still visible after delete button click');
+          } else {
+            console.log('Recruitment post successfully deleted via UI');
+          }
+        } else {
+          allErrors.push('[RECRUITMENT_DELETE] Delete button not found for post');
+        }
+      }
+    } catch (e) {
+      allErrors.push(`[RECRUITMENT_VERIFY] Error verifying/deleting recruitment post: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    // 6. DELETE ACCOUNT
     console.log('=== DELETING USER ACCOUNT ===');
     currentPage = 'Delete';
     await page.goto('/dashboard', { waitUntil: 'load' });

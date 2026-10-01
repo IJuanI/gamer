@@ -138,6 +138,22 @@ export default function RecruitmentPage() {
                     {post.author.displayName} · {formatRelative(post.createdAt)}
                   </p>
                 </div>
+                {user?.id === post.author.id && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.deleteRecruitmentPost(post.id);
+                        setPosts(posts.filter((p) => p.id !== post.id));
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : "Error deleting post");
+                      }
+                    }}
+                    className="rounded-md px-2 py-1 text-xs text-[var(--muted)] transition-colors hover:text-white hover:bg-white/10"
+                    title="Eliminar publicación"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             </div>
           ))}
