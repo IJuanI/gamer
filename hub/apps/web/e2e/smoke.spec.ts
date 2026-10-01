@@ -116,7 +116,7 @@ test.describe('Frontend Smoke Tests', () => {
             credentials: 'include',
           });
           return { status: res.status, ok: res.ok };
-        } catch (_e) {
+        } catch (e) {
           console.error('Register fetch error:', e);
           throw e;
         }
@@ -207,7 +207,7 @@ test.describe('Frontend Smoke Tests', () => {
         });
         return { status: res.status, ok: res.ok };
       } catch (_e) {
-        console.error('Delete failed:', e);
+        console.error('Delete failed:', _e);
         return { status: 0, ok: false };
       }
     });
@@ -347,7 +347,7 @@ test.describe('Frontend Smoke Tests', () => {
         await page.waitForLoadState('domcontentloaded');
         console.log(`    ✓ Loaded`);
       } catch (_e) {
-        allErrors.push(`[NAV] Failed to load ${name}: ${e instanceof Error ? e.message : String(e)}`);
+        allErrors.push(`[NAV] Failed to load ${name}: ${_e instanceof Error ? _e.message : String(_e)}`);
       }
     }
 
@@ -366,7 +366,7 @@ test.describe('Frontend Smoke Tests', () => {
         });
         return { status: res.status, ok: res.ok };
       } catch (_e) {
-        console.error('Delete failed:', e);
+        console.error('Delete failed:', _e);
         return { status: 0, ok: false };
       }
     });
@@ -458,7 +458,7 @@ test.describe('Frontend Smoke Tests', () => {
             credentials: 'include',
           });
           return { status: res.status, ok: res.ok };
-        } catch (_e) {
+        } catch (e) {
           console.error('Register fetch error:', e);
           throw e;
         }
@@ -542,8 +542,8 @@ test.describe('Frontend Smoke Tests', () => {
         console.log('First game:', data?.[0]);
         return { status: res.status, count: Array.isArray(data) ? data.length : 0 };
       } catch (_e) {
-        console.error('API error:', e);
-        return { error: String(e) };
+        console.error('API error:', _e);
+        return { error: String(_e) };
       }
     });
     console.log('API test result:', apiTest);
@@ -584,7 +584,7 @@ test.describe('Frontend Smoke Tests', () => {
         await page.locator('button:has-text("Crear equipo")').click();
         await navPromise;
       } catch (_e) {
-        submitError = `Submit error: ${e instanceof Error ? e.message : String(e)}`;
+        submitError = `Submit error: ${_e instanceof Error ? _e.message : String(_e)}`;
         allErrors.push(`[TEAM_CLICK_ERROR] ${submitError}`);
         console.log(submitError);
       }
@@ -602,7 +602,7 @@ test.describe('Frontend Smoke Tests', () => {
         console.log('Team created successfully - navigated to team detail page');
       }
     } catch (_e) {
-      allErrors.push(`[TEAM_FORM] Failed to create team: ${e instanceof Error ? e.message : String(e)}`);
+      allErrors.push(`[TEAM_FORM] Failed to create team: ${_e instanceof Error ? _e.message : String(_e)}`);
     }
 
     // 4. DELETE ACCOUNT (cascade deletes team since user is only member)
@@ -621,8 +621,8 @@ test.describe('Frontend Smoke Tests', () => {
         const body = await res.text();
         return { status: res.status, ok: res.ok, body };
       } catch (_e) {
-        console.error('Delete failed:', e);
-        return { status: 0, ok: false, body: String(e) };
+        console.error('Delete failed:', _e);
+        return { status: 0, ok: false, body: String(_e) };
       }
     });
 
@@ -713,7 +713,7 @@ test.describe('Frontend Smoke Tests', () => {
             credentials: 'include',
           });
           return { status: res.status, ok: res.ok };
-        } catch (_e) {
+        } catch (e) {
           console.error('Register fetch error:', e);
           throw e;
         }
@@ -826,7 +826,7 @@ test.describe('Frontend Smoke Tests', () => {
         console.log('Recruitment post created successfully');
       }
     } catch (_e) {
-      allErrors.push(`[POST_FORM] Failed to create recruitment post via UI: ${e instanceof Error ? e.message : String(e)}`);
+      allErrors.push(`[POST_FORM] Failed to create recruitment post via UI: ${_e instanceof Error ? _e.message : String(_e)}`);
     }
 
     // 4. VERIFY RECRUITMENT POST APPEARS IN LIST
@@ -856,7 +856,7 @@ test.describe('Frontend Smoke Tests', () => {
         const res = await fetch('/api/games', { credentials: 'include' });
         return { status: res.status, ok: res.ok };
       } catch (_e) {
-        return { error: String(e) };
+        return { error: String(_e) };
       }
     });
     console.log(`Games API status: ${JSON.stringify(gamesStatus)}`);
@@ -897,7 +897,7 @@ test.describe('Frontend Smoke Tests', () => {
             const posts = Array.isArray(data) ? data : (data.posts || data.recruitmentPosts || []);
             return { status: res.status, count: posts.length, titles: posts.map((p: { title: string }) => p.title) };
           } catch (_e) {
-            return { error: String(e) };
+            return { error: String(_e) };
           }
         });
         console.log(`API recruitment posts response: ${JSON.stringify(apiResponse)}`);
@@ -949,7 +949,7 @@ test.describe('Frontend Smoke Tests', () => {
         }
       }
     } catch (_e) {
-      allErrors.push(`[RECRUITMENT_VERIFY] Error verifying/deleting recruitment post: ${e instanceof Error ? e.message : String(e)}`);
+      allErrors.push(`[RECRUITMENT_VERIFY] Error verifying/deleting recruitment post: ${_e instanceof Error ? _e.message : String(_e)}`);
     }
 
     // 6. DELETE ACCOUNT
@@ -968,8 +968,8 @@ test.describe('Frontend Smoke Tests', () => {
         const body = await res.text();
         return { status: res.status, ok: res.ok, body };
       } catch (_e) {
-        console.error('Delete failed:', e);
-        return { status: 0, ok: false, body: String(e) };
+        console.error('Delete failed:', _e);
+        return { status: 0, ok: false, body: String(_e) };
       }
     });
 
