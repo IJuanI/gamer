@@ -865,6 +865,18 @@ test.describe('Frontend Smoke Tests', () => {
         const textLength = bodyText?.length || 0;
         console.log(`Page text content length: ${textLength}`);
 
+        // Try to check what the actual recruitment API returns
+        const apiResponse = await page.evaluate(async () => {
+          try {
+            const res = await fetch('/api/recruitment-posts?isOpen=true', { credentials: 'include' });
+            const data = await res.json();
+            return { status: res.status, count: Array.isArray(data) ? data.length : data.recruitmentPosts?.length || 0 };
+          } catch (e) {
+            return { error: String(e) };
+          }
+        });
+        console.log(`API recruitment posts response: ${JSON.stringify(apiResponse)}`);
+
         postCount = await postElement.count();
         if (postCount === 0) {
           allErrors.push('[RECRUITMENT_VERIFY] Created post did not appear in recruitment list');
