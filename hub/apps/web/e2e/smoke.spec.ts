@@ -933,7 +933,7 @@ test.describe('Frontend Smoke Tests', () => {
       if (postCount > 0) {
         // Find the delete button for this post (✕ button next to the title)
         const postCard = page.locator(`:has-text("${postTitle}")`).first();
-        const deleteButton = postCard.locator('button[title="Eliminar publicación"]');
+        const deleteButton = postCard.locator('button[title="Eliminar publicación"]').first();
 
         if (await deleteButton.count() > 0) {
           await deleteButton.click();
