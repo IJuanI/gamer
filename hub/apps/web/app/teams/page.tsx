@@ -44,7 +44,10 @@ export default function TeamsPage() {
     fetch(`/api/teams${query}`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) {
-          if (isMounted) console.error(`Teams API error: ${res.status}`);
+          if (isMounted) {
+            console.error(`Teams API error: ${res.status}`);
+            setError(`API error: ${res.status}`);
+          }
           return [];
         }
         return res.json();
@@ -58,6 +61,7 @@ export default function TeamsPage() {
         if (!isMounted) return;
         console.error('Failed to fetch teams:', e);
         setError(e instanceof Error ? e.message : "Error");
+        setTeams([]);
       });
     return () => {
       isMounted = false;
