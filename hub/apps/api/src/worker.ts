@@ -567,8 +567,9 @@ app.get("/api/games", async (c) => {
     const games = await prisma.game.findMany({ orderBy: { name: "asc" } });
     return c.json(games.map((g) => ({ id: g.id, slug: g.slug, name: g.name, iconUrl: g.iconUrl, rankVerifiable: g.rankVerifiable })));
   } catch (error) {
-    console.error("List games error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("List games error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -580,8 +581,9 @@ app.get("/api/games/:id", async (c) => {
     if (!game) return c.json({ statusCode: 404, message: "Not found" }, 404);
     return c.json({ id: game.id, slug: game.slug, name: game.name, iconUrl: game.iconUrl, rankVerifiable: game.rankVerifiable });
   } catch (error) {
-    console.error("Get game error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Get game error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -593,8 +595,9 @@ app.get("/api/games/slug/:slug", async (c) => {
     if (!game) return c.json({ statusCode: 404, message: "Not found" }, 404);
     return c.json({ id: game.id, slug: game.slug, name: game.name, iconUrl: game.iconUrl, rankVerifiable: game.rankVerifiable });
   } catch (error) {
-    console.error("Get game by slug error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Get game by slug error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -606,8 +609,9 @@ app.get("/api/users/:id", async (c) => {
     if (!user) return c.json({ statusCode: 404, message: "Not found" }, 404);
     return c.json(toPublicUser(user));
   } catch (error) {
-    console.error("Get user error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Get user error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -629,8 +633,9 @@ app.patch("/api/users/:id", async (c) => {
 
     return c.json(toPublicUser(user));
   } catch (error) {
-    console.error("Update user error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Update user error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -664,8 +669,9 @@ app.get("/api/teams", async (c) => {
       createdAt: t.createdAt.toISOString()
     })));
   } catch (error) {
-    console.error("List teams error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("List teams error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -689,8 +695,9 @@ app.get("/api/teams/:id", async (c) => {
       createdAt: team.createdAt.toISOString()
     });
   } catch (error) {
-    console.error("Get team error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Get team error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -713,8 +720,9 @@ app.post("/api/teams", async (c) => {
 
     return c.json({ id: team.id, name: team.name, gameId: team.gameId, members: team.members.length, createdAt: team.createdAt.toISOString() });
   } catch (error) {
-    console.error("Create team error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Create team error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -742,8 +750,9 @@ app.patch("/api/teams/:id", async (c) => {
 
     return c.json({ id: updated.id, name: updated.name, gameId: updated.gameId, members: updated.members.length, createdAt: updated.createdAt.toISOString() });
   } catch (error) {
-    console.error("Update team error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Update team error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -771,8 +780,9 @@ app.delete("/api/teams/:id", async (c) => {
 
     return c.json({ ok: true });
   } catch (error) {
-    console.error("Delete team error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Delete team error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -818,8 +828,9 @@ app.patch("/api/teams/:id/members/:memberId", async (c) => {
 
     return c.json({ id: updated.id, role: updated.role });
   } catch (error) {
-    console.error("Update team member role error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Update team member role error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -870,8 +881,9 @@ app.delete("/api/teams/:id/members/:memberId", async (c) => {
 
     return c.json({ ok: true });
   } catch (error) {
-    console.error("Remove team member error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Remove team member error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -903,8 +915,9 @@ app.get("/api/recruitment-posts", async (c) => {
       createdAt: p.createdAt.toISOString()
     })));
   } catch (error) {
-    console.error("List posts error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("List posts error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -929,8 +942,9 @@ app.get("/api/recruitment-posts/:id", async (c) => {
       createdAt: post.createdAt.toISOString()
     });
   } catch (error) {
-    console.error("Get post error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Get post error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -960,8 +974,9 @@ app.post("/api/recruitment-posts", async (c) => {
       createdAt: post.createdAt.toISOString()
     });
   } catch (error) {
-    console.error("Create post error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Create post error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -997,8 +1012,9 @@ app.patch("/api/recruitment-posts/:id", async (c) => {
       createdAt: updated.createdAt.toISOString()
     });
   } catch (error) {
-    console.error("Update post error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Update post error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1018,8 +1034,9 @@ app.delete("/api/recruitment-posts/:id", async (c) => {
     await prisma.recruitmentPost.delete({ where: { id: postId } });
     return c.json({ statusCode: 204 });
   } catch (error) {
-    console.error("Delete post error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Delete post error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1043,8 +1060,9 @@ app.get("/api/game-profiles", async (c) => {
       createdAt: p.createdAt.toISOString()
     })));
   } catch (error) {
-    console.error("List profiles error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("List profiles error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1074,8 +1092,9 @@ app.post("/api/game-profiles", async (c) => {
       createdAt: profile.createdAt.toISOString()
     });
   } catch (error) {
-    console.error("Create profile error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Create profile error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1101,8 +1120,9 @@ app.get("/api/me/game-profiles", async (c) => {
       }))
     });
   } catch (error) {
-    console.error("List me profiles error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("List me profiles error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1131,8 +1151,9 @@ app.post("/api/me/game-profiles", async (c) => {
       createdAt: profile.createdAt.toISOString()
     });
   } catch (error) {
-    console.error("Create me profile error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Create me profile error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1151,8 +1172,9 @@ app.delete("/api/me/game-profiles/:id", async (c) => {
     await prisma.gameProfile.delete({ where: { id: profileId } });
     return c.json({ statusCode: 204 });
   } catch (error) {
-    console.error("Delete me profile error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Delete me profile error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1172,8 +1194,9 @@ app.delete("/api/game-profiles/:id", async (c) => {
     await prisma.gameProfile.delete({ where: { id: profileId } });
     return c.json({ statusCode: 204 });
   } catch (error) {
-    console.error("Delete profile error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Delete profile error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1190,8 +1213,9 @@ app.get("/api/platform-links", async (c) => {
     });
     return c.json(links.map((l) => ({ id: l.id, provider: l.provider, externalHandle: l.externalHandle, gameId: l.gameProfile.gameId, hasRankData: l.hasRankData })));
   } catch (error) {
-    console.error("List links error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("List links error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1214,8 +1238,9 @@ app.post("/api/platform-links", async (c) => {
 
     return c.json({ id: link.id, provider: link.provider, externalHandle: link.externalHandle, gameId: link.gameProfile.gameId, hasRankData: link.hasRankData });
   } catch (error) {
-    console.error("Create link error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Create link error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1236,8 +1261,9 @@ app.post("/api/platform-links/:id/refresh", async (c) => {
     // For now, just return success
     return c.json({ ok: true });
   } catch (error) {
-    console.error("Refresh link error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Refresh link error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1257,8 +1283,9 @@ app.delete("/api/platform-links/:id", async (c) => {
     await prisma.platformLink.delete({ where: { id: linkId } });
     return c.json({ statusCode: 204 });
   } catch (error) {
-    console.error("Delete link error:", error);
-    return c.json({ statusCode: 500, message: "Server error" }, 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Delete link error:", errorMsg, error);
+    return c.json({ statusCode: 500, message: `Server error: ${errorMsg}` }, 500);
   }
 });
 
@@ -1319,7 +1346,8 @@ app.get("/api/platform-links/faceit/callback", async (c) => {
     // For now, return to dashboard with success
     return c.redirect(`${webOrigin(c.env)}/dashboard${gameId ? `?game=${gameId}` : ""}`);
   } catch (error) {
-    console.error("FaceIT OAuth error:", error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("FaceIT OAuth error:", errorMsg, error);
     return c.redirect(`${webOrigin(c.env)}/dashboard?error=platform_link_failed`);
   }
 });
@@ -1382,7 +1410,8 @@ app.get("/api/platform-links/riot/callback", async (c) => {
     // For now, return to dashboard with success
     return c.redirect(`${webOrigin(c.env)}/dashboard${gameId ? `?game=${gameId}` : ""}`);
   } catch (error) {
-    console.error("Riot OAuth error:", error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("Riot OAuth error:", errorMsg, error);
     return c.redirect(`${webOrigin(c.env)}/dashboard?error=platform_link_failed`);
   }
 });
