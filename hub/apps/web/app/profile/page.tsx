@@ -24,12 +24,22 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
+    let isMounted = true;
     Promise.all([api.listGames(), api.myGameProfiles()])
       .then(([g, p]) => {
+        if (!isMounted) return;
         setGames(g.games || []);
         setProfiles(p.gameProfiles || []);
       })
-      .catch((e) => setError(e instanceof Error ? e.message : "Error"));
+      .catch((e) => {
+        if (!isMounted) return;
+        setError(e instanceof Error ? e.message : "Error");
+        setGames([]);
+        setProfiles([]);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const refresh = () => api.myGameProfiles().then((p) => setProfiles(p.gameProfiles));
