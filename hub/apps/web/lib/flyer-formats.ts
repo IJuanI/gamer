@@ -20,9 +20,18 @@ export const FLYER_FORMATS: Record<string, FlyerFormat> = {
     aspectRatio: "9:16",
     safeZone: { top: 250, bottom: 250, left: 60, right: 60 },
   },
+  "instagram-feed-tall": {
+    id: "instagram-feed-tall",
+    name: "Instagram Post (3:4)",
+    platform: "Instagram",
+    width: 1080,
+    height: 1440,
+    aspectRatio: "3:4",
+    safeZone: { top: 40, bottom: 40, left: 40, right: 40 },
+  },
   "instagram-feed-post": {
     id: "instagram-feed-post",
-    name: "Instagram Feed Post (4:5)",
+    name: "Instagram Post (4:5)",
     platform: "Instagram",
     width: 1080,
     height: 1350,
@@ -31,7 +40,7 @@ export const FLYER_FORMATS: Record<string, FlyerFormat> = {
   },
   "whatsapp-status": {
     id: "whatsapp-status",
-    name: "WhatsApp / Cuadrado",
+    name: "WhatsApp",
     platform: "WhatsApp",
     width: 1080,
     height: 1080,
@@ -39,5 +48,7 @@ export const FLYER_FORMATS: Record<string, FlyerFormat> = {
     safeZone: { top: 60, bottom: 60, left: 60, right: 60 },
   },
 };
+
+export type FlyerFormatId = keyof typeof FLYER_FORMATS;
 
 export const FLYER_FORMAT_LIST = Object.values(FLYER_FORMATS);

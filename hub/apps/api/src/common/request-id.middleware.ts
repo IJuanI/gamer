@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 export const REQUEST_ID_HEADER = "x-request-id";
 
 declare global {
+  // Express's Request type is augmented through a namespace. ES modules can't do this.
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       id?: string;

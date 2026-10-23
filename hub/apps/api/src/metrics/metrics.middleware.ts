@@ -12,7 +12,7 @@ export class MetricsMiddleware implements NestMiddleware {
     res.on("finish", () => {
       const responseTime = Date.now() - startTime;
       // Normalize path by removing IDs to group similar endpoints
-      const normalizedPath = req.path.replace(/\/[a-f0-9\-]{24,36}\//g, "/:id/");
+      const normalizedPath = req.path.replace(/\/[a-f0-9-]{24,36}\//g, "/:id/");
       this.metrics.recordRequest(
         normalizedPath,
         req.method,
