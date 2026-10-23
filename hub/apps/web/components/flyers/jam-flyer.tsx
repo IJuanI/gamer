@@ -1,7 +1,10 @@
 "use client";
 
 import { Gamepad2, Hexagon, Zap, Joystick, Swords } from "lucide-react";
-import type { JamFlyerData } from "@/lib/jam-flyer-data";
+import { JAM_FLYER_DATA, type JamFlyerData } from "@/lib/jam-flyer-data";
+
+/** The principal Jam artwork has no eyebrow line; only repost variants add one. */
+const JAM_DEFAULT_EYEBROW = JAM_FLYER_DATA.eyebrow;
 import type { FlyerFormat } from "@/lib/flyer-formats";
 
 /**
@@ -143,6 +146,11 @@ export function JamFlyer({ event, format }: { event: JamFlyerData; format: Flyer
           {/* Group 2: date + lugar, kept close together, same horizontal span
               (grid, not flex, so both rows reliably share the width of the widest one) */}
           <div className="grid justify-items-stretch" style={{ rowGap: 18 * u }}>
+            {event.eyebrow && event.eyebrow !== JAM_DEFAULT_EYEBROW && (
+              <p className="font-semibold text-center uppercase tracking-[0.2em]" style={{ fontSize: 30 * u, color: "#3cff9e" }}>
+                {event.eyebrow}
+              </p>
+            )}
             <p className="font-bold text-center" style={{ fontSize: 64 * u, color: "#ffffff" }}>
               {event.dateRange}
             </p>
