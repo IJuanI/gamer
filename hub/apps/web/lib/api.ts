@@ -16,7 +16,19 @@ import type {
 
 import { reportError } from "./telemetry";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+function getApiUrl(): string {
+  if (typeof window === "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  }
+  // At runtime, if on a preview domain (.workers.dev), use relative path (empty string for root)
+  if (window.location.hostname.includes(".workers.dev")) {
+    return "";
+  }
+  // Otherwise use configured URL
+  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+}
+
+const API_URL = getApiUrl();
 
 // No production API is deployed yet, so unless NEXT_PUBLIC_API_URL was set at
 // build time, this would otherwise point every deployed domain at localhost —
@@ -130,10 +142,14 @@ export const api = {
     request<PublicTeam>("/teams", { method: "POST", body: JSON.stringify(payload) }),
   updateTeam: (id: string, payload: UpdateTeamPayload) =>
     request<PublicTeam>(`/teams/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteTeam: (id: string) =>
+    request<{ ok: boolean }>(`/teams/${id}`, { method: "DELETE" }),
   addTeamMember: (id: string, userId: string) =>
     request<PublicTeam>(`/teams/${id}/members`, { method: "POST", body: JSON.stringify({ userId }) }),
-  removeTeamMember: (id: string, userId: string) =>
-    request<{ ok: boolean }>(`/teams/${id}/members/${userId}`, { method: "DELETE" }),
+  removeTeamMember: (teamId: string, memberId: string) =>
+    request<{ ok: boolean }>(`/teams/${teamId}/members/${memberId}`, { method: "DELETE" }),
+  updateTeamMemberRole: (teamId: string, memberId: string, role: "CAPTAIN" | "MEMBER") =>
+    request<{ id: string; role: string }>(`/teams/${teamId}/members/${memberId}`, { method: "PATCH", body: JSON.stringify({ role }) }),
 
   // Recruitment posts
   listRecruitmentPosts: (params?: { gameId?: string; type?: string; isOpen?: boolean }) => {
@@ -142,7 +158,7 @@ export const api = {
     if (params?.type) q.set("type", params.type);
     if (params?.isOpen !== undefined) q.set("isOpen", String(params.isOpen));
     const qs = q.toString();
-    return request<{ recruitmentPosts: PublicRecruitmentPost[] }>(`/recruitment-posts${qs ? `?${qs}` : ""}`);
+    return request<PublicRecruitmentPost[]>(`/recruitment-posts${qs ? `?${qs}` : ""}`);
   },
   getRecruitmentPost: (id: string) => request<PublicRecruitmentPost>(`/recruitment-posts/${id}`),
   createRecruitmentPost: (payload: CreateRecruitmentPostPayload) =>

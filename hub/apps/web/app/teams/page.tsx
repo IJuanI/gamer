@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Users, Plus } from "lucide-react";
@@ -21,18 +21,48 @@ export default function TeamsPage() {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
-  useEffect(() => {
-    if (!user) return;
-    api.listGames().then((r) => setGames(r.games)).catch(() => {});
-  }, [user]);
+  useLayoutEffect(() => {
+    let isMounted = true;
+    fetch('/api/games', { credentials: 'include' })
+      .then(res => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        const gamesArray = Array.isArray(data) ? data : data?.games || [];
+        setGames(gamesArray);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    api
-      .listTeams(gameId || undefined)
-      .then((r) => setTeams(r.teams))
-      .catch((e) => setError(e instanceof Error ? e.message : "Error"));
-  }, [user, gameId]);
+  useLayoutEffect(() => {
+    let isMounted = true;
+    const query = gameId ? `?gameId=${gameId}` : '';
+    fetch(`/api/teams${query}`, { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) {
+          if (isMounted) console.error(`Teams API error: ${res.status}`);
+          return [];
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        const teamsArray = Array.isArray(data) ? data : data?.teams || [];
+        setTeams(teamsArray);
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error('Failed to fetch teams:', e);
+        setError(e instanceof Error ? e.message : "Error");
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [gameId]);
 
   if (loading || !user) {
     return (
@@ -63,12 +93,13 @@ export default function TeamsPage() {
           <h1 className="font-azonix text-2xl text-white">Equipos</h1>
           <div className="flex items-center gap-3">
             <select
+              key={`select-${games.length}`}
               value={gameId}
               onChange={(e) => setGameId(e.target.value)}
               className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-sm text-white"
             >
               <option value="">Todos los juegos</option>
-              {games.map((g) => (
+              {games.length > 0 && games.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
                 </option>
@@ -86,8 +117,8 @@ export default function TeamsPage() {
 
         {error && <p className="mt-4 text-sm text-[var(--gamer-purple-text)]">{error}</p>}
 
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {teams.map((team) => (
+        <div key={`teams-${teams.length}`} className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {teams.length > 0 && teams.map((team) => (
             <Link
               key={team.id}
               href={`/teams/${team.id}`}

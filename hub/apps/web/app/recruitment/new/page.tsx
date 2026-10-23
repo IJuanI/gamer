@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { PublicGame, PublicTeam, RecruitmentPostType } from "@gamer/shared";
@@ -25,16 +25,33 @@ export default function NewRecruitmentPostPage() {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
-  useEffect(() => {
-    api.listGames().then((r) => {
-      setGames(r.games);
-      setGameId((prev) => prev || r.games[0]?.id || "");
-    });
+  useLayoutEffect(() => {
+    let isMounted = true;
+    fetch('/api/games', { credentials: 'include' })
+      .then(res => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        const gamesArray = Array.isArray(data) ? data : data?.games || [];
+        setGames(gamesArray);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        console.error("Failed to load games:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
     if (!user || type !== "LOOKING_FOR_PLAYERS") return;
-    api.listTeams().then((r) => setMyTeams(r.teams.filter((t) => t.members.some((m) => m.userId === user.id && m.role === "CAPTAIN"))));
+    api.listTeams().then((r) => {
+      const teamsList = Array.isArray(r.teams) ? r.teams : [];
+      setMyTeams(teamsList.filter((t) => t.members.some((m) => m.userId === user.id && m.role === "CAPTAIN")));
+    }).catch((err) => {
+      console.error("Failed to load teams:", err);
+      setMyTeams([]);
+    });
   }, [user, type]);
 
   if (loading || !user) {
@@ -101,11 +118,13 @@ export default function NewRecruitmentPostPage() {
             <label className="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
               Juego
               <select
+                key={`game-${games.length}`}
                 value={gameId}
                 onChange={(e) => setGameId(e.target.value)}
                 className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
               >
-                {games.map((g) => (
+                <option value="">Seleccionar juego</option>
+                {games.length > 0 && games.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.name}
                   </option>
@@ -116,6 +135,7 @@ export default function NewRecruitmentPostPage() {
               <label className="flex flex-col gap-1 text-sm text-[var(--text-secondary)]">
                 Equipo (opcional)
                 <select
+                  key={`team-${myTeams.length}`}
                   value={teamId}
                   onChange={(e) => setTeamId(e.target.value)}
                   className="rounded-md border border-white/10 bg-[var(--background)] px-3 py-2 text-white"
