@@ -64,7 +64,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: pnpm test --passWithNoTests
+        run: pnpm -r --if-present test
 
   build-api:
     name: Build API

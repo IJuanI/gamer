@@ -13,7 +13,6 @@ export default [
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        project: './tsconfig.json',
       },
     },
     plugins: {
@@ -26,6 +25,8 @@ export default [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // TypeScript checks undefined names itself. The core rule flags console, fetch and other globals.
+      'no-undef': 'off',
       '@typescript-eslint/explicit-function-return-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
     },

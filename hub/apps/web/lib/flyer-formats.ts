@@ -22,7 +22,7 @@ export const FLYER_FORMATS: Record<string, FlyerFormat> = {
   },
   "instagram-feed-tall": {
     id: "instagram-feed-tall",
-    name: "Instagram Largo (3:4)",
+    name: "Instagram Post (3:4)",
     platform: "Instagram",
     width: 1080,
     height: 1440,
@@ -31,7 +31,7 @@ export const FLYER_FORMATS: Record<string, FlyerFormat> = {
   },
   "instagram-feed-post": {
     id: "instagram-feed-post",
-    name: "Instagram Feed Post (4:5)",
+    name: "Instagram Post (4:5)",
     platform: "Instagram",
     width: 1080,
     height: 1350,
@@ -40,7 +40,7 @@ export const FLYER_FORMATS: Record<string, FlyerFormat> = {
   },
   "whatsapp-status": {
     id: "whatsapp-status",
-    name: "WhatsApp / Cuadrado",
+    name: "WhatsApp",
     platform: "WhatsApp",
     width: 1080,
     height: 1080,

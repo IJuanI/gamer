@@ -17,7 +17,9 @@ export interface FlyerBrandTokens {
   accentAlt: string;
   text: string;
   muted: string;
-  /** Font family for the big title. GamER headlines are AZONIX per brand rules. */
+  /** Colour for the big title. Defaults to text when unset. */
+  titleColor?: string;
+  /** Font family for the big title. GamER and GameDevs headlines are AZONIX, matching their landing pages. */
   titleFont: "azonix" | "sans";
   logo: string;
   logoAlt: string;
@@ -26,11 +28,38 @@ export interface FlyerBrandTokens {
 }
 
 export const FLYER_BRANDS: Record<FlyerBrand, FlyerBrandTokens> = {
+  gamer: {
+    id: "gamer",
+    name: "GamER",
+    bg: "#0a0a12",
+    grid: "rgba(179,57,196,0.1)",
+    accent: "#B339C4",
+    accentAlt: "#84C552",
+    text: "#ffffff",
+    muted: "#c4bccf",
+    titleFont: "azonix",
+    logo: "/logo.png",
+    logoAlt: "GamER",
+  },
+  gamedevs: {
+    id: "gamedevs",
+    name: "GameDevs",
+    bg: "#000000",
+    grid: "rgba(114,179,65,0.06)",
+    accent: "#72b341",
+    accentAlt: "#619f2f",
+    text: "#ffffff",
+    muted: "#a8a8a8",
+    titleColor: "#72b341",
+    titleFont: "azonix",
+    logo: "/gamedevs-icon.svg",
+    logoAlt: "GameDevs",
+  },
   jam: {
     id: "jam",
     name: "Paraná Game Jam",
     bg: "#0b1020",
-    grid: "rgba(60,255,158,0.3)",
+    grid: "rgba(60,255,158,0.08)",
     accent: "#3cff9e",
     accentAlt: "#8b6cff",
     text: "#ffffff",
@@ -39,32 +68,6 @@ export const FLYER_BRANDS: Record<FlyerBrand, FlyerBrandTokens> = {
     logo: "/gamejamplus-logo.png",
     logoAlt: "Game Jam Plus",
     titleImage: "/jam/pgj-logo.png",
-  },
-  gamedevs: {
-    id: "gamedevs",
-    name: "GameDevs",
-    bg: "#000000",
-    grid: "rgba(114,179,65,0.22)",
-    accent: "#72b341",
-    accentAlt: "#619f2f",
-    text: "#ffffff",
-    muted: "#808080",
-    titleFont: "sans",
-    logo: "/gamedevs-icon.svg",
-    logoAlt: "GameDevs",
-  },
-  gamer: {
-    id: "gamer",
-    name: "GamER",
-    bg: "#0a0a12",
-    grid: "rgba(179,57,196,0.18)",
-    accent: "#B339C4",
-    accentAlt: "#84C552",
-    text: "#ffffff",
-    muted: "#9E46AE",
-    titleFont: "azonix",
-    logo: "/logo.png",
-    logoAlt: "GamER",
   },
 };
 
