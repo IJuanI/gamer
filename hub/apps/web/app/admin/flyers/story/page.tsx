@@ -1,13 +1,13 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, Suspense } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, Suspense, type ReactNode } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown, ArrowLeft, ArrowLeftRight, ArrowUp, Download, Eye, EyeOff, Pause, Play, Plus, Trash2, Upload } from "lucide-react";
 import { Role } from "@gamer/shared";
 import { useAuth } from "@/components/auth-provider";
-import { PanelLoop, StoryPlayer } from "@/components/flyers/story-player";
+import { PanelLoop, StoryPlayer, type SharedLogos } from "@/components/flyers/story-player";
 import { FLYER_BRAND_LIST, FLYER_BRANDS, type FlyerBrand } from "@/lib/flyer-brands";
 import { FLYER_FORMATS } from "@/lib/flyer-formats";
 import { decodeAudioFile, findBeats, type BeatAnalysis } from "@/lib/audio-beats";
@@ -21,6 +21,7 @@ import {
   REVEALS,
   buildTimeline,
   newPanel,
+  panelBrand,
   type ContentId,
   type EffectId,
   type EntranceId,
@@ -41,7 +42,7 @@ import {
   type Direction,
   type TransitionId,
 } from "@/lib/story-transitions";
-import { BACKGROUNDS, FLYER_DEFAULTS, type FlyerBackground, type FlyerFieldKey, type VenueData, type VenueMode } from "@/lib/flyer-kinds";
+import { BACKGROUNDS, FLYER_DEFAULTS, MAX_SPONSORS, type FlyerBackground, type FlyerFieldKey, type VenueData, type VenueMode } from "@/lib/flyer-kinds";
 import { useFitWidth } from "@/lib/use-fit-width";
 
 export const dynamic = "force-dynamic";
@@ -355,18 +356,19 @@ function StoryContent() {
         </div>
 
         <div className="min-w-0 space-y-6">
-          <section className="panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
-            <h2 className="mb-4 font-azonix text-base text-white">Marca</h2>
+          <Collapsible title="Marca" defaultOpen>
             <Chips
               options={FLYER_BRAND_LIST.map((b) => ({ id: b.id, label: b.name }))}
               value={config.brand}
               onChange={(id) => update({ brand: id as FlyerBrand })}
             />
-          </section>
+          </Collapsible>
 
-          <section className="panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
+          <Collapsible title="Paneles" defaultOpen>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-azonix text-base text-white">Paneles</h2>
+              <p className="text-sm text-[var(--muted)]">
+                Cada panel muestra un contenido y tiene sus propios efectos. Los bloques entran según la aparición elegida, como si los presentaras.
+              </p>
               <button
                 type="button"
                 aria-pressed={compact}
@@ -376,9 +378,6 @@ function StoryContent() {
                 {compact ? "Vista detallada" : "Vista compacta"}
               </button>
             </div>
-            <p className="mb-4 text-sm text-[var(--muted)]">
-              Cada panel muestra un contenido y tiene sus propios efectos. Los bloques entran según la aparición elegida, como si los presentaras.
-            </p>
             <div className="space-y-3">
               {config.panels.map((p, i) => (
                 <Fragment key={p.id}>
@@ -390,7 +389,8 @@ function StoryContent() {
                     />
                   )}
                   <PanelCard
-                    brand={config.brand}
+                    brand={panelBrand(config, p)}
+                    logos={config}
                     index={i}
                     panel={p}
                     total={config.panels.length}
@@ -411,11 +411,83 @@ function StoryContent() {
             >
               <Plus className="h-4 w-4" /> Agregar panel
             </button>
-          </section>
+          </Collapsible>
 
-          <section className="panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-azonix text-base text-white">Transiciones</h2>
+          <Collapsible title="Logos y patrocinadores">
+            <p className="mb-4 text-sm text-[var(--muted)]">
+              Se usan en todos los paneles. Cada panel puede ocultarlos con el ojo de su tarjeta.
+            </p>
+            <p className="mb-2 text-xs uppercase tracking-wider text-[var(--muted)]">Logo del evento</p>
+            <input
+              value={config.eventLogo ?? FLYER_DEFAULTS[config.brand].eventLogo}
+              onChange={(e) => update({ eventLogo: e.target.value })}
+              placeholder="Ruta o imagen. Vacío = sin logo"
+              aria-label="Logo del evento"
+              className="min-h-11 w-full rounded-md border border-white/10 bg-[#0e0e18] px-3 py-2 text-base text-white outline-none placeholder:text-white/30 focus:border-[var(--gamer-purple)] sm:text-sm"
+            />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-white sm:min-h-0">
+                <Upload className="h-4 w-4" /> Subir logo del evento
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) readFileAsDataUrl(file, (src) => update({ eventLogo: src }));
+                  }}
+                />
+              </label>
+            </div>
+
+            <p className="mb-2 mt-6 text-xs uppercase tracking-wider text-[var(--muted)]">Patrocinadores</p>
+            <div className="space-y-2">
+              {(config.sponsors ?? FLYER_DEFAULTS[config.brand].sponsors).map((s, i, all) => (
+                <div key={`${i}-${s.name}`} className="flex items-center gap-2">
+                  <input
+                    value={s.name}
+                    aria-label={`Nombre del patrocinador ${i + 1}`}
+                    onChange={(e) => update({ sponsors: all.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)) })}
+                    className="min-h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-[#0e0e18] px-3 py-2 text-base text-white outline-none focus:border-[var(--gamer-purple)] sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => update({ sponsors: all.filter((_, j) => j !== i) })}
+                    className="min-h-11 rounded-md border border-white/10 px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-white sm:min-h-0"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              ))}
+            </div>
+            {(config.sponsors ?? FLYER_DEFAULTS[config.brand].sponsors).length < MAX_SPONSORS && (
+              <label className="mt-3 flex min-h-11 w-fit cursor-pointer items-center gap-2 rounded-md border border-dashed border-white/15 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-white sm:min-h-0">
+                <Plus className="h-4 w-4" /> Agregar patrocinador
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const current = config.sponsors ?? FLYER_DEFAULTS[config.brand].sponsors;
+                    const name = file.name.replace(/\.[^.]+$/, "") || `Patrocinador ${current.length + 1}`;
+                    readFileAsDataUrl(file, (src) => update({ sponsors: [...current, { name, src }] }));
+                  }}
+                />
+              </label>
+            )}
+            <button
+              type="button"
+              onClick={() => update({ eventLogo: undefined, sponsors: undefined })}
+              className="mt-4 min-h-11 rounded-md border border-white/10 px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-white sm:min-h-0"
+            >
+              Volver a los de la marca
+            </button>
+          </Collapsible>
+
+          <Collapsible title="Transiciones">
+            <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
               <button
                 type="button"
                 aria-pressed={config.advancedTransitions}
@@ -446,10 +518,9 @@ function StoryContent() {
                 <p className="mt-3 text-sm text-[var(--muted)]">{TRANSITIONS[config.transition].hint}</p>
               </>
             )}
-          </section>
+          </Collapsible>
 
-          <section className="panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
-            <h2 className="mb-4 font-azonix text-base text-white">Repetir</h2>
+          <Collapsible title="Repetir">
             <label className="flex min-h-11 items-center gap-3 text-sm text-[var(--text-secondary)]">
               <input type="checkbox" className="h-5 w-5" checked={config.repeat} onChange={(e) => update({ repeat: e.target.checked })} />
               Repetir la secuencia de paneles
@@ -482,10 +553,9 @@ function StoryContent() {
                 />
               </div>
             )}
-          </section>
+          </Collapsible>
 
-          <section className="panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
-            <h2 className="mb-4 font-azonix text-base text-white">Música</h2>
+          <Collapsible title="Música">
             <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-white/10 px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white">
               <Upload className="h-4 w-4" />
               {analyzing ? "Analizando audio…" : "Elegir archivo de audio (MP3, WAV, OGG, M4A, MP4)"}
@@ -544,7 +614,7 @@ function StoryContent() {
               />
               Ajustar el corte de cada panel al beat más cercano
             </label>
-          </section>
+          </Collapsible>
         </div>
       </div>
     </>
@@ -594,6 +664,26 @@ function EyeButton({ hidden, onToggle }: { hidden: boolean; onToggle: () => void
   );
 }
 
+/** Flyer blocks a panel can hide, with the same keys as the flyer page. */
+const SHARED_TOGGLES: [FlyerFieldKey, string][] = [
+  ["eventLogo", "Logo del evento"],
+  ["sponsors", "Patrocinadores"],
+  ["items", "Items"],
+];
+
+/** Collapsible section. Closed by default unless defaultOpen is set. */
+function Collapsible({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
+  return (
+    <details open={defaultOpen} className="group panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-azonix text-base text-white">
+        {title}
+        <span aria-hidden="true" className="text-[var(--muted)] transition-transform group-open:rotate-180">▾</span>
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
+  );
+}
+
 /** Venue choices for a panel. Same options as the flyer page. */
 const VENUE_OPTIONS: { id: VenueMode; label: string }[] = [
   { id: "mirador", label: "MiradorTEC" },
@@ -610,6 +700,7 @@ function readFileAsDataUrl(file: File, done: (src: string) => void) {
 
 function PanelCard({
   brand,
+  logos,
   index,
   panel,
   total,
@@ -622,6 +713,7 @@ function PanelCard({
   floatTop,
 }: {
   brand: FlyerBrand;
+  logos: SharedLogos;
   index: number;
   panel: StoryPanel;
   total: number;
@@ -684,7 +776,7 @@ function PanelCard({
   }, [floating, side, wantTop, panel.id, onFloat]);
   useEffect(() => () => onFloat(panel.id, null), [panel.id, onFloat]);
 
-  const loop = (width: number) => <PanelLoop brand={brand} panel={panel} width={width} />;
+  const loop = (width: number) => <PanelLoop brand={brand} logos={logos} panel={panel} width={width} />;
 
   // Stacked below its neighbours. If that pushes it off the bottom of the viewport, it is not shown.
   const placed = floatTop !== undefined && floatTop + FLOAT_HEIGHT <= vh - FLOAT_MARGIN;
@@ -786,6 +878,25 @@ function PanelCard({
               />
             </label>
           ))}
+        </div>
+        <div className="mt-3">
+          <span className="mb-1 block text-xs uppercase tracking-wider text-[var(--muted)]">Marca</span>
+          <Chips
+            options={[{ id: "video", label: "Como el video" }, ...FLYER_BRAND_LIST.map((b) => ({ id: b.id, label: b.name }))]}
+            value={panel.brand ?? "video"}
+            onChange={(id) => onChange({ brand: id === "video" ? undefined : (id as FlyerBrand) })}
+          />
+        </div>
+        <div className="mt-3">
+          <span className="mb-1 block text-xs uppercase tracking-wider text-[var(--muted)]">Mostrar en este panel</span>
+          <div className="flex flex-wrap gap-2">
+            {SHARED_TOGGLES.map(([key, label]) => (
+              <span key={key} className="flex min-h-11 items-center gap-2 rounded-md border border-white/10 px-3 text-sm text-[var(--text-secondary)] sm:min-h-0">
+                {label}
+                <EyeButton hidden={isHidden(key)} onToggle={() => toggleHidden(key)} />
+              </span>
+            ))}
+          </div>
         </div>
         <div className="mt-3">
           <span className="mb-1 flex items-center justify-between text-xs uppercase tracking-wider text-[var(--muted)]">

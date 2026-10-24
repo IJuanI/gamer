@@ -6,7 +6,7 @@ import { StoryMotionContext, type StoryMotion } from "@/components/flyers/story-
 import type { FlyerBrand } from "@/lib/flyer-brands";
 import { FLYER_FORMATS } from "@/lib/flyer-formats";
 import { FLYER_DEFAULTS, type FlyerData } from "@/lib/flyer-kinds";
-import { CONTENT_OPTIONS, frameAt, MIN_PANEL_MS, type EffectId, type StoryConfig, type StoryPanel, type Timeline } from "@/lib/story-model";
+import { CONTENT_OPTIONS, frameAt, MIN_PANEL_MS, panelBrand, type EffectId, type StoryConfig, type StoryPanel, type Timeline } from "@/lib/story-model";
 import { transitionStyles } from "@/lib/story-transitions";
 
 interface StoryPlayerProps {
@@ -120,11 +120,11 @@ export function StoryPlayer({ config, timeline, audioUrl, playing, width, onEnde
       <StageShell width={width} scale={scale} shake={[shakeX, shakeY]} stageStyle={styles.stage}>
         {transitioning && prevSeg && (
           <PanelSlot style={styles.prev} zoom={1}>
-            <PanelFlyer brand={config.brand} panel={prevSeg.panel} local={frame.prevLocal} now={now} />
+            <PanelFlyer brand={panelBrand(config, prevSeg.panel)} logos={config} panel={prevSeg.panel} local={frame.prevLocal} now={now} />
           </PanelSlot>
         )}
         <PanelSlot style={transitioning ? styles.next : {}} zoom={zoom}>
-          <PanelFlyer brand={config.brand} panel={seg.panel} local={frame.local} now={now} />
+          <PanelFlyer brand={panelBrand(config, seg.panel)} logos={config} panel={seg.panel} local={frame.local} now={now} />
         </PanelSlot>
         <Overlays t={time} fx={fx} flash={flash} />
       </StageShell>
@@ -136,7 +136,7 @@ export function StoryPlayer({ config, timeline, audioUrl, playing, width, onEnde
  * One panel on a loop, for the per-panel preview beside the editor. Plays the panel's own
  * entrance, reveal and effects from the start, over and over. It has no transition.
  */
-export function PanelLoop({ brand, panel, width }: { brand: FlyerBrand; panel: StoryPanel; width: number }) {
+export function PanelLoop({ brand, logos, panel, width }: { brand: FlyerBrand; logos: SharedLogos; panel: StoryPanel; width: number }) {
   const [local, setLocal] = useState(0);
   const dur = Math.max(MIN_PANEL_MS, panel.durationMs);
 
@@ -162,7 +162,7 @@ export function PanelLoop({ brand, panel, width }: { brand: FlyerBrand; panel: S
   return (
     <StageShell width={width} scale={scale} shake={[shakeX, shakeY]}>
       <PanelSlot style={{}} zoom={zoom}>
-        <PanelFlyer brand={brand} panel={panel} local={local} now={new Date()} />
+        <PanelFlyer brand={brand} logos={logos} panel={panel} local={local} now={new Date()} />
       </PanelSlot>
       <Overlays t={local} fx={fx} flash={flash} />
     </StageShell>
@@ -206,16 +206,21 @@ function PanelSlot({ style, zoom, children }: { style: CSSProperties; zoom: numb
   );
 }
 
-/** Brand defaults, with this panel's own text and background laid over them. */
-export function panelFlyerData(brand: FlyerBrand, panel: StoryPanel): FlyerData {
+/** Logo and sponsors shared by every panel of the video. */
+export type SharedLogos = Pick<StoryConfig, "eventLogo" | "sponsors">;
+
+/** Brand defaults, with the video's logos and this panel's own text and background laid over them. */
+export function panelFlyerData(brand: FlyerBrand, panel: StoryPanel, logos: SharedLogos = {}): FlyerData {
   return {
     ...FLYER_DEFAULTS[brand],
+    ...(logos.eventLogo !== undefined ? { eventLogo: logos.eventLogo } : {}),
+    ...(logos.sponsors !== undefined ? { sponsors: logos.sponsors } : {}),
     ...panel.text,
     ...(panel.background ? { background: panel.background } : {}),
   };
 }
 
-function PanelFlyer({ brand, panel, local, now }: { brand: FlyerBrand; panel: StoryPanel; local: number; now: Date }) {
+function PanelFlyer({ brand, logos, panel, local, now }: { brand: FlyerBrand; logos: SharedLogos; panel: StoryPanel; local: number; now: Date }) {
   const option = CONTENT_OPTIONS[panel.content];
   const motion: StoryMotion = {
     local,
@@ -231,7 +236,7 @@ function PanelFlyer({ brand, panel, local, now }: { brand: FlyerBrand; panel: St
         kind={option.kind}
         variant={option.variant}
         infoVariant={option.infoVariant}
-        data={panelFlyerData(brand, panel)}
+        data={panelFlyerData(brand, panel, logos)}
         format={FORMAT}
         now={now}
         hidden={panel.hidden ?? {}}

@@ -1,5 +1,5 @@
 import type { FlyerBrand } from "@/lib/flyer-brands";
-import type { EventVariant, FlyerBackground, FlyerHidden, FlyerKind, InfographicVariant, VenueData } from "@/lib/flyer-kinds";
+import type { EventVariant, FlyerBackground, FlyerHidden, FlyerKind, InfographicVariant, SponsorLogo, VenueData } from "@/lib/flyer-kinds";
 import type { Direction, TransitionId } from "@/lib/story-transitions";
 
 /** What a panel shows. Each option maps to one flyer kind and variant. */
@@ -83,6 +83,8 @@ export interface StoryPanel {
   revealStepMs: number;
   /** Effects that play while this panel is on screen. Transitions blend the effects of both panels. */
   effects: EffectId[];
+  /** Brand for this panel. Unset means the video's brand. */
+  brand?: FlyerBrand;
   /** Background for this panel. Unset means the brand's default background. */
   background?: FlyerBackground;
 }
@@ -90,6 +92,10 @@ export interface StoryPanel {
 export interface StoryConfig {
   brand: FlyerBrand;
   panels: StoryPanel[];
+  /** Event logo shown on every panel. Unset means each panel's brand logo. */
+  eventLogo?: string;
+  /** Sponsor logos shown on every panel. Unset means each panel's brand sponsors. */
+  sponsors?: SponsorLogo[];
   transition: TransitionId;
   /** When on, each transition is set between its two panels (`panel.transitionFx`) instead of `transition`. */
   advancedTransitions: boolean;
@@ -106,6 +112,11 @@ export interface StoryConfig {
    * track. Negative: the music starts that long after the timeline starts.
    */
   musicOffsetMs: number;
+}
+
+/** The brand a panel is drawn with: its own, or the video's. */
+export function panelBrand(config: Pick<StoryConfig, "brand">, panel: StoryPanel): FlyerBrand {
+  return panel.brand ?? config.brand;
 }
 
 export interface Segment {
