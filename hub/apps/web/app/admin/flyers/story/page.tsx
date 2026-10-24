@@ -21,7 +21,6 @@ import {
   REVEALS,
   buildTimeline,
   newPanel,
-  panelBrand,
   type ContentId,
   type EffectId,
   type EntranceId,
@@ -356,15 +355,15 @@ function StoryContent() {
         </div>
 
         <div className="min-w-0 space-y-6">
-          <Collapsible title="Marca" defaultOpen>
+          <Section title="Marca">
             <Chips
               options={FLYER_BRAND_LIST.map((b) => ({ id: b.id, label: b.name }))}
               value={config.brand}
               onChange={(id) => update({ brand: id as FlyerBrand })}
             />
-          </Collapsible>
+          </Section>
 
-          <Collapsible title="Paneles" defaultOpen>
+          <Section title="Paneles">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-[var(--muted)]">
                 Cada panel muestra un contenido y tiene sus propios efectos. Los bloques entran según la aparición elegida, como si los presentaras.
@@ -389,7 +388,7 @@ function StoryContent() {
                     />
                   )}
                   <PanelCard
-                    brand={panelBrand(config, p)}
+                    brand={config.brand}
                     logos={config}
                     index={i}
                     panel={p}
@@ -411,9 +410,9 @@ function StoryContent() {
             >
               <Plus className="h-4 w-4" /> Agregar panel
             </button>
-          </Collapsible>
+          </Section>
 
-          <Collapsible title="Logos y patrocinadores">
+          <Section title="Logos y patrocinadores">
             <p className="mb-4 text-sm text-[var(--muted)]">
               Se usan en todos los paneles. Cada panel puede ocultarlos con el ojo de su tarjeta.
             </p>
@@ -484,9 +483,9 @@ function StoryContent() {
             >
               Volver a los de la marca
             </button>
-          </Collapsible>
+          </Section>
 
-          <Collapsible title="Transiciones">
+          <Section title="Transiciones">
             <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
               <button
                 type="button"
@@ -518,9 +517,9 @@ function StoryContent() {
                 <p className="mt-3 text-sm text-[var(--muted)]">{TRANSITIONS[config.transition].hint}</p>
               </>
             )}
-          </Collapsible>
+          </Section>
 
-          <Collapsible title="Repetir">
+          <Section title="Repetir">
             <label className="flex min-h-11 items-center gap-3 text-sm text-[var(--text-secondary)]">
               <input type="checkbox" className="h-5 w-5" checked={config.repeat} onChange={(e) => update({ repeat: e.target.checked })} />
               Repetir la secuencia de paneles
@@ -553,9 +552,9 @@ function StoryContent() {
                 />
               </div>
             )}
-          </Collapsible>
+          </Section>
 
-          <Collapsible title="Música">
+          <Section title="Música">
             <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-white/10 px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white">
               <Upload className="h-4 w-4" />
               {analyzing ? "Analizando audio…" : "Elegir archivo de audio (MP3, WAV, OGG, M4A, MP4)"}
@@ -614,7 +613,7 @@ function StoryContent() {
               />
               Ajustar el corte de cada panel al beat más cercano
             </label>
-          </Collapsible>
+          </Section>
         </div>
       </div>
     </>
@@ -671,15 +670,25 @@ const SHARED_TOGGLES: [FlyerFieldKey, string][] = [
   ["items", "Items"],
 ];
 
-/** Collapsible section. Closed by default unless defaultOpen is set. */
-function Collapsible({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
+/** Sidebar section with a fixed header. */
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <details open={defaultOpen} className="group panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-azonix text-base text-white">
+    <section className="panel-clip border border-white/8 bg-[var(--background-elevated)] p-4 sm:p-6">
+      <h2 className="mb-4 font-azonix text-base text-white">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+/** Collapsible part of a panel card. Closed unless defaultOpen is set. */
+function Fold({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
+  return (
+    <details open={defaultOpen} className="group rounded-md border border-white/10 px-3 py-2">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs uppercase tracking-wider text-[var(--muted)] hover:text-white">
         {title}
-        <span aria-hidden="true" className="text-[var(--muted)] transition-transform group-open:rotate-180">▾</span>
+        <span aria-hidden="true" className="transition-transform group-open:rotate-180">▾</span>
       </summary>
-      <div className="mt-4">{children}</div>
+      <div className="mt-3">{children}</div>
     </details>
   );
 }
@@ -818,6 +827,7 @@ function PanelCard({
         onChange={(v) => onChange({ transitionMs: v })}
       />
 
+      <Fold title="Fondo de este panel">
       <div>
         <p className="mb-2 text-xs uppercase tracking-wider text-[var(--muted)]">Fondo de este panel</p>
         <Chips
@@ -830,6 +840,9 @@ function PanelCard({
         />
       </div>
 
+      </Fold>
+
+      <Fold title="Animación">
       <div>
         <p className="mb-2 text-xs uppercase tracking-wider text-[var(--muted)]">Entrada de cada bloque</p>
         <Chips
@@ -861,6 +874,8 @@ function PanelCard({
         )}
       </div>
 
+      </Fold>
+
       <div className={compact ? "sm:col-span-2" : undefined}>
         <p className="mb-2 text-xs uppercase tracking-wider text-[var(--muted)]">Textos de este panel</p>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -879,14 +894,7 @@ function PanelCard({
             </label>
           ))}
         </div>
-        <div className="mt-3">
-          <span className="mb-1 block text-xs uppercase tracking-wider text-[var(--muted)]">Marca</span>
-          <Chips
-            options={[{ id: "video", label: "Como el video" }, ...FLYER_BRAND_LIST.map((b) => ({ id: b.id, label: b.name }))]}
-            value={panel.brand ?? "video"}
-            onChange={(id) => onChange({ brand: id === "video" ? undefined : (id as FlyerBrand) })}
-          />
-        </div>
+        <Fold title="Logo, patrocinadores y lugar">
         <div className="mt-3">
           <span className="mb-1 block text-xs uppercase tracking-wider text-[var(--muted)]">Mostrar en este panel</span>
           <div className="flex flex-wrap gap-2">
@@ -929,16 +937,16 @@ function PanelCard({
           )}
         </div>
         <p className="mt-2 text-xs text-[var(--muted)]">Vacío usa el texto de la marca (en gris).</p>
+        </Fold>
       </div>
 
-      <div className={compact ? "sm:col-span-2" : undefined}>
-        <p className="mb-2 text-xs uppercase tracking-wider text-[var(--muted)]">Efectos de este panel</p>
+      <Fold title="Efectos de este panel">
         <MultiChips
           options={(Object.keys(EFFECTS) as EffectId[]).map((id) => ({ id, label: EFFECTS[id].label, hint: EFFECTS[id].hint }))}
           selected={panel.effects}
           onToggle={(id) => onToggleEffect(id as EffectId)}
         />
-      </div>
+      </Fold>
     </div>
   );
 
