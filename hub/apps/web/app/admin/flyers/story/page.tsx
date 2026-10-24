@@ -637,7 +637,6 @@ const PANEL_TEXT_FIELDS: [Exclude<keyof PanelText, "venue">, string][] = [
   ["title", "Título"],
   ["subtitle", "Subtítulo"],
   ["dateText", "Fecha"],
-  ["city", "Ciudad"],
 ];
 
 /** Which flyer component each panel text field controls, for the eye toggle. */
@@ -667,7 +666,6 @@ function EyeButton({ hidden, onToggle }: { hidden: boolean; onToggle: () => void
 const SHARED_TOGGLES: [FlyerFieldKey, string][] = [
   ["eventLogo", "Logo del evento"],
   ["sponsors", "Patrocinadores"],
-  ["items", "Items"],
 ];
 
 /** Sidebar section with a fixed header. */
@@ -698,7 +696,6 @@ const VENUE_OPTIONS: { id: VenueMode; label: string }[] = [
   { id: "mirador", label: "MiradorTEC" },
   { id: "text", label: "Texto libre" },
   { id: "logo", label: "Subir logo" },
-  { id: "none", label: "Sin lugar" },
 ];
 
 function readFileAsDataUrl(file: File, done: (src: string) => void) {
@@ -937,6 +934,18 @@ function PanelCard({
           )}
         </div>
         <p className="mt-2 text-xs text-[var(--muted)]">Vacío usa el texto de la marca (en gris).</p>
+        <label className="mt-3 block text-xs text-[var(--muted)]">
+          <span className="mb-1 flex items-center justify-between">
+            Ciudad
+            <EyeButton hidden={isHidden("city")} onToggle={() => toggleHidden("city")} />
+          </span>
+          <input
+            value={panel.text?.city ?? ""}
+            placeholder={FLYER_DEFAULTS[brand].city}
+            onChange={(e) => onChange({ text: { ...panel.text, city: e.target.value } })}
+            className="mt-1 min-h-11 w-full rounded-md border border-white/10 bg-[#0e0e18] px-3 py-2 text-base text-white outline-none placeholder:text-white/30 focus:border-[var(--gamer-purple)] sm:text-sm"
+          />
+        </label>
         </Fold>
       </div>
 
