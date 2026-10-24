@@ -90,10 +90,27 @@ function stackTops(floats: Record<string, FloatInfo>): Record<string, number> {
   return out;
 }
 
+/** localStorage key for the story editor's config, so edits survive a reload. */
+const STORY_STORAGE_KEY = "gamer.story-editor.config";
+
+/** Saved config, or null when there is none or it cannot be read. */
+function loadStoryConfig(): StoryConfig | null {
+  try {
+    const raw = window.localStorage.getItem(STORY_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoryConfig;
+    return parsed && Array.isArray(parsed.panels) && parsed.brand ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 function StoryContent() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [config, setConfig] = useState<StoryConfig>(DEFAULT_STORY);
+  // False until the saved config is read, so the defaults are never written over it.
+  const [restored, setRestored] = useState(false);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<BeatAnalysis | null>(null);
@@ -119,6 +136,24 @@ function StoryContent() {
       router.replace("/dashboard");
     }
   }, [loading, user, router]);
+
+  // Restore the saved config once on mount.
+  useEffect(() => {
+    const saved = loadStoryConfig();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restore from localStorage on mount, avoids hydration mismatch
+    if (saved) setConfig(saved);
+    setRestored(true);
+  }, []);
+
+  // Save every change. A full storage (logos are data URLs) just skips saving.
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      window.localStorage.setItem(STORY_STORAGE_KEY, JSON.stringify(config));
+    } catch (err) {
+      console.warn("No se pudo guardar la configuración del video", err);
+    }
+  }, [config, restored]);
 
   // Load the default track once on mount. It starts at 44.5 s (set in DEFAULT_STORY).
   useEffect(() => {
