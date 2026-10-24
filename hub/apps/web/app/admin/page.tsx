@@ -21,11 +21,21 @@ export default function AdminPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (user?.role === Role.ADMIN) {
-      api.listUsers()
-        .then(r => setMembers(r.users))
-        .catch(e => setError(e instanceof Error ? e.message : "Error cargando miembros"));
-    }
+    if (!user || user.role !== Role.ADMIN) return;
+    let isMounted = true;
+    api.listUsers()
+      .then(r => {
+        if (!isMounted) return;
+        setMembers(r.users);
+      })
+      .catch(e => {
+        if (!isMounted) return;
+        setError(e instanceof Error ? e.message : "Error cargando miembros");
+        setMembers([]);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   if (loading || !user || user.role !== Role.ADMIN) {

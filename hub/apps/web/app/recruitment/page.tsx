@@ -47,14 +47,21 @@ export default function RecruitmentPage() {
 
   useEffect(() => {
     if (!user) return; // Don't fetch if user not loaded
+    let isMounted = true;
     api
       .listRecruitmentPosts({ gameId: gameId || undefined, type: type || undefined, isOpen: true })
       .then((r) => {
-        setPosts(r);
+        if (!isMounted) return;
+        setPosts(Array.isArray(r) ? r : []);
       })
       .catch((e) => {
+        if (!isMounted) return;
         setError(e instanceof Error ? e.message : "Error");
+        setPosts([]);
       });
+    return () => {
+      isMounted = false;
+    };
   }, [gameId, type, user]);
 
   if (loading || !user) {
