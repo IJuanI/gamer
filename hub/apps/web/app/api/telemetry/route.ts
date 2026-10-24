@@ -42,7 +42,7 @@ function saveEvents(events: TelemetryEvent[]) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, event, events: clearAll } = body;
+    const { action, event } = body;
 
     if (action === "clear") {
       saveEvents([]);

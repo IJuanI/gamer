@@ -1,13 +1,10 @@
 import { UsersService } from "./users.service";
-import { FirestoreService } from "../firestore/firestore.service";
+import type { PrismaService } from "../prisma/prisma.service";
 
 describe("UsersService", () => {
   let service: UsersService;
-  let firestore: FirestoreService;
-
   beforeEach(() => {
-    firestore = new FirestoreService();
-    service = new UsersService(firestore);
+    service = new UsersService({} as unknown as PrismaService);
   });
 
   it("should be defined", () => {

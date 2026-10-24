@@ -45,8 +45,10 @@ export default function TelemetryDashboard() {
   useEffect(() => {
     // Auto-load events on first mount for better UX
     if (events.length === 0 && status === "ready") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time fetch on mount
       loadEvents();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- one-time fetch on mount, must not re-run on status change
   }, []);
 
   useEffect(() => {
@@ -159,7 +161,7 @@ export default function TelemetryDashboard() {
               ) : status === "no events" ? (
                 <>
                   <div style={{ fontSize: "18px", marginBottom: "12px" }}>📭 No events recorded</div>
-                  <div style={{ fontSize: "13px" }}>Events will appear here as they're captured from your application.</div>
+                  <div style={{ fontSize: "13px" }}>Events will appear here as they&apos;re captured from your application.</div>
                 </>
               ) : status.includes("error") ? (
                 <>
@@ -172,7 +174,7 @@ export default function TelemetryDashboard() {
               ) : (
                 <>
                   <div style={{ fontSize: "18px", marginBottom: "12px" }}>📊 Telemetry Dashboard</div>
-                  <div style={{ fontSize: "13px" }}>Click "Load Events" to fetch telemetry data from the server.</div>
+                  <div style={{ fontSize: "13px" }}>Click &quot;Load Events&quot; to fetch telemetry data from the server.</div>
                 </>
               )}
             </div>

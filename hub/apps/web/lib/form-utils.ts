@@ -21,12 +21,12 @@ export function normalizeFormError(error: unknown): string {
     return error;
   }
   if (typeof error === "object" && error !== null && "message" in error) {
-    return (error as any).message;
+    return (error as { message: string }).message;
   }
   return "Algo salió mal. Por favor, intenta de nuevo.";
 }
 
-export function tryParseJSON(json: string): Record<string, any> | null {
+export function tryParseJSON(json: string): Record<string, unknown> | null {
   try {
     return JSON.parse(json);
   } catch {

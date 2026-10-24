@@ -45,7 +45,6 @@ async function sleep(ms: number): Promise<void> {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let lastError: Error | null = null;
-  const isRefreshPath = path === "/auth/refresh";
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {

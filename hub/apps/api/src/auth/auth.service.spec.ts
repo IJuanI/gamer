@@ -1,5 +1,5 @@
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import type { User } from "@prisma/client";
 import { AuthService } from "./auth.service";
 import { UsersService } from "../users/users.service";
@@ -79,8 +79,18 @@ describe("AuthService", () => {
     });
   });
 
-  it("signToken firma con el id del usuario como subject", () => {
-    expect(service.signToken(makeUser())).toBe("signed.jwt.token");
-    expect(jwt.sign).toHaveBeenCalledWith({ sub: "u1" });
+  it("signTokens firma access y refresh con el id del usuario como subject", () => {
+    expect(service.signTokens(makeUser())).toEqual({
+      accessToken: "signed.jwt.token",
+      refreshToken: "signed.jwt.token",
+    });
+    expect(jwt.sign).toHaveBeenCalledWith(
+      { sub: "u1", type: "access" },
+      expect.objectContaining({ expiresIn: "15m" }),
+    );
+    expect(jwt.sign).toHaveBeenCalledWith(
+      { sub: "u1", type: "refresh" },
+      expect.objectContaining({ expiresIn: "90d" }),
+    );
   });
 });

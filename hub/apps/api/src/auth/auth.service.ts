@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { UsersService } from "../users/users.service";
 import { RegisterDto } from "./dto";
 
@@ -54,7 +54,7 @@ export class AuthService {
     return user as any;
   }
 
-  signTokens(user: UserWithPassword): TokenPair {
+  signTokens(user: Pick<UserWithPassword, "id">): TokenPair {
     return {
       accessToken: this.jwt.sign({ sub: user.id, type: "access" }, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
       refreshToken: this.jwt.sign({ sub: user.id, type: "refresh" }, { expiresIn: REFRESH_TOKEN_EXPIRES_IN }),
