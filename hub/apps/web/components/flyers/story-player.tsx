@@ -6,7 +6,7 @@ import { StoryMotionContext, type StoryMotion } from "@/components/flyers/story-
 import type { FlyerBrand } from "@/lib/flyer-brands";
 import { FLYER_FORMATS } from "@/lib/flyer-formats";
 import { FLYER_DEFAULTS, type FlyerData } from "@/lib/flyer-kinds";
-import { CONTENT_OPTIONS, frameAt, MIN_PANEL_MS, panelBrand, type EffectId, type StoryConfig, type StoryPanel, type Timeline } from "@/lib/story-model";
+import { CONTENT_OPTIONS, frameAt, MIN_PANEL_MS, type EffectId, type StoryConfig, type StoryPanel, type Timeline } from "@/lib/story-model";
 import { transitionStyles } from "@/lib/story-transitions";
 
 interface StoryPlayerProps {
@@ -120,11 +120,11 @@ export function StoryPlayer({ config, timeline, audioUrl, playing, width, onEnde
       <StageShell width={width} scale={scale} shake={[shakeX, shakeY]} stageStyle={styles.stage}>
         {transitioning && prevSeg && (
           <PanelSlot style={styles.prev} zoom={1}>
-            <PanelFlyer brand={panelBrand(config, prevSeg.panel)} logos={config} panel={prevSeg.panel} local={frame.prevLocal} now={now} />
+            <PanelFlyer brand={config.brand} logos={config} panel={prevSeg.panel} local={frame.prevLocal} now={now} />
           </PanelSlot>
         )}
         <PanelSlot style={transitioning ? styles.next : {}} zoom={zoom}>
-          <PanelFlyer brand={panelBrand(config, seg.panel)} logos={config} panel={seg.panel} local={frame.local} now={now} />
+          <PanelFlyer brand={config.brand} logos={config} panel={seg.panel} local={frame.local} now={now} />
         </PanelSlot>
         <Overlays t={time} fx={fx} flash={flash} />
       </StageShell>

@@ -83,8 +83,6 @@ export interface StoryPanel {
   revealStepMs: number;
   /** Effects that play while this panel is on screen. Transitions blend the effects of both panels. */
   effects: EffectId[];
-  /** Brand for this panel. Unset means the video's brand. */
-  brand?: FlyerBrand;
   /** Background for this panel. Unset means the brand's default background. */
   background?: FlyerBackground;
 }
@@ -112,11 +110,6 @@ export interface StoryConfig {
    * track. Negative: the music starts that long after the timeline starts.
    */
   musicOffsetMs: number;
-}
-
-/** The brand a panel is drawn with: its own, or the video's. */
-export function panelBrand(config: Pick<StoryConfig, "brand">, panel: StoryPanel): FlyerBrand {
-  return panel.brand ?? config.brand;
 }
 
 export interface Segment {
