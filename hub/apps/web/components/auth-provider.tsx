@@ -21,7 +21,7 @@ const MAX_REFRESH_FAILURES = 3; // After 3 failures, stop retrying until next lo
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<PublicUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(API_CONFIGURED);
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const failedRefreshCountRef = useRef(0);
 
@@ -112,10 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!API_CONFIGURED) {
-      setLoading(false);
-      return;
-    }
+    if (!API_CONFIGURED) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- auth bootstrap on mount, async fetch
     initializeAuth().catch(() => {});
   }, [initializeAuth]);
 

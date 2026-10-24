@@ -9,7 +9,7 @@ export interface TelemetryError {
   url?: string;
   context?: string;
   userId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export async function reportError(error: TelemetryError): Promise<void> {

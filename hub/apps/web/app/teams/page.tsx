@@ -7,7 +7,6 @@ import { Users, Plus } from "lucide-react";
 import type { PublicGame, PublicTeam } from "@gamer/shared";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/components/auth-provider";
-import { api } from "@/lib/api";
 
 export default function TeamsPage() {
   const router = useRouter();

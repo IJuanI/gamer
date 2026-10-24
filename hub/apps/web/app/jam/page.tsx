@@ -170,6 +170,7 @@ export default function JamPage() {
 
   // Compute countdown only on client to avoid hydration mismatch, then tick every second.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only value, avoids hydration mismatch
     setCountdown(getCountdown(new Date()));
     const interval = setInterval(() => setCountdown(getCountdown(new Date())), 1000);
     return () => clearInterval(interval);
@@ -177,6 +178,7 @@ export default function JamPage() {
 
   // Select random distribution only on client to avoid hydration mismatch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- random pick is client-only, avoids hydration mismatch
     setDistribution(BG_DISTRIBUTIONS[Math.floor(Math.random() * BG_DISTRIBUTIONS.length)]);
   }, []);
 

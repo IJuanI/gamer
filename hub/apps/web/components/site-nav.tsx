@@ -7,7 +7,7 @@ import { useAuth } from "./auth-provider";
 import { ThemeToggle } from "./theme-toggle";
 
 export function SiteNav({ section }: { section?: "jam" | "gamedevs" | "gamer" } = {}) {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
   const isGameDevsRoute = section ? section === "gamedevs" : pathname.startsWith("/devs");
   const isJamRoute = section ? section === "jam" : pathname.startsWith("/jam");
