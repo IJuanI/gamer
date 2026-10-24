@@ -5,7 +5,7 @@ import { Flyer } from "@/components/flyers/flyer";
 import { StoryMotionContext, type StoryMotion } from "@/components/flyers/story-motion";
 import type { FlyerBrand } from "@/lib/flyer-brands";
 import { FLYER_FORMATS } from "@/lib/flyer-formats";
-import { FLYER_DEFAULTS } from "@/lib/flyer-kinds";
+import { FLYER_DEFAULTS, type FlyerData } from "@/lib/flyer-kinds";
 import { CONTENT_OPTIONS, frameAt, MIN_PANEL_MS, type EffectId, type StoryConfig, type StoryPanel, type Timeline } from "@/lib/story-model";
 import { transitionStyles } from "@/lib/story-transitions";
 
@@ -206,6 +206,15 @@ function PanelSlot({ style, zoom, children }: { style: CSSProperties; zoom: numb
   );
 }
 
+/** Brand defaults, with this panel's own text and background laid over them. */
+export function panelFlyerData(brand: FlyerBrand, panel: StoryPanel): FlyerData {
+  return {
+    ...FLYER_DEFAULTS[brand],
+    ...panel.text,
+    ...(panel.background ? { background: panel.background } : {}),
+  };
+}
+
 function PanelFlyer({ brand, panel, local, now }: { brand: FlyerBrand; panel: StoryPanel; local: number; now: Date }) {
   const option = CONTENT_OPTIONS[panel.content];
   const motion: StoryMotion = {
@@ -222,7 +231,7 @@ function PanelFlyer({ brand, panel, local, now }: { brand: FlyerBrand; panel: St
         kind={option.kind}
         variant={option.variant}
         infoVariant={option.infoVariant}
-        data={panel.background ? { ...FLYER_DEFAULTS[brand], background: panel.background } : FLYER_DEFAULTS[brand]}
+        data={panelFlyerData(brand, panel)}
         format={FORMAT}
         now={now}
         hidden={{}}

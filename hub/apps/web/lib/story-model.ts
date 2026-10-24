@@ -54,9 +54,20 @@ export interface TransitionFx {
   strength: number;
 }
 
+/** Text shown on one panel. A key that is unset keeps the brand default. Empty string clears the line. */
+export interface PanelText {
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  dateText?: string;
+  city?: string;
+}
+
 export interface StoryPanel {
   id: string;
   content: ContentId;
+  /** Per-panel copy. Overrides the brand defaults for the fields it sets. */
+  text?: PanelText;
   durationMs: number;
   /** Length of the transition that brings this panel in. */
   transitionMs: number;
