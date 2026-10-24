@@ -41,7 +41,7 @@ import {
   type Direction,
   type TransitionId,
 } from "@/lib/story-transitions";
-import { BACKGROUNDS, FLYER_DEFAULTS, type FlyerBackground } from "@/lib/flyer-kinds";
+import { BACKGROUNDS, FLYER_DEFAULTS, type FlyerBackground, type FlyerFieldKey, type VenueData, type VenueMode } from "@/lib/flyer-kinds";
 import { useFitWidth } from "@/lib/use-fit-width";
 
 export const dynamic = "force-dynamic";
@@ -563,13 +563,50 @@ export default function AdminStoryPage() {
 }
 
 /** Text fields a panel can override, with their labels. */
-const PANEL_TEXT_FIELDS: [keyof PanelText, string][] = [
+const PANEL_TEXT_FIELDS: [Exclude<keyof PanelText, "venue">, string][] = [
   ["eyebrow", "Etiqueta"],
   ["title", "Título"],
   ["subtitle", "Subtítulo"],
   ["dateText", "Fecha"],
   ["city", "Ciudad"],
 ];
+
+/** Which flyer component each panel text field controls, for the eye toggle. */
+const HIDDEN_KEY: Record<Exclude<keyof PanelText, "venue">, FlyerFieldKey> = {
+  eyebrow: "eyebrow",
+  title: "title",
+  subtitle: "subtitle",
+  dateText: "date",
+  city: "city",
+};
+
+function EyeButton({ hidden, onToggle }: { hidden: boolean; onToggle: () => void }) {
+  const Icon = hidden ? EyeOff : Eye;
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={hidden ? "Mostrar" : "Ocultar"}
+      className="rounded p-1 text-white/50 hover:text-white"
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  );
+}
+
+/** Venue choices for a panel. Same options as the flyer page. */
+const VENUE_OPTIONS: { id: VenueMode; label: string }[] = [
+  { id: "mirador", label: "MiradorTEC" },
+  { id: "text", label: "Texto libre" },
+  { id: "logo", label: "Subir logo" },
+  { id: "none", label: "Sin lugar" },
+];
+
+function readFileAsDataUrl(file: File, done: (src: string) => void) {
+  const reader = new FileReader();
+  reader.onload = () => done(String(reader.result));
+  reader.readAsDataURL(file);
+}
 
 function PanelCard({
   brand,
@@ -597,6 +634,12 @@ function PanelCard({
   /** Viewport y after stacking, or undefined before the page has reported this preview. */
   floatTop: number | undefined;
 }) {
+  const venue: VenueData = panel.text?.venue ?? FLYER_DEFAULTS[brand].venue;
+  const setVenue = (patch: Partial<VenueData>) =>
+    onChange({ text: { ...panel.text, venue: { ...venue, ...patch } } });
+  const isHidden = (k: FlyerFieldKey) => !!panel.hidden?.[k];
+  const toggleHidden = (k: FlyerFieldKey) => onChange({ hidden: { ...panel.hidden, [k]: !panel.hidden?.[k] } });
+
   // Each panel keeps its own preview state. Hidden by default.
   const [showPreview, setShowPreview] = useState(false);
   const [previewSide, setPreviewSide] = useState<"left" | "right">("right");
@@ -731,7 +774,10 @@ function PanelCard({
         <div className="grid gap-3 sm:grid-cols-2">
           {PANEL_TEXT_FIELDS.map(([key, label]) => (
             <label key={key} className="block text-xs text-[var(--muted)]">
-              {label}
+              <span className="mb-1 flex items-center justify-between">
+                {label}
+                <EyeButton hidden={isHidden(HIDDEN_KEY[key])} onToggle={() => toggleHidden(HIDDEN_KEY[key])} />
+              </span>
               <input
                 value={panel.text?.[key] ?? ""}
                 placeholder={FLYER_DEFAULTS[brand][key]}
@@ -740,6 +786,36 @@ function PanelCard({
               />
             </label>
           ))}
+        </div>
+        <div className="mt-3">
+          <span className="mb-1 flex items-center justify-between text-xs uppercase tracking-wider text-[var(--muted)]">
+            Lugar
+            <EyeButton hidden={isHidden("venue")} onToggle={() => toggleHidden("venue")} />
+          </span>
+          <Chips
+            options={VENUE_OPTIONS}
+            value={venue.mode}
+            onChange={(id) => setVenue({ mode: id as VenueMode })}
+          />
+          {venue.mode === "text" && (
+            <input
+              value={venue.text}
+              onChange={(e) => setVenue({ text: e.target.value })}
+              placeholder="Texto del lugar"
+              className="mt-2 min-h-11 w-full rounded-md border border-white/10 bg-[#0e0e18] px-3 py-2 text-base text-white outline-none placeholder:text-white/30 focus:border-[var(--gamer-purple)] sm:text-sm"
+            />
+          )}
+          {venue.mode === "logo" && (
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) readFileAsDataUrl(file, (src) => setVenue({ mode: "logo", logoSrc: src }));
+              }}
+              className="mt-2 text-base text-[var(--text-secondary)] sm:text-sm"
+            />
+          )}
         </div>
         <p className="mt-2 text-xs text-[var(--muted)]">Vacío usa el texto de la marca (en gris).</p>
       </div>

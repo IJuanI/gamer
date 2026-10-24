@@ -1,5 +1,5 @@
 import type { FlyerBrand } from "@/lib/flyer-brands";
-import type { EventVariant, FlyerBackground, FlyerKind, InfographicVariant } from "@/lib/flyer-kinds";
+import type { EventVariant, FlyerBackground, FlyerHidden, FlyerKind, InfographicVariant, VenueData } from "@/lib/flyer-kinds";
 import type { Direction, TransitionId } from "@/lib/story-transitions";
 
 /** What a panel shows. Each option maps to one flyer kind and variant. */
@@ -61,6 +61,8 @@ export interface PanelText {
   subtitle?: string;
   dateText?: string;
   city?: string;
+  /** Full venue override for this panel (MiradorTEC, free text, or uploaded logo). */
+  venue?: VenueData;
 }
 
 export interface StoryPanel {
@@ -68,6 +70,8 @@ export interface StoryPanel {
   content: ContentId;
   /** Per-panel copy. Overrides the brand defaults for the fields it sets. */
   text?: PanelText;
+  /** Components hidden on this panel (eye toggles). Unset means everything shows. */
+  hidden?: FlyerHidden;
   durationMs: number;
   /** Length of the transition that brings this panel in. */
   transitionMs: number;

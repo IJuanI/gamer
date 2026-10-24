@@ -234,7 +234,7 @@ function PanelFlyer({ brand, panel, local, now }: { brand: FlyerBrand; panel: St
         data={panelFlyerData(brand, panel)}
         format={FORMAT}
         now={now}
-        hidden={{}}
+        hidden={panel.hidden ?? {}}
       />
     </StoryMotionContext.Provider>
   );
