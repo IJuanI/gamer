@@ -26,6 +26,7 @@ import {
   type EntranceId,
   type RevealId,
   type StoryConfig,
+  type PanelText,
   type StoryPanel,
   type TransitionFx,
 } from "@/lib/story-model";
@@ -40,7 +41,7 @@ import {
   type Direction,
   type TransitionId,
 } from "@/lib/story-transitions";
-import { BACKGROUNDS, type FlyerBackground } from "@/lib/flyer-kinds";
+import { BACKGROUNDS, FLYER_DEFAULTS, type FlyerBackground } from "@/lib/flyer-kinds";
 import { useFitWidth } from "@/lib/use-fit-width";
 
 export const dynamic = "force-dynamic";
@@ -561,6 +562,15 @@ export default function AdminStoryPage() {
   );
 }
 
+/** Text fields a panel can override, with their labels. */
+const PANEL_TEXT_FIELDS: [keyof PanelText, string][] = [
+  ["eyebrow", "Etiqueta"],
+  ["title", "Título"],
+  ["subtitle", "Subtítulo"],
+  ["dateText", "Fecha"],
+  ["city", "Ciudad"],
+];
+
 function PanelCard({
   brand,
   index,
@@ -714,6 +724,24 @@ function PanelCard({
             />
           </div>
         )}
+      </div>
+
+      <div className={compact ? "sm:col-span-2" : undefined}>
+        <p className="mb-2 text-xs uppercase tracking-wider text-[var(--muted)]">Textos de este panel</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {PANEL_TEXT_FIELDS.map(([key, label]) => (
+            <label key={key} className="block text-xs text-[var(--muted)]">
+              {label}
+              <input
+                value={panel.text?.[key] ?? ""}
+                placeholder={FLYER_DEFAULTS[brand][key]}
+                onChange={(e) => onChange({ text: { ...panel.text, [key]: e.target.value } })}
+                className="mt-1 min-h-11 w-full rounded-md border border-white/10 bg-[#0e0e18] px-3 py-2 text-base text-white outline-none placeholder:text-white/30 focus:border-[var(--gamer-purple)] sm:text-sm"
+              />
+            </label>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-[var(--muted)]">Vacío usa el texto de la marca (en gris).</p>
       </div>
 
       <div className={compact ? "sm:col-span-2" : undefined}>
